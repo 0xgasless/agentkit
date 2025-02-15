@@ -57,6 +57,7 @@ export interface SmartAgentOptions extends PublicAgentOptions {
   accountPath?: number;
   privateKey?: `0x${string}`;
   apiKey: string;
+  cmcApiKey?: string;
 }
 
 export class Agentkit {

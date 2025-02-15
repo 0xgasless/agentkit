@@ -20,7 +20,7 @@ import {
   fetchTokenDetails,
 } from "./services";
 import { TokenABI } from "./constants";
-import { AgentkitAction, ActionSchemaAny } from "./agentkit";
+import { AgentkitAction, ActionSchemaAny, Agentkit } from "./agentkit";
 
 const GET_BALANCE_PROMPT = `
 This tool will get the balance of the smart account associated with the wallet. 
@@ -406,6 +406,149 @@ export class GetTokenDetailsAction implements AgentkitAction<typeof GetTokenDeta
   public smartAccountRequired = true;
 }
 
+const GET_ADDRESS_PROMPT = `
+This tool will return the smart account address associated with the current wallet.
+The address returned is the counterfactual address of the smart account that will be used for transactions.
+`;
+
+export const GetAddressInput = z
+  .object({})
+  .strip()
+  .describe("No inputs needed - returns the smart account address");
+
+/**
+ * Gets the smart account address.
+ *
+ * @param wallet - The smart account to get the address for.
+ * @returns A message containing the smart account address.
+ */
+export async function getSmartAccountAddress(agentkit: Agentkit): Promise<string> {
+  try {
+    const address = await agentkit.getAddress();
+    return `Smart Account Address: ${address}`;
+  } catch (error) {
+    return `Error getting smart account address: ${error}`;
+  }
+}
+
+/**
+ * Get smart account address action.
+ */
+export class GetAddressAction implements AgentkitAction<typeof GetAddressInput> {
+  public name = "get_address";
+  public description = GET_ADDRESS_PROMPT;
+  public argsSchema = GetAddressInput;
+  public func = async (
+    wallet: ZeroXgaslessSmartAccount,
+    _args: z.infer<typeof GetAddressInput>,
+  ) => {
+    const address = await wallet.getAddress();
+    return `Smart Account Address: ${address}`;
+  };
+  public smartAccountRequired = true;
+}
+
+const TOKEN_ANALYSIS_PROMPT = `
+This tool provides comprehensive token analysis using CoinMarketCap data. It can:
+- Get latest cryptocurrency listings and market data
+- Fetch detailed token information and quotes
+- Show upcoming airdrops
+- Display market pairs and trading information
+- Get global market metrics
+
+Required Setup:
+- Set CMC_API_KEY environment variable with your CoinMarketCap API key
+
+Input options:
+- type: Type of analysis ('listings', 'quotes', 'info', 'airdrops', 'marketPairs', 'global')
+- symbol: Token symbol (e.g., 'BTC', 'ETH')
+- limit: Number of results (default: 10)
+
+Note: You must have a valid CoinMarketCap API key set in your environment variables as CMC_API_KEY.
+`;
+
+export const TokenAnalysisInput = z
+  .object({
+    type: z.enum(["listings", "quotes", "info", "airdrops", "marketPairs", "global"]),
+    symbol: z.string().optional(),
+    limit: z.number().optional().default(10),
+  })
+  .strip()
+  .describe("Instructions for analyzing token data from CoinMarketCap");
+
+interface CoinData {
+  name: string;
+  symbol: string;
+  quote: {
+    USD: {
+      price: number;
+    };
+  };
+}
+
+/**
+ * Analyzes token data using CoinMarketCap API.
+ */
+export async function analyzeToken(args: z.infer<typeof TokenAnalysisInput>): Promise<string> {
+  try {
+    const api = axios.create({
+      baseURL: "https://pro-api.coinmarketcap.com/v1",
+      headers: {
+        "X-CMC_PRO_API_KEY": process.env.CMC_API_KEY,
+        Accept: "application/json",
+      },
+    });
+
+    switch (args.type) {
+      case "listings": {
+        const response = await api.get("/cryptocurrency/listings/latest", {
+          params: { limit: args.limit },
+        });
+        const listings = response.data.data.map(
+          (coin: CoinData) => `${coin.name} (${coin.symbol}): $${coin.quote.USD.price.toFixed(2)}`,
+        );
+        return `Latest Cryptocurrency Listings:\n${listings.join("\n")}`;
+      }
+
+      case "quotes": {
+        if (!args.symbol) throw new Error("Symbol is required for quotes");
+        const response = await api.get("/cryptocurrency/quotes/latest", {
+          params: { symbol: args.symbol },
+        });
+        const quote = response.data.data[args.symbol].quote.USD;
+        return `
+          ${args.symbol} Quote:
+          Price: $${quote.price.toFixed(2)}
+          24h Change: ${quote.percent_change_24h.toFixed(2)}%
+          Market Cap: $${quote.market_cap.toFixed(0)}
+          Volume 24h: $${quote.volume_24h.toFixed(0)}
+        `;
+      }
+
+      // Add other cases for different analysis types...
+
+      default:
+        return `Unsupported analysis type: ${args.type}`;
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      return `Error analyzing token: ${error.message}`;
+    }
+    return "Unknown error occurred during token analysis";
+  }
+}
+
+/**
+ * Token analysis action.
+ */
+export class TokenAnalysisAction implements AgentkitAction<typeof TokenAnalysisInput> {
+  public name = "analyze_token";
+  public description = TOKEN_ANALYSIS_PROMPT;
+  public argsSchema = TokenAnalysisInput;
+  public func = analyzeToken;
+  public smartAccountRequired = true;
+}
+
 /**
  * Retrieves all AgentkitAction instances.
  * WARNING: All new AgentkitAction classes must be instantiated here to be discovered.
@@ -419,6 +562,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SwapAction(),
     new CreateWalletAction(),
     new GetTokenDetailsAction(),
+    new GetAddressAction(),
+    new TokenAnalysisAction(),
   ];
 }
 

@@ -1,13 +1,12 @@
 {
   "name": "@0xgasless/agentkit",
   "description": "0xGasless Agentkit - Gasless transactions and account abstraction toolkit",
-  "repository": "https://github.com/0xgasless/agentkit",
-  "version": "0.0.3",
-  "author": {
-    "name": "Permissionless Puter",
-    "email": "puter@prmsnls.xyz",
-    "url": "https://bento.me/puter"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xgasless/agentkit.git"
   },
+  "version": "0.0.3",
+  "author": "Permissionless Puter <puter@prmsnls.xyz> (https://bento.me/puter)",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -16,10 +15,10 @@
   ],
   "scripts": {
     "build": "tsc",
+    "test": "bun run src/test.ts",
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "check": "tsc --noEmit",
-    "test": "bunx jest --no-cache --testMatch='**/*_test.ts'",
     "test:dry-run": "bun install && bun ci && bun publish --dry-run",
     "test:e2e": "bunx jest --no-cache --testMatch=**/e2e.ts --coverageThreshold '{}'",
     "test:types": "tsd --files src/tests/types.test-d.ts",
@@ -28,10 +27,13 @@
     "docs:serve": "bunx serve ./docs",
     "dev": "bun link && concurrently \"tsc --watch\" \"tsc-alias -w\"",
     "build:types": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
-    "deploy": "bun run format && bun run lint && bun run clean && bun run build:types && bun run docs"
+    "deploy": "bun run format && bun run lint && bun run clean && bun run build:types && bun run docs && npm publish --access public"
   },
   "dependencies": {
     "@0xgasless/smart-account": "latest",
+    "@langchain/core": "^0.3.39",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "merkletreejs": "^0.4.1",
     "viem": "2",
     "zod": "^3.23.8"
@@ -53,5 +55,9 @@
       "types": "./dist/types/index.d.ts",
       "default": "./dist/index.js"
     }
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/0xgasless/agentkit/issues"
+  },
+  "homepage": "https://github.com/0xgasless/agentkit#readme"
 }
