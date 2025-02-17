@@ -57,6 +57,7 @@ export interface SmartAgentOptions extends PublicAgentOptions {
   accountPath?: number;
   privateKey?: `0x${string}`;
   apiKey: string;
+  cmcApiKey?: string;
 }
 
 export class Agentkit {
@@ -177,5 +178,9 @@ export class Agentkit {
       throw new Error("Smart account not configured");
     }
     return await this.smartAccount.getAddress();
+  }
+
+  public async getProvider() {
+    return this.smartAccount?.rpcProvider;
   }
 }

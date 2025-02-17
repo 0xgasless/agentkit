@@ -72,13 +72,14 @@ type ActionSchemaAny = z.ZodObject<any, any, any, any>;
  * export 0xGASLESS_API_KEY="your-0xgasless-api-key"
  * export 0xGASLESS_CHAIN_ID="your-0xgasless-chain-id"
  * export 0xGASLESS_PRIVATE_KEY="your-0xgasless-private-key"
+ * export CMC_API_KEY = "your-coinmarketcap-api-key";
+ *
  *
  * Optional:
  * export 0xGASLESS_MNEMONIC_PHRASE="your-0xgasless-mnemonic-phrase"
  * export 0xGASLESS_RPC_URL="your-0xgasless-rpc-url"
  * ```
  */
-
 export class AgentkitTool<TActionSchema extends ActionSchemaAny> extends StructuredTool {
   /**
    * Schema definition for the tool's input
