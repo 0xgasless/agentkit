@@ -32,6 +32,9 @@
   "dependencies": {
     "@0xgasless/smart-account": "latest",
     "@langchain/core": "^0.3.39",
+    "@uniswap/sdk-core": "^7.5.0",
+    "@uniswap/v3-periphery": "^1.4.4",
+    "@uniswap/v3-sdk": "^3.24.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "merkletreejs": "^0.4.1",

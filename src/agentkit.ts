@@ -179,4 +179,8 @@ export class Agentkit {
     }
     return await this.smartAccount.getAddress();
   }
+
+  public async getProvider() {
+    return this.smartAccount?.rpcProvider;
+  }
 }

@@ -4,13 +4,11 @@ import {
   parseEther,
   parseUnits,
   encodeFunctionData,
-  numberToHex,
-  concat,
-  size,
-  getContract,
-  PublicClient,
 } from "viem";
 import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account";
+import { Token, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
+import { SwapRouter, Trade, Route, FeeAmount } from '@uniswap/v3-sdk';
+import { getPool, getUniswapV3Pool, WRAPPED_NATIVE_TOKEN } from './uniswap';
 
 import {
   getWalletBalance,
@@ -152,9 +150,8 @@ export async function smartTransfer(
     if (!receipt) {
       return "Transaction failed";
     }
-    return `Successfully transferred ${args.amount} ${
-      isEth ? "ETH" : `tokens from contract ${args.tokenAddress}`
-    } to ${args.destination}.\nTransaction hash: ${receipt.transactionHash}`;
+    return `Successfully transferred ${args.amount} ${isEth ? "ETH" : `tokens from contract ${args.tokenAddress}`
+      } to ${args.destination}.\nTransaction hash: ${receipt.transactionHash}`;
   } catch (error) {
     return `Error transferring the asset: ${error}`;
   }
@@ -172,7 +169,7 @@ export class SmartTransferAction implements AgentkitAction<typeof SmartTransferI
 }
 
 const SWAP_PROMPT = `
-This tool will swap tokens using 1inch Protocol.
+This tool will swap tokens using Uniswap V3 Protocol.
 
 It takes the following inputs:
 - fromTokenAddress: The address of the token to swap from (use 'eth' for native ETH)
@@ -181,22 +178,13 @@ It takes the following inputs:
 - slippageTolerance: Maximum acceptable slippage in basis points (e.g., 100 = 1%)
 
 Important notes:
-- Swaps are only available on supported networks: Avalanche C-Chain, BASE, BNB chain
+- Swaps are available on supported networks with Uniswap V3 deployment
 - When swapping native ETH, ensure sufficient balance for the swap AND gas costs
 - Slippage tolerance defaults to 1% if not specified
 `;
 
-const ZERO_EX_API_KEY = "598c2ec5-1ba9-4d18-9ea3-44dc8107992b";
-const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
+const UNISWAP_V3_ROUTER = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 
-const headers = {
-  "0x-api-key": ZERO_EX_API_KEY,
-  "0x-version": "v2",
-};
-
-/**
- * Input schema for swap action.
- */
 export const SwapInput = z
   .object({
     fromTokenAddress: z.string().describe("The address of the token to swap from"),
@@ -211,7 +199,7 @@ export const SwapInput = z
   .describe("Instructions for swapping tokens");
 
 /**
- * Swaps tokens using 1inch Protocol.
+ * Swaps tokens using Uniswap V3 Protocol.
  *
  * @param wallet - The smart account to swap from.
  * @param args - The input arguments for the action.
@@ -223,85 +211,104 @@ export async function swap(
 ): Promise<string> {
   try {
     const walletAddress = await wallet.getAddress();
+    console.log('Smart Account Address:', walletAddress);
+
     const chainId = await wallet.rpcProvider.getChainId();
     const isFromEth = args.fromTokenAddress.toLowerCase() === "eth";
 
-    // Get token decimals and calculate amount with proper decimals
-    const decimals = isFromEth ? 18 : await getDecimals(wallet, args.fromTokenAddress);
-    const amountWithDecimals = parseUnits(args.amount, Number(decimals)).toString();
-
-    // Check and set allowance for Permit2 if needed
-    if (!isFromEth) {
-      const tokenContract = getContract({
-        address: args.fromTokenAddress as `0x${string}`,
-        abi: TokenABI,
-        client: wallet.rpcProvider,
-      });
-
-      const currentAllowance = (await tokenContract.read.allowance([
-        walletAddress as `0x${string}`,
-        PERMIT2_ADDRESS as `0x${string}`,
-      ])) as bigint;
-
-      if (currentAllowance < BigInt(amountWithDecimals)) {
-        const approveData = encodeFunctionData({
-          abi: TokenABI,
-          functionName: "approve",
-          args: [PERMIT2_ADDRESS, amountWithDecimals],
-        });
-
-        await sendTransaction(wallet, {
-          to: args.fromTokenAddress,
-          data: approveData,
-          value: 0n,
-        });
-      }
-    }
-
-    // Get quote with permit2
-    const quoteParams = new URLSearchParams({
-      chainId: chainId.toString(),
-      sellToken: isFromEth ? "ETH" : args.fromTokenAddress,
-      buyToken: args.toTokenAddress,
-      sellAmount: amountWithDecimals,
-      takerAddress: walletAddress,
-      slippagePercentage: (args.slippageTolerance / 10000).toString(),
+    // Get token decimals and details
+    const fromDecimals = isFromEth ? 18 : await getDecimals(wallet, args.fromTokenAddress);
+    const toDecimals = await getDecimals(wallet, args.toTokenAddress);
+    
+    console.log('Swap Details:', {
+      fromToken: args.fromTokenAddress,
+      toToken: args.toTokenAddress,
+      amount: args.amount,
+      fromDecimals,
+      toDecimals
     });
 
-    const quoteResponse = await axios.get(
-      `https://api.0x.org/swap/permit2/quote?${quoteParams.toString()}`,
-      { headers },
+    // Create token instances
+    const fromToken = new Token(
+      chainId,
+      isFromEth ? WRAPPED_NATIVE_TOKEN[chainId] : args.fromTokenAddress,
+      Number(fromDecimals)
     );
+    const toToken = new Token(chainId, args.toTokenAddress, Number(toDecimals));
 
-    let txData = quoteResponse.data.transaction.data;
+    // Calculate amount with decimals
+    const amountIn = parseUnits(args.amount, Number(fromDecimals));
 
-    // If permit2 signature is required, sign and append to transaction data
-    if (quoteResponse.data.permit2?.eip712) {
-      const signature = await wallet.signTypedData(quoteResponse.data.permit2.eip712);
+    // Get pool with best liquidity
+    const { pool } = await getUniswapV3Pool(wallet, fromToken, toToken, chainId);
 
-      // Append signature length (32 bytes) and signature to transaction data
-      const signatureLengthHex = numberToHex(size(signature), {
-        signed: false,
-        size: 32,
-      });
-
-      txData = concat([txData, signatureLengthHex as `0x${string}`, signature as `0x${string}`]);
-    }
-
-    // Execute swap transaction with permit2 signature
-    const receipt = await sendTransaction(wallet, {
-      to: quoteResponse.data.transaction.to,
-      data: txData,
-      value: BigInt(isFromEth ? amountWithDecimals : 0),
+    // Create route and trade
+    const route = new Route([pool], fromToken, toToken);
+    const trade = await Trade.createUncheckedTrade({
+      route,
+      inputAmount: CurrencyAmount.fromRawAmount(fromToken, amountIn.toString()),
+      outputAmount: CurrencyAmount.fromRawAmount(toToken, '0'),
+      tradeType: TradeType.EXACT_INPUT,
     });
 
-    return `Successfully swapped ${args.amount} ${isFromEth ? "ETH" : args.fromTokenAddress} 
-            to ${args.toTokenAddress}. TX: ${receipt.transactionHash}`;
+    // Prepare swap parameters
+    const slippageTolerance = new Percent(args.slippageTolerance, 10000);
+    const deadline = Math.floor(Date.now() / 1000) + 1800; // 30 minutes
+
+    const methodParameters = SwapRouter.swapCallParameters(trade, {
+      slippageTolerance,
+      recipient: walletAddress,
+      deadline,
+    });
+
+    // Execute swap
+    const receipt = await sendTransaction(wallet, {
+      to: UNISWAP_V3_ROUTER,
+      data: methodParameters.calldata,
+      value: BigInt(isFromEth ? amountIn.toString() : 0),
+    });
+
+    // After successful swap, get transaction details
+    const txHash = receipt.transactionHash;
+    const receiptDetails = await wallet.rpcProvider.waitForTransactionReceipt({
+      hash: txHash as `0x${string}`
+    });
+
+    // Log detailed transaction info
+    console.log('Transaction Details:', {
+      hash: receiptDetails.transactionHash,
+      from: receiptDetails.from,
+      to: receiptDetails.to,
+      status: receiptDetails.status === 'success' ? 'Success' : 'Failed',
+      logs: receiptDetails.logs.map(log => ({
+        address: log.address,
+        topics: log.topics,
+        data: log.data
+      }))
+    });
+
+    // Parse transfer events
+    const transfers = receiptDetails.logs
+      .filter(log => log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') // Transfer event
+      .map(log => ({
+        token: log.address,
+        from: `0x${log.topics[1]?.slice(26)}`,
+        to: `0x${log.topics[2]?.slice(26)}`,
+        amount: BigInt(log.data).toString()
+      }));
+
+    console.log('Token Transfers:', transfers);
+
+    return `Swap completed successfully!\n
+            Transaction Hash: ${receiptDetails.transactionHash}\n
+            From Token: ${args.fromTokenAddress}\n
+            To Token: ${args.toTokenAddress}\n
+            Amount: ${args.amount}\n
+            Transfers: ${JSON.stringify(transfers, null, 2)}`;
+
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.data?.reason) {
-      return `Swap failed: ${error.response.data.reason}`;
-    }
-    return `Swap failed: ${error instanceof Error ? error.message : error}`;
+    console.error('Swap error:', error);
+    return `Swap failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
   }
 }
 
