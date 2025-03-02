@@ -133,7 +133,7 @@ export async function swap(
     });
 
     return `Successfully swapped ${args.amount} ${isFromEth ? "ETH" : args.fromTokenAddress} 
-            to ${args.toTokenAddress}. TX: ${receipt.transactionHash}`;
+            to ${args.toTokenAddress}. TX: ${receipt.userOpHash}`;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data?.reason) {
       return `Swap failed: ${error.response.data.reason}`;

@@ -14,13 +14,14 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@0xgasless/agentkit": "latest",
+    "@0xgasless/agentkit": "link:@0xgasless/agentkit",
     "@0xgasless/smart-account": "^0.0.13",
     "@langchain/core": "^0.3.19",
     "@langchain/langgraph": "^0.2.21",
     "@langchain/openai": "^0.3.14",
     "axios": "^1.7.9",
     "dotenv": "^16.4.5",
+    "fetch": "^1.1.0",
     "merkletreejs": "^0.4.1",
     "tslib": "^2.8.1",
     "viem": "^2.22.17",

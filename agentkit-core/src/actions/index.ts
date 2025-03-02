@@ -4,6 +4,8 @@ import { SmartTransferAction } from "./smartTransferAction";
 import { GetTokenDetailsAction } from "./getTokenDetailsAction";
 import { CheckTransactionAction } from "./checkTransactionAction";
 import { AgentkitAction, ActionSchemaAny } from "../agentkit";
+import { NetworkAnalysisAction } from "./codex/networkAnalysis";
+import { TokenAnalysisAction } from "./codex/tokenAnalysis";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -12,6 +14,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SmartTransferAction(),
     new GetTokenDetailsAction(),
     new CheckTransactionAction(),
+    new NetworkAnalysisAction(),
+    new TokenAnalysisAction(),
   ];
 }
 

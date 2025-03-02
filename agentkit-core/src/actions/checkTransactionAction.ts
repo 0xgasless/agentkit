@@ -52,7 +52,7 @@ export async function checkTransactionStatus(
     });
 
     switch (status.status) {
-      case 'confirmed':
+      case "confirmed":
         return `
 Transaction confirmed!
 Block Number: ${status.blockNumber}
@@ -60,14 +60,14 @@ Block Confirmations: ${status.blockConfirmations}
 Receipt: ${JSON.stringify(status.receipt, null, 2)}
         `;
 
-      case 'pending':
+      case "pending":
         return `
 Transaction is still pending.
-${status.error ? `Note: ${status.error}` : ''}
+${status.error ? `Note: ${status.error}` : ""}
 You can try checking again with a longer maxDuration.
         `;
 
-      case 'failed':
+      case "failed":
         return `
 Transaction failed!
 Error: ${status.error}
@@ -90,4 +90,4 @@ export class CheckTransactionAction implements AgentkitAction<typeof CheckTransa
   public argsSchema = CheckTransactionInput;
   public func = checkTransactionStatus;
   public smartAccountRequired = true;
-} 
+}
