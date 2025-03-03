@@ -23,7 +23,7 @@
     "test:e2e": "bunx jest --no-cache --testMatch=**/e2e.ts --coverageThreshold '{}'",
     "test:types": "tsd --files src/tests/types.test-d.ts",
     "clean": "rm -rf dist && rm -rf docs",
-    "docs": "bunx --yes typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
+    "docs": "bunx typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
     "docs:serve": "bunx serve ./docs",
     "dev": "bun link && concurrently \"tsc --watch\" \"tsc-alias -w\"",
     "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
@@ -33,6 +33,7 @@
     "@0xgasless/smart-account": "latest",
     "@langchain/core": "^0.3.40",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "merkletreejs": "^0.4.1",
     "viem": "2",
     "zod": "^3.23.8"

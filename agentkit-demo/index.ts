@@ -1,5 +1,4 @@
 import { Agentkit, AgentkitToolkit } from "@0xgasless/agentkit";
-// import { Agentkit, AgentkitToolkit } from "@0xgas/agentkit";
 import { HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
@@ -75,6 +74,14 @@ async function initializeAgent() {
         - If the user doesn't specify tokens, just call the tool with no parameters to get the ETH balance
         - If the user mentions specific tokens by name (like "USDC" or "USDT"), use the tokenSymbols parameter
         - Only use tokenAddresses parameter if the user specifically provides contract addresses
+        
+        You can also perform debridge swaps. When someone asks to swap tokens, use the debridge_swap tool. This allows cross-chain swaps between supported networks like Avalanche, BNB Chain, Metis, Base, Fantom, and Moonbeam.
+        
+        For debridge_swap, you need:
+        - Source token (address or symbol) with the chain name (e.g., "USDC on BSC")
+        - Source amount (or 'auto')
+        - Destination token (address or symbol) with the chain name (e.g., "USDC on Avalanche")
+        - Recipient address
         
         If someone asks you to do something you can't do with your currently available tools, you must say so.
         Be concise and helpful with your responses.

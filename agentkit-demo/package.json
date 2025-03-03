@@ -14,7 +14,7 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@0xgasless/agentkit": "latest",
+    "@0xgasless/agentkit": "link:@0xgasless/agentkit",
     "@0xgasless/smart-account": "^0.0.13",
     "@langchain/core": "^0.3.19",
     "@langchain/langgraph": "^0.2.21",

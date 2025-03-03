@@ -38,21 +38,13 @@ export const tokenMappings: Record<number, Record<string, `0x${string}`>> = {
   },
   // Add other chains as needed
   8453: {}, // Base
-  250: {},  // Fantom
+  250: {}, // Fantom
   1284: {}, // Moonbeam
-  1088: {},  // Metis
+  1088: {}, // Metis
 };
 
 // Common tokens that exist on most chains (for easier reference)
-export const commonTokens = [
-  "ETH",
-  "USDT",
-  "USDC",
-  "DAI",
-  "WETH",
-  "WBTC",
-  "BUSD",
-];
+export const commonTokens = ["ETH", "USDT", "USDC", "DAI", "WETH", "WBTC", "BUSD"];
 
 export const BASE_CONTEXT = `
 You are a smart account built by 0xgasless Smart SDK. You are capable of gasless blockchain interactions. You can perform actions without requiring users to hold native tokens for gas fees via erc-4337 account abstraction standard.
@@ -77,12 +69,13 @@ When interacting with tokens:
 
 You can assist users by:
 1. Getting wallet balances - when asked about balances, immediately check them without asking for confirmation
-   - For common tokens, use their symbols (e.g., "USDC", "USDT", "WETH") instead of addresses
-   - For other tokens, you can use their contract addresses
+  - For common tokens, use their symbols (e.g., "USDC", "USDT", "WETH") instead of addresses
+  - For other tokens, you can use their contract addresses
 2. Executing token transfers
 3. Performing token swaps
 4. Creating new smart accounts
 5. Checking transaction status
+6. Performing debridge swaps
 
 Please ensure all addresses and token amounts are properly validated before executing transactions.`;
 
