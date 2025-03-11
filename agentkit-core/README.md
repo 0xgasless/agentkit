@@ -19,9 +19,8 @@
 ## Supported Networks
 
 - Base (8453)
-- Fantom (250)
+- Sonic (146)
 - Moonbeam (1284)
-- Metis (1088)
 - Avalanche (43114)
 - BSC (56)
 
@@ -273,13 +272,14 @@ if (require.main === module) {
 ## Available Actions
 
 - `GetBalanceAction`: Check ETH and token balances
+- `GetSmartAccountAddressAction`: Get the smart account address
 - `SmartTransferAction`: Transfer tokens gaslessly
-- `SwapAction`: Perform token swaps without gas
+- `SwapAction`: Perform token swaps without gas (at Debridge Swap)
 - `DeploySmartTokenAction`: Deploy new ERC20 tokens
 
 ## Documentation
 
-- [AgentKit Documentation](https://docs.0xgasless.com/docs)
+- [AgentKit Documentation](https://docs.0xgasless.com)
 
 ## License
 
