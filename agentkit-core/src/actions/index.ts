@@ -5,6 +5,7 @@ import { CheckTransactionAction } from "./checkTransactionAction";
 import { SmartSwapAction } from "./smartSwapAction";
 import { AgentkitAction, ActionSchemaAny } from "../agentkit";
 import { GetAddressAction } from "./getAddressAction";
+import { CreateFourmemeTokenAction } from "./createFourmemeTokenAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -14,6 +15,7 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new CheckTransactionAction(),
     new SmartTransferAction(),
     new SmartSwapAction(),
+    new CreateFourmemeTokenAction(),
   ];
 }
 
