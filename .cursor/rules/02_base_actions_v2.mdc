@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Agentkit V2 - BaseActions
+
+The `agentkit-core/src/BaseActions/` directory is central to V2 of the Agentkit SDK. It provides foundational building blocks for more dynamic and flexible agent interactions with financial systems.
+
+Key components in this directory include:
+
+*   `[EncodeFunctionData.ts](mdc:agentkit-core/src/BaseActions/EncodeFunctionData.ts)`: Likely used for encoding function calls to interact with smart contracts.
+*   `[SendTransaction.ts](mdc:agentkit-core/src/BaseActions/SendTransaction.ts)`: Handles the process of sending transactions to the blockchain.
+*   `[ReadContract.ts](mdc:agentkit-core/src/BaseActions/ReadContract.ts)`: Facilitates reading data from smart contracts.
+*   `[GetBalance.ts](mdc:agentkit-core/src/BaseActions/GetBalance.ts)`: Provides functionality to fetch account balances.
+*   `[SignMessage.ts](mdc:agentkit-core/src/BaseActions/SignMessage.ts)`: Allows agents to sign messages, a common requirement for authentication and proving ownership.
+*   `[FomatHelpers.ts](mdc:agentkit-core/src/BaseActions/FomatHelpers.ts)`: Seems to contain utility functions for formatting data related to transactions or blockchain interactions.
+*   `[GetStatusFromUserop.ts](mdc:agentkit-core/src/BaseActions/GetStatusFromUserop.ts)`: This suggests integration with ERC-4337 UserOperations for account abstraction, which is a key part of gasless transactions.
+
+Understanding these base actions is crucial for developing advanced agent capabilities within Agentkit V2.
+The `[index.ts](mdc:agentkit-core/src/BaseActions/index.ts)` file in this directory likely exports these base actions for use in other parts of the SDK.

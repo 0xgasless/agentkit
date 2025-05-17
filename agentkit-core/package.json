@@ -2,7 +2,7 @@
   "name": "@0xgasless/agentkit",
   "description": "0xGasless Agentkit - Gasless transactions and account abstraction toolkit",
   "repository": "https://github.com/0xgasless/agentkit",
-  "version": "0.0.9",
+  "version": "0.0.12",
   "author": {
     "name": "Permissionless Puter",
     "email": "puter@prmsnls.xyz",
