@@ -5,18 +5,37 @@ import {
   BalancePayload,
   UserOpResponse,
   UserOpReceipt,
+  createSmartAccountClient,
 } from "@0xgasless/smart-account";
 import { TokenABI, tokenMappings } from "./constants";
-import { generatePrivateKey } from "viem/accounts";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { encodeFunctionData, getContract, parseUnits } from "viem";
 import { TransactionResponse, TransactionStatus, TokenDetails } from "./types";
 
 const DEFAULT_WAIT_INTERVAL = 5000; // 5 seconds
 const DEFAULT_MAX_DURATION = 30000; // 30 seconds
+export const isNodeLikeEnvironment =
+  typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 
-export function createWallet() {
+export async function createWallet() {
   const wallet = generatePrivateKey();
-  return wallet;
+  const account = privateKeyToAccount(wallet);
+
+  const smartAccount = await createSmartAccountClient({
+    bundlerUrl: "https://bundler.0xgasless.com/56",
+    paymasterUrl: "https://paymaster.0xgasless.com/v1/56/rpc/YOUR_API_KEY",
+    chainId: 56,
+    signer: account,
+  });
+  if (isNodeLikeEnvironment) {
+    const importedModule = await import("sqlite3");
+    const db = new importedModule.Database("keys.db");
+    db.run("INSERT INTO keys (address, private_key) VALUES (?, ?)", [
+      smartAccount.getAddress(),
+      wallet,
+    ]);
+  }
+  return smartAccount;
 }
 
 /**

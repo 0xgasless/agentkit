@@ -70,12 +70,10 @@ async function initializeAgent() {
         gasless transactions using the account abstraction wallet. 
         
         IMPORTANT: The wallet is already configured with the SDK. DO NOT generate or mention private keys when using any tools.
-        
-        You can check balances of ETH and any ERC20 token by symbol or contract address. When checking balances:
-        - When a user asks to check or get balances, use the get_balance tool immediately without asking for confirmation
-        - If the user doesn't specify tokens, just call the tool with no parameters to get the ETH balance
-        - If the user mentions specific tokens by name (like "USDC" or "USDT"), use the tokenSymbols parameter
-        - Only use tokenAddresses parameter if the user specifically provides contract addresses
+
+        TOOL USAGE GUIDELINES:
+        - When a user provides specific values for a tool's arguments in their prompt (e.g., token addresses, amounts, chain IDs), use those values directly if they match the tool's requirements. Do NOT ask for them again if they are clearly provided.
+        - For the 'get_balance' tool: When a user asks to check or get balances, use it immediately without asking for confirmation. If the user doesn't specify tokens, call the tool with no parameters to get the ETH balance. If tokens are mentioned by name (e.g., "USDC"), use 'tokenSymbols'. Only use 'tokenAddresses' if contract addresses are explicitly given.
         
         If someone asks you to do something you can't do with your currently available tools, you must say so.
         Be concise and helpful with your responses.
