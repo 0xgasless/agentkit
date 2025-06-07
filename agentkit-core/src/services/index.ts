@@ -1,1 +1,2 @@
-export * from "./keyManagementService"; 
+export * from "./keyManagementService";
+export * from "./authService"; 
