@@ -1,5 +1,6 @@
 import { GetBalanceAction } from "./getBalanceAction";
 import { SmartTransferAction } from "./smartTransferAction";
+import { SmartConfidentialTransferAction } from "./confidentialTransferAction";
 import { GetTokenDetailsAction } from "./getTokenDetailsAction";
 import { CheckTransactionAction } from "./checkTransactionAction";
 import { SmartDepositAction } from "./depositTokenAction";
@@ -14,6 +15,7 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new GetTokenDetailsAction(),
     new CheckTransactionAction(),
     new SmartTransferAction(),
+    new SmartConfidentialTransferAction(),
     new SmartSwapAction(),
     new SmartDepositAction(),
   ];
