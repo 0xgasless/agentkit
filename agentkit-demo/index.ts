@@ -1,12 +1,22 @@
-import { Agentkit, AgentkitToolkit } from "@0xgasless/agentkit";
-// import { Agentkit, AgentkitToolkit } from "@0xgas/agentkit";
-import { HumanMessage } from "@langchain/core/messages";
-import { StructuredToolInterface } from "@langchain/core/tools";
-import { MemorySaver } from "@langchain/langgraph";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { ChatOpenAI } from "@langchain/openai";
-import * as dotenv from "dotenv";
-import * as readline from "readline";
+// import { Agentkit, AgentkitToolkit } from "@0xgasless/agentkit";
+// // import { Agentkit, AgentkitToolkit } from "@0xgas/agentkit";
+// import { HumanMessage } from "@langchain/core/messages";
+// import { StructuredToolInterface } from "@langchain/core/tools";
+// import { MemorySaver } from "@langchain/langgraph";
+// import { createReactAgent } from "@langchain/langgraph/prebuilt";
+// import { ChatOpenAI } from "@langchain/openai";
+// import * as dotenv from "dotenv";
+// import * as readline from "readline";
+
+const { Agentkit, AgentkitToolkit } = require("@0xgasless/agentkit");
+// const { Agentkit, AgentkitToolkit } = require("@0xgas/agentkit");
+const { HumanMessage } = require("@langchain/core/messages");
+const { StructuredToolInterface } = require("@langchain/core/tools");
+const { MemorySaver } = require("@langchain/langgraph");
+const { createReactAgent } = require("@langchain/langgraph/prebuilt");
+const { ChatOpenAI } = require("@langchain/openai");
+const dotenv = require("dotenv");
+const readline = require("readline");
 
 dotenv.config();
 
