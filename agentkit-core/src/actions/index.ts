@@ -7,6 +7,7 @@ import { SmartDepositAction } from "./depositTokenAction";
 import { SmartSwapAction } from "./smartSwapAction";
 import { AgentkitAction, ActionSchemaAny } from "../agentkit";
 import { GetAddressAction } from "./getAddressAction";
+import  { SmartWithdrawTokenAction } from './withdrawTokenAction';
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -18,6 +19,7 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SmartConfidentialTransferAction(),
     new SmartSwapAction(),
     new SmartDepositAction(),
+    new SmartWithdrawTokenAction(),
   ];
 }
 
