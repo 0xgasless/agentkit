@@ -58,6 +58,9 @@ export interface SmartAgentOptions extends PublicAgentOptions {
   apiKey: string;
 }
 
+
+
+
 export class Agentkit {
   private smartAccount?: ZeroXgaslessSmartAccount;
 

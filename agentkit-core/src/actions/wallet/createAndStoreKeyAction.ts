@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { type AgentkitAction } from "../agentkit";
+import { type AgentkitAction } from "~/agentkit";
 import {
   generateNewViemPrivateKey,
   getAddressFromPrivateKey,
   storeKey as storeKeyInDb,
-} from "../services/keyManagementService";
+} from "~/services/keyManagementService";
 
 export const CREATE_AND_STORE_KEY_PROMPT = `
 This tool generates a new Ethereum private key and returns the associated wallet address.

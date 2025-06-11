@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
-import { AgentkitAction } from "../agentkit";
+import { AgentkitAction } from "~/agentkit";
 
 const GET_ADDRESS_PROMPT = `
 This tool retrieves the smart account address that is already configured with the SDK.
