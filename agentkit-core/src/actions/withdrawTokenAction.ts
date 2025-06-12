@@ -16,12 +16,12 @@ const SMART_WITHDRAW_TOKEN_PROMPT = `
 This tools allows you to perform withdrawal of your deposited token on Avalanche C-Chain.
 
 It takes the following inputs:
-- amount: The amount to deposit
+- amount: The amount to withdraw
 - tokenTicker: The token symbol (currently only USDC is supported)
 - destinationAddress: The address to which the withdrawal tokens will be transferred
 
 USAGE GUIDANCE:
-- Provide the amount to deposit in the input token's units
+- Provide the amount to withdraw in the input token's units
 - Provide the token symbol (currently only "USDC" is supported)
 - Provider the destination address to which the tokens will be transferred
 
@@ -95,6 +95,9 @@ export async function smartWithdrawAction(
   wallet: ZeroXgaslessSmartAccount,
   args: z.infer<typeof SmartWithdrawalTokenInput>,
 ): Promise<string> {
+  console.log(
+    `Smart Withdrawal Action: ${args.amount} ${args.tokenTicker} to ${args.destinationAddress}`,
+  );
   try {
     let withdrawalApprovalTxn: Transaction, withdrawalTokenTxn: Transaction;
     const depositTokenContractAddress = getDepositTokenContractAddress(

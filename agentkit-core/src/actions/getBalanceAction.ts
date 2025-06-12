@@ -18,6 +18,7 @@ USAGE GUIDANCE:
 - If the user doesn't specify tokens, call the tool with no parameters to get ALL token balances
 - If the user mentions specific tokens by name (like "USDC" or "USDT"), use the tokenSymbols parameter
 - Only use tokenAddresses parameter if the user specifically provides contract addresses
+- If the user asks for private or confidential balances do not use this tool
 
 Note: This action works on supported networks only (Base, Fantom, Moonbeam, Metis, Avalanche, BSC).
 `;

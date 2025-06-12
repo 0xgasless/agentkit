@@ -15,9 +15,9 @@ const GET_CONFIDETIAL_BALANCE_PROMPT = `
 This tool gets the balance of the smart account that is already configured with the SDK.
 No additional wallet setup or private key generation is needed.
 
-You can check balances in three ways:
-2. By token ticker symbols (e.g., "ETH", "USDC", "USDT", "WETH", etc.)
-3. By token contract addresses (e.g., "0x...")
+You can check balances in two ways:
+1. By token ticker symbols (e.g., "ETH", "USDC", "USDT", "WETH", etc.)
+2. By token contract addresses (e.g., "0x...")
 
 EXAMPLES:
 - "Check my confidential balance"
@@ -25,7 +25,7 @@ EXAMPLES:
 - "Check my private balance for USDC"
 
 USAGE GUIDANCE:
-- When a user asks to check deposited amounts for confidential transfer or his confidential balance, use this tool immediately without asking for confirmation
+- When a user asks to check his confidential balance, use this tool immediately without asking for confirmation
 - If the user doesn't specify tokens, call the tool with USDC and get his confidential USDC balance.
 - If the user mentions specific tokens by name (like "USDC" or "USDT"), prompt user that only USDC is supported for confidential transfer and by default use USDC as token symbol
 
@@ -239,7 +239,7 @@ export async function getConfidentialBalance(
 /**
  * Get wallet balance action.
  */
-export class GetBalanceAction implements AgentkitAction<typeof GetConfidentialBalanceInput> {
+export class GetConfidentialBalanceAction implements AgentkitAction<typeof GetConfidentialBalanceInput> {
   public name = "get_confidential_balance";
   public description = GET_CONFIDETIAL_BALANCE_PROMPT;
   public argsSchema = GetConfidentialBalanceInput;
