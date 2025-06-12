@@ -45,7 +45,7 @@ export const tokenMappings: Record<number, Record<string, `0x${string}`>> = {
 
 export const eTokenMappings: Record<number, Record<string, `0x${string}`>> = {
   43114: {
-    USDC: "0xecbe4f05955f232f4af30636845fedb9ba173abb",
+    USDC: "0x7cd958f1c47083d5911ad71fd32b856a8c77ab89",
   },
 };
 
@@ -380,7 +380,7 @@ export const Permit2Abi = [
 
 export const depositContractMappings: Record<number, Record<string, `0x${string}`>> = {
   43114: {
-    USDC: "0xed7bf74200f4f1105a6cd606f66d4db500a906fb",
+    USDC: "0x85ea5a1ae0ebbcbd015e078a08fa9cc0d00bdc93",
   },
 };
 
