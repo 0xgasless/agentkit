@@ -97,11 +97,6 @@ export async function smartConfidentialTransfer(
   args: z.infer<typeof SmartConfidentialTransferInput>,
 ): Promise<string> {
   try {
-    let confidentialTransferTxn: Transaction;
-    const depositTokenContractAddress = getDepositTokenContractAddress(
-      args.tokenTicker.toUpperCase(),
-    );
-    const tokenAddress = getTokenAddress(args.tokenTicker.toUpperCase());
     const tokenEnum = getTokenEnum();
     const chainEnum = getChainEnum(wallet.rpcProvider.chain?.id || 43114); // Default to Avalanche C-Chain if chainId is not set
     const tokenConfig: TokenConfig = {
@@ -114,7 +109,7 @@ export async function smartConfidentialTransfer(
       parseUnits(args.amount, DECIMALS as number),
       PlaintextType.uint64,
     );
-    confidentialTransferTxn = {
+    let confidentialTransferTxn: Transaction = {
       to: transferTokenTxn.to as `0x${string}`,
       data: transferTokenTxn.data,
       value: 0n, // No native currency value for token transfers

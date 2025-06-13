@@ -99,11 +99,6 @@ export async function smartWithdrawAction(
     `Smart Withdrawal Action: ${args.amount} ${args.tokenTicker} to ${args.destinationAddress}`,
   );
   try {
-    let withdrawalApprovalTxn: Transaction, withdrawalTokenTxn: Transaction;
-    const depositTokenContractAddress = getDepositTokenContractAddress(
-      args.tokenTicker.toUpperCase(),
-    );
-    const tokenAddress = getTokenAddress(args.tokenTicker.toUpperCase());
     const tokenEnum = getTokenEnum();
     const chainEnum = getChainEnum(wallet.rpcProvider.chain?.id || 43114); // Default to Avalanche C-Chain if chainId is not set
     const tokenConfig: TokenConfig = {
@@ -116,13 +111,13 @@ export async function smartWithdrawAction(
       PlaintextType.uint64,
       args.destinationAddress,
     );
-    withdrawalApprovalTxn = {
+    let withdrawalApprovalTxn: Transaction = {
       to: withdrawTxn[0].to as `0x${string}`,
       data: withdrawTxn[0].data,
       value: 0n, // No native currency value for token transfers
     };
 
-    withdrawalTokenTxn = {
+    let withdrawalTokenTxn: Transaction = {
       to: withdrawTxn[1].to as `0x${string}`,
       data: withdrawTxn[1].data,
       value: 0n, // No native currency value for token transfers

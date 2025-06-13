@@ -137,8 +137,6 @@ export async function getConfidentialBalance(
     let tokenAddresses: `0x${string}`[] = [];
     const smartAccount = await wallet.getAddress();
     const chainId = wallet.rpcProvider.chain?.id;
-    const chainEnum = getChainEnum(chainId || 43114); // Default to Avalanche C-Chain if chainId is not set
-    const tokenEnum = getTokenEnum(); // Currently only USDC is supported for confidential transfers
 
     // If no specific tokens requested, get all tokens from tokenMappings for the current chain
     if (
@@ -239,7 +237,9 @@ export async function getConfidentialBalance(
 /**
  * Get wallet balance action.
  */
-export class GetConfidentialBalanceAction implements AgentkitAction<typeof GetConfidentialBalanceInput> {
+export class GetConfidentialBalanceAction
+  implements AgentkitAction<typeof GetConfidentialBalanceInput>
+{
   public name = "get_confidential_balance";
   public description = GET_CONFIDETIAL_BALANCE_PROMPT;
   public argsSchema = GetConfidentialBalanceInput;

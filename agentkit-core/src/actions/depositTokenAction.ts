@@ -81,7 +81,6 @@ export async function smartDeposit(
   args: z.infer<typeof SmartDepositInput>,
 ): Promise<string> {
   try {
-    let approvalTxn: Transaction, depositAndWrapTxn: Transaction;
     const smartAccountAddress = (await wallet.getAccountAddress()) as `0x${string}`;
     const depositTokenContractAddress = getDepositTokenContractAddress(
       args.tokenTicker.toUpperCase(),
@@ -99,13 +98,13 @@ export async function smartDeposit(
       args: [smartAccountAddress, parseUnits(args.amount, DECIMALS as number)],
     });
 
-    approvalTxn = {
+    let approvalTxn: Transaction = {
       to: tokenAddress,
       data: approvalTxnData,
       value: 0n,
     };
 
-    depositAndWrapTxn = {
+    let depositAndWrapTxn: Transaction = {
       to: depositTokenContractAddress,
       data: depositAndWrapTxnData,
       value: 0n,
