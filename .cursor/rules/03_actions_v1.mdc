@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Agentkit Actions (V1 Style)
+
+The `agentkit-core/src/actions/` directory contains more specific, higher-level actions that AI agents can utilize. These might be considered V1 style actions, potentially built upon the V2 `BaseActions` or representing common use-cases.
+
+Notable actions include:
+
+*   `[smartTransferAction.ts](mdc:agentkit-core/src/actions/smartTransferAction.ts)`: For executing intelligent token transfers.
+*   `[getBalanceAction.ts](mdc:agentkit-core/src/actions/getBalanceAction.ts)`: A dedicated action to retrieve account balances.
+*   `[getTokenDetailsAction.ts](mdc:agentkit-core/src/actions/getTokenDetailsAction.ts)`: To fetch details about specific tokens.
+*   `[checkTransactionAction.ts](mdc:agentkit-core/src/actions/checkTransactionAction.ts)`: For checking the status of a transaction.
+*   `[getAddressAction.ts](mdc:agentkit-core/src/actions/getAddressAction.ts)`: To get the agent's wallet address.
+*   `smartSwapAction/`: This directory suggests functionality for performing token swaps, possibly integrating with decentralized exchanges (DEXs).
+
+The `[index.ts](mdc:agentkit-core/src/actions/index.ts)` file in this directory likely serves as the entry point for all these actions.
+
+These actions provide ready-to-use tools for agents, simplifying common financial tasks.

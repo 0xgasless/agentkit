@@ -4,11 +4,13 @@ import { SmartConfidentialTransferAction } from "./confidentialTransferAction";
 import { GetTokenDetailsAction } from "./getTokenDetailsAction";
 import { CheckTransactionAction } from "./checkTransactionAction";
 import { SmartDepositAction } from "./depositTokenAction";
-import { SmartSwapAction } from "./smartSwapAction";
 import { AgentkitAction, ActionSchemaAny } from "../agentkit";
 import { GetAddressAction } from "./getAddressAction";
 import  { SmartWithdrawTokenAction } from './withdrawTokenAction';
 import { GetConfidentialBalanceAction } from "./getConfidentialTransferBalanceAction";
+import { SmartSwapAction, SmartBridgeAction } from "./DebridgeAction";
+import { CreateAndStoreKeyAction } from "./createAndStoreKeyAction";
+import { SxtAction } from "./sxt";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -21,7 +23,10 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SmartSwapAction(),
     new SmartDepositAction(),
     new SmartWithdrawTokenAction(),
-    new GetConfidentialBalanceAction()
+    new GetConfidentialBalanceAction(),
+    new SmartBridgeAction(),
+    new CreateAndStoreKeyAction(),
+    new SxtAction(),
   ];
 }
 

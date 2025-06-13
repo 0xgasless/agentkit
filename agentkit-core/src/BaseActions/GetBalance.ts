@@ -27,10 +27,12 @@ export const GetBalanceInput = z
     tokenAddresses: z
       .array(z.string())
       .optional()
+      .nullable()
       .describe("Optional list of token contract addresses to get balances for"),
     tokenSymbols: z
       .array(z.string())
       .optional()
+      .nullable()
       .describe(
         "Optional list of token symbols (e.g., 'USDC', 'USDT', 'WETH') to get balances for",
       ),

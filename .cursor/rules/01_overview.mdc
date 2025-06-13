@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Agentkit Overview
+
+Agentkit is a financial layer for AI agents, enabling them to interact with financial systems and execute transactions.
+
+Key directories:
+*   `agentkit-core/src/actions/`: Contains various predefined actions that agents can use. Examples include `[smartTransferAction.ts](mdc:agentkit-core/src/actions/smartTransferAction.ts)`, `[getBalanceAction.ts](mdc:agentkit-core/src/actions/getBalanceAction.ts)`, and `[getTokenDetailsAction.ts](mdc:agentkit-core/src/actions/getTokenDetailsAction.ts)`.
+*   `agentkit-core/src/BaseActions/`: Represents V2 of the SDK, focusing on more dynamic agent interactions. This includes base functionalities like `[EncodeFunctionData.ts](mdc:agentkit-core/src/BaseActions/EncodeFunctionData.ts)`, `[SendTransaction.ts](mdc:agentkit-core/src/BaseActions/SendTransaction.ts)`, and `[ReadContract.ts](mdc:agentkit-core/src/BaseActions/ReadContract.ts)`.
+*   The main entry point for the core library seems to be `[agentkit-core/src/index.ts](mdc:agentkit-core/src/index.ts)` which likely exports the key functionalities.
+*   `[agentkit-core/src/agentkit.ts](mdc:agentkit-core/src/agentkit.ts)` also appears to be a central file for the agentkit logic.
+
+The project aims to provide a robust set of tools for AI agents to perform financial operations.

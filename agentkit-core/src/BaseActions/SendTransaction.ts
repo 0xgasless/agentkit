@@ -7,8 +7,13 @@ export const SendTransactionSchema = z.object({
   data: z
     .string()
     .regex(/^0x[a-fA-F0-9]*$/, "Invalid 'data' hex format.")
-    .optional(),
-  value: z.string().regex(/^\d+$/, "Invalid 'value' format, should be a string of wei.").optional(),
+    .optional()
+    .nullable(),
+  value: z
+    .string()
+    .regex(/^\d+$/, "Invalid 'value' format, should be a string of wei.")
+    .optional()
+    .nullable(),
 });
 
 // Infer the type from the schema

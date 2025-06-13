@@ -22,7 +22,8 @@ export const EncodeFunctionDataSchema = z.object({
   functionName: z.string().describe("The name of the function to encode."),
   argsString: jsonString
     .describe("The arguments for the function as a JSON string array.")
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 // Infer the type from the schema

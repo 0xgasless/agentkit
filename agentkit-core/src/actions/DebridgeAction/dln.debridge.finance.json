@@ -1,0 +1,3333 @@
+{
+	"openapi": "3.0.0",
+	"swap": {
+
+		"/v1.0/supported-chains": {
+			"get": {
+				"operationId": "AppControllerV10_getSupportedChainResponse",
+				"summary": "",
+				"deprecated": true,
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SupportedChainsResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"utils"
+				]
+			}
+		},
+		"/v1.0/supported-chains-info": {
+			"get": {
+				"operationId": "AppControllerV10_getSupportedChainInfoResponse",
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SupportedChainsInfoResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"utils"
+				]
+			}
+		},
+		"/v1.0/token-list": {
+			"get": {
+				"operationId": "AppControllerV10_getTokens",
+				"parameters": [
+					{
+						"name": "chainId",
+						"required": true,
+						"in": "query",
+						"description": "ID of a chain",
+						"examples": {
+							"1": {
+								"summary": "Ethereum",
+								"value": "1"
+							},
+							"10": {
+								"summary": "Optimism",
+								"value": "10"
+							},
+							"56": {
+								"summary": "BNB Chain",
+								"value": "56"
+							},
+							"137": {
+								"summary": "Polygon",
+								"value": "137"
+							},
+							"250": {
+								"summary": "Fantom",
+								"value": "250"
+							},
+							"8453": {
+								"summary": "Base",
+								"value": "8453"
+							},
+							"42161": {
+								"summary": "Arbitrum One",
+								"value": "42161"
+							},
+							"43114": {
+								"summary": "Avalanche",
+								"value": "43114"
+							},
+							"59144": {
+								"summary": "Linea",
+								"value": "59144"
+							},
+							"7565164": {
+								"summary": "Solana",
+								"value": "7565164"
+							},
+							"100000001": {
+								"summary": "Neon",
+								"value": "100000001"
+							},
+							"100000002": {
+								"summary": "Gnosis",
+								"value": "100000002"
+							},
+							"100000004": {
+								"summary": "Metis",
+								"value": "100000004"
+							},
+							"100000005": {
+								"summary": "Bitrock",
+								"value": "100000005"
+							},
+							"100000006": {
+								"summary": "CrossFi",
+								"value": "100000006"
+							},
+							"100000010": {
+								"summary": "zkEvmCronos",
+								"value": "100000010"
+							},
+							"100000013": {
+								"summary": "Story",
+								"value": "100000013"
+							},
+							"100000014": {
+								"summary": "Sonic",
+								"value": "100000014"
+							},
+							"100000017": {
+								"summary": "Abstract",
+								"value": "100000017"
+							},
+							"100000020": {
+								"summary": "Berachain",
+								"value": "100000020"
+							}
+						},
+						"schema": {
+							"enum": [
+								"1",
+								"10",
+								"56",
+								"137",
+								"250",
+								"8453",
+								"42161",
+								"43114",
+								"59144",
+								"7565164",
+								"100000001",
+								"100000002",
+								"100000004",
+								"100000005",
+								"100000006",
+								"100000010",
+								"100000013",
+								"100000014",
+								"100000017",
+								"100000020"
+							],
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TokenListResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"utils"
+				]
+			}
+		},
+		"/v1.0/chain/transaction": {
+			"get": {
+				"operationId": "SingleSwapControllerV10_getChainTransaction",
+				"parameters": [
+					{
+						"name": "chainId",
+						"required": true,
+						"in": "query",
+						"description": "An ID of a chain, a chain where the swap must be performed",
+						"examples": {
+							"1": {
+								"summary": "Ethereum",
+								"value": "1"
+							},
+							"10": {
+								"summary": "Optimism",
+								"value": "10"
+							},
+							"56": {
+								"summary": "BNB Chain",
+								"value": "56"
+							},
+							"137": {
+								"summary": "Polygon",
+								"value": "137"
+							},
+							"250": {
+								"summary": "Fantom",
+								"value": "250"
+							},
+							"8453": {
+								"summary": "Base",
+								"value": "8453"
+							},
+							"42161": {
+								"summary": "Arbitrum One",
+								"value": "42161"
+							},
+							"43114": {
+								"summary": "Avalanche",
+								"value": "43114"
+							},
+							"59144": {
+								"summary": "Linea",
+								"value": "59144"
+							},
+							"7565164": {
+								"summary": "Solana",
+								"value": "7565164"
+							},
+							"100000001": {
+								"summary": "Neon",
+								"value": "100000001"
+							},
+							"100000002": {
+								"summary": "Gnosis",
+								"value": "100000002"
+							},
+							"100000004": {
+								"summary": "Metis",
+								"value": "100000004"
+							},
+							"100000005": {
+								"summary": "Bitrock",
+								"value": "100000005"
+							},
+							"100000006": {
+								"summary": "CrossFi",
+								"value": "100000006"
+							},
+							"100000010": {
+								"summary": "zkEvmCronos",
+								"value": "100000010"
+							},
+							"100000013": {
+								"summary": "Story",
+								"value": "100000013"
+							},
+							"100000014": {
+								"summary": "Sonic",
+								"value": "100000014"
+							},
+							"100000017": {
+								"summary": "Abstract",
+								"value": "100000017"
+							},
+							"100000020": {
+								"summary": "Berachain",
+								"value": "100000020"
+							}
+						},
+						"schema": {
+							"enum": [
+								"1",
+								"10",
+								"56",
+								"137",
+								"250",
+								"8453",
+								"42161",
+								"43114",
+								"59144",
+								"7565164",
+								"100000001",
+								"100000002",
+								"100000004",
+								"100000005",
+								"100000006",
+								"100000010",
+								"100000013",
+								"100000014",
+								"100000017",
+								"100000020"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenIn",
+						"required": true,
+						"in": "query",
+						"description": "An address of an input token to swap",
+						"examples": {
+							"usdt": {
+								"summary": "USDT token on Ethereum",
+								"value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+							},
+							"native": {
+								"summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+								"value": "0x0000000000000000000000000000000000000000"
+							},
+							"native_solana": {
+								"summary": "Native token on SOLANA",
+								"value": "11111111111111111111111111111111"
+							},
+							"usdc_solana": {
+								"summary": "USDC token on SOLANA",
+								"value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+							}
+						},
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenInAmount",
+						"required": true,
+						"in": "query",
+						"description": "An amount of input tokens to swap",
+						"examples": {
+							"usdt": {
+								"summary": "50 USDT (decimals=6)",
+								"value": 50000000
+							},
+							"busd": {
+								"summary": "50 BUSD (decimals=18)",
+								"value": 50000000000000000000
+							},
+							"eth": {
+								"summary": "0.1 ETH (decimals=18)",
+								"value": 100000000000000000
+							},
+							"sol": {
+								"summary": "0.1 SOL (decimals=9)",
+								"value": "100000000"
+							}
+						},
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "slippage",
+						"required": false,
+						"in": "query",
+						"description": "A slippage constraint (in %) is a safeguard during swaps (on both source and destination chains, if applicable). It is also used to calculate the minimum possible outcome during estimation. This property can be set to \"auto\" so that the API will suggest the best possible slippage.",
+						"schema": {
+							"default": "auto",
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenOut",
+						"required": true,
+						"in": "query",
+						"description": "An address of a target token.",
+						"examples": {
+							"usdc": {
+								"summary": "USDC token on the Ethereum chain",
+								"value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+							},
+							"native": {
+								"summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+								"value": "0x0000000000000000000000000000000000000000"
+							},
+							"usdc_solana": {
+								"summary": "USDC token on SOLANA",
+								"value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+							}
+						},
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenOutRecipient",
+						"required": true,
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "affiliateFeePercent",
+						"required": false,
+						"in": "query",
+						"description": "\n The share of the input amount to be distributed to the `affiliateFeeRecipient` (if given) address as an affiliate fee.\n \n\n \nIf you are building on top of deSwap, you might want to take a small fee relative to the amount of a token a user provides for a swap. To achieve this, set this parameter to a desired % (e.g. `0.1` stands for 0.1%; the max value is `10` which stands for 10% of `srcAmountInParam`) and specify your wallet address in the `affiliateFeeRecipient` parameter.\n \n\n \nFor example, setting this parameter to `0.1` means that when the user gives 5000 USDT then you will receive 5 USDT immediately after transaction is being confirmed.\n       ",
+						"examples": {
+							"no_fee": {
+								"summary": "No affiliate fee",
+								"value": 0
+							},
+							"fee_0.1": {
+								"summary": "Set 0.1% affiliate fee",
+								"value": 0.1
+							},
+							"fee_1": {
+								"summary": "Set 1% affiliate fee",
+								"value": 1
+							}
+						},
+						"schema": {
+							"type": "number"
+						}
+					},
+					{
+						"name": "affiliateFeeRecipient",
+						"required": false,
+						"in": "query",
+						"description": "An address (on an origin chain) that will receive affiliate fees according to the `affiliateFeePercent` parameter. For solana affiliate fee you have to create & provide Jupiter's referral key (https://referral.jup.ag/dashboard).",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "senderAddress",
+						"required": false,
+						"in": "query",
+						"description": "Address (on the source chain) who submits input tokens for a cross-chain swap",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ChainTransactionResponseV10"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - AFFILIATE_FEE_PERCENT_NOT_SET\n  \n  \n        - AFFILIATE_FEE_RECIPIENT_NOT_SET\n  \n  \n        - UNSUPPORTED_TOKEN_IN\n  \n  \n        - UNSUPPORTED_TOKEN_OUT\n  \n",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"single chain swap"
+				]
+			}
+		},
+		"/v1.0/chain/estimation": {
+			"get": {
+				"operationId": "SingleSwapControllerV10_getChainEstimation",
+				"parameters": [
+					{
+						"name": "chainId",
+						"required": true,
+						"in": "query",
+						"description": "An ID of a chain, a chain where the swap must be performed",
+						"examples": {
+							"1": {
+								"summary": "Ethereum",
+								"value": "1"
+							},
+							"10": {
+								"summary": "Optimism",
+								"value": "10"
+							},
+							"56": {
+								"summary": "BNB Chain",
+								"value": "56"
+							},
+							"137": {
+								"summary": "Polygon",
+								"value": "137"
+							},
+							"250": {
+								"summary": "Fantom",
+								"value": "250"
+							},
+							"8453": {
+								"summary": "Base",
+								"value": "8453"
+							},
+							"42161": {
+								"summary": "Arbitrum One",
+								"value": "42161"
+							},
+							"43114": {
+								"summary": "Avalanche",
+								"value": "43114"
+							},
+							"59144": {
+								"summary": "Linea",
+								"value": "59144"
+							},
+							"7565164": {
+								"summary": "Solana",
+								"value": "7565164"
+							},
+							"100000001": {
+								"summary": "Neon",
+								"value": "100000001"
+							},
+							"100000002": {
+								"summary": "Gnosis",
+								"value": "100000002"
+							},
+							"100000004": {
+								"summary": "Metis",
+								"value": "100000004"
+							},
+							"100000005": {
+								"summary": "Bitrock",
+								"value": "100000005"
+							},
+							"100000006": {
+								"summary": "CrossFi",
+								"value": "100000006"
+							},
+							"100000010": {
+								"summary": "zkEvmCronos",
+								"value": "100000010"
+							},
+							"100000013": {
+								"summary": "Story",
+								"value": "100000013"
+							},
+							"100000014": {
+								"summary": "Sonic",
+								"value": "100000014"
+							},
+							"100000017": {
+								"summary": "Abstract",
+								"value": "100000017"
+							},
+							"100000020": {
+								"summary": "Berachain",
+								"value": "100000020"
+							}
+						},
+						"schema": {
+							"enum": [
+								"1",
+								"10",
+								"56",
+								"137",
+								"250",
+								"8453",
+								"42161",
+								"43114",
+								"59144",
+								"7565164",
+								"100000001",
+								"100000002",
+								"100000004",
+								"100000005",
+								"100000006",
+								"100000010",
+								"100000013",
+								"100000014",
+								"100000017",
+								"100000020"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenIn",
+						"required": true,
+						"in": "query",
+						"description": "An address of an input token to swap",
+						"examples": {
+							"usdt": {
+								"summary": "USDT token on Ethereum",
+								"value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+							},
+							"native": {
+								"summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+								"value": "0x0000000000000000000000000000000000000000"
+							},
+							"native_solana": {
+								"summary": "Native token on SOLANA",
+								"value": "11111111111111111111111111111111"
+							},
+							"usdc_solana": {
+								"summary": "USDC token on SOLANA",
+								"value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+							}
+						},
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenInAmount",
+						"required": true,
+						"in": "query",
+						"description": "An amount of input tokens to swap",
+						"examples": {
+							"usdt": {
+								"summary": "50 USDT (decimals=6)",
+								"value": 50000000
+							},
+							"busd": {
+								"summary": "50 BUSD (decimals=18)",
+								"value": 50000000000000000000
+							},
+							"eth": {
+								"summary": "0.1 ETH (decimals=18)",
+								"value": 100000000000000000
+							},
+							"sol": {
+								"summary": "0.1 SOL (decimals=9)",
+								"value": "100000000"
+							}
+						},
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "slippage",
+						"required": false,
+						"in": "query",
+						"description": "A slippage constraint (in %) is a safeguard during swaps (on both source and destination chains, if applicable). It is also used to calculate the minimum possible outcome during estimation. This property can be set to \"auto\" so that the API will suggest the best possible slippage.",
+						"schema": {
+							"default": "auto",
+							"type": "string"
+						}
+					},
+					{
+						"name": "tokenOut",
+						"required": true,
+						"in": "query",
+						"description": "An address of a target token.",
+						"examples": {
+							"usdc": {
+								"summary": "USDC token on the Ethereum chain",
+								"value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+							},
+							"native": {
+								"summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+								"value": "0x0000000000000000000000000000000000000000"
+							},
+							"usdc_solana": {
+								"summary": "USDC token on SOLANA",
+								"value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+							}
+						},
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "affiliateFeePercent",
+						"required": false,
+						"in": "query",
+						"description": "\n The share of the input amount to be distributed to the `affiliateFeeRecipient` (if given) address as an affiliate fee.\n \n\n \nIf you are building on top of deSwap, you might want to take a small fee relative to the amount of a token a user provides for a swap. To achieve this, set this parameter to a desired % (e.g. `0.1` stands for 0.1%; the max value is `10` which stands for 10% of `srcAmountInParam`) and specify your wallet address in the `affiliateFeeRecipient` parameter.\n \n\n \nFor example, setting this parameter to `0.1` means that when the user gives 5000 USDT then you will receive 5 USDT immediately after transaction is being confirmed.\n       ",
+						"examples": {
+							"no_fee": {
+								"summary": "No affiliate fee",
+								"value": 0
+							},
+							"fee_0.1": {
+								"summary": "Set 0.1% affiliate fee",
+								"value": 0.1
+							},
+							"fee_1": {
+								"summary": "Set 1% affiliate fee",
+								"value": 1
+							}
+						},
+						"schema": {
+							"type": "number"
+						}
+					},
+					{
+						"name": "affiliateFeeRecipient",
+						"required": false,
+						"in": "query",
+						"description": "An address (on an origin chain) that will receive affiliate fees according to the `affiliateFeePercent` parameter.",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ChainEstimationResponseV10"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - AFFILIATE_FEE_PERCENT_NOT_SET\n  \n  \n        - AFFILIATE_FEE_RECIPIENT_NOT_SET\n  \n  \n        - UNSUPPORTED_TOKEN_IN\n  \n  \n        - UNSUPPORTED_TOKEN_OUT\n  \n",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerErrorResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"single chain swap"
+				]
+			}
+		}
+	},
+	"dln": {
+	  "/v1.0/dln/order/create-tx": {
+		"get": {
+		  "operationId": "DlnOrderControllerV10_createOrder",
+		  "summary": "This endpoint returns the data for a transaction to place a cross-chain DLN order.",
+		  "description": "This endpoint returns the data for a transaction to place a cross-chain DLN order.",
+		  "parameters": [
+			{
+			  "name": "srcChainId",
+			  "required": true,
+			  "in": "query",
+			  "description": "An ID of a source chain, a chain where the cross-chain swap will start",
+			  "examples": {
+				"1": {
+				  "summary": "Ethereum",
+				  "value": "1"
+				},
+				"10": {
+				  "summary": "Optimism",
+				  "value": "10"
+				},
+				"56": {
+				  "summary": "BNB Chain",
+				  "value": "56"
+				},
+				"137": {
+				  "summary": "Polygon",
+				  "value": "137"
+				},
+				"250": {
+				  "summary": "Fantom",
+				  "value": "250"
+				},
+				"8453": {
+				  "summary": "Base",
+				  "value": "8453"
+				},
+				"42161": {
+				  "summary": "Arbitrum One",
+				  "value": "42161"
+				},
+				"43114": {
+				  "summary": "Avalanche",
+				  "value": "43114"
+				},
+				"59144": {
+				  "summary": "Linea",
+				  "value": "59144"
+				},
+				"7565164": {
+				  "summary": "Solana",
+				  "value": "7565164"
+				},
+				"100000001": {
+				  "summary": "Neon",
+				  "value": "100000001"
+				},
+				"100000002": {
+				  "summary": "Gnosis",
+				  "value": "100000002"
+				},
+				"100000004": {
+				  "summary": "Metis",
+				  "value": "100000004"
+				},
+				"100000005": {
+				  "summary": "Bitrock",
+				  "value": "100000005"
+				},
+				"100000006": {
+				  "summary": "CrossFi",
+				  "value": "100000006"
+				},
+				"100000008": {
+				  "summary": "Zilliqa",
+				  "value": "100000008"
+				},
+				"100000009": {
+				  "summary": "Flow",
+				  "value": "100000009"
+				},
+				"100000010": {
+				  "summary": "zkEvmCronos",
+				  "value": "100000010"
+				},
+				"100000013": {
+				  "summary": "Story",
+				  "value": "100000013"
+				},
+				"100000014": {
+				  "summary": "Sonic",
+				  "value": "100000014"
+				},
+				"100000015": {
+				  "summary": "Zircuit",
+				  "value": "100000015"
+				},
+				"100000017": {
+				  "summary": "Abstract",
+				  "value": "100000017"
+				},
+				"100000020": {
+				  "summary": "Berachain",
+				  "value": "100000020"
+				},
+				"100000021": {
+				  "summary": "Bob",
+				  "value": "100000021"
+				},
+				"100000022": {
+				  "summary": "HyperEVM",
+				  "value": "100000022"
+				},
+				"100000023": {
+				  "summary": "Mantle",
+				  "value": "100000023"
+				},
+				"100000024": {
+				  "summary": "Plume",
+				  "value": "100000024"
+				}
+			  },
+			  "schema": {
+				"enum": [
+				  "1",
+				  "10",
+				  "56",
+				  "137",
+				  "250",
+				  "8453",
+				  "42161",
+				  "43114",
+				  "59144",
+				  "7565164",
+				  "100000001",
+				  "100000002",
+				  "100000004",
+				  "100000005",
+				  "100000006",
+				  "100000008",
+				  "100000009",
+				  "100000010",
+				  "100000013",
+				  "100000014",
+				  "100000015",
+				  "100000017",
+				  "100000020",
+				  "100000021",
+				  "100000022",
+				  "100000023",
+				  "100000024"
+				],
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "srcChainTokenIn",
+			  "required": true,
+			  "in": "query",
+			  "description": "An address (on a source chain) of an input token to swap",
+			  "examples": {
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"usdt": {
+				  "summary": "USDT token on Ethereum",
+				  "value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+				},
+				"native_solana": {
+				  "summary": "Native token on SOLANA",
+				  "value": "11111111111111111111111111111111"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "srcChainTokenInAmount",
+			  "required": true,
+			  "in": "query",
+			  "description": "An amount of input tokens to swap",
+			  "examples": {
+				"eth": {
+				  "summary": "0.1 ETH (decimals=18)",
+				  "value": "100000000000000000"
+				},
+				"usdt": {
+				  "summary": "50 USDT (decimals=6)",
+				  "value": "50000000"
+				},
+				"busd": {
+				  "summary": "50 BUSD (decimals=18)",
+				  "value": "50000000000000000000"
+				},
+				"usdc": {
+				  "summary": "50 USDC (decimals=6)",
+				  "value": "50000000"
+				},
+				"sol": {
+				  "summary": "0.1 SOL (decimals=9)",
+				  "value": "100000000"
+				},
+				"recomended": {
+				  "summary": "Use a recommended srcChainTokenInAmount calculated upon request",
+				  "value": "auto"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dstChainId",
+			  "required": true,
+			  "in": "query",
+			  "description": "An ID of a destination chain, a chain where the cross-chain swap will finish. Must differ from `srcChainId`!",
+			  "examples": {
+				"1": {
+				  "summary": "Ethereum",
+				  "value": "1"
+				},
+				"10": {
+				  "summary": "Optimism",
+				  "value": "10"
+				},
+				"56": {
+				  "summary": "BNB Chain",
+				  "value": "56"
+				},
+				"137": {
+				  "summary": "Polygon",
+				  "value": "137"
+				},
+				"250": {
+				  "summary": "Fantom",
+				  "value": "250"
+				},
+				"8453": {
+				  "summary": "Base",
+				  "value": "8453"
+				},
+				"42161": {
+				  "summary": "Arbitrum One",
+				  "value": "42161"
+				},
+				"43114": {
+				  "summary": "Avalanche",
+				  "value": "43114"
+				},
+				"59144": {
+				  "summary": "Linea",
+				  "value": "59144"
+				},
+				"7565164": {
+				  "summary": "Solana",
+				  "value": "7565164"
+				},
+				"100000001": {
+				  "summary": "Neon",
+				  "value": "100000001"
+				},
+				"100000002": {
+				  "summary": "Gnosis",
+				  "value": "100000002"
+				},
+				"100000004": {
+				  "summary": "Metis",
+				  "value": "100000004"
+				},
+				"100000005": {
+				  "summary": "Bitrock",
+				  "value": "100000005"
+				},
+				"100000006": {
+				  "summary": "CrossFi",
+				  "value": "100000006"
+				},
+				"100000008": {
+				  "summary": "Zilliqa",
+				  "value": "100000008"
+				},
+				"100000009": {
+				  "summary": "Flow",
+				  "value": "100000009"
+				},
+				"100000010": {
+				  "summary": "zkEvmCronos",
+				  "value": "100000010"
+				},
+				"100000013": {
+				  "summary": "Story",
+				  "value": "100000013"
+				},
+				"100000014": {
+				  "summary": "Sonic",
+				  "value": "100000014"
+				},
+				"100000015": {
+				  "summary": "Zircuit",
+				  "value": "100000015"
+				},
+				"100000017": {
+				  "summary": "Abstract",
+				  "value": "100000017"
+				},
+				"100000020": {
+				  "summary": "Berachain",
+				  "value": "100000020"
+				},
+				"100000021": {
+				  "summary": "Bob",
+				  "value": "100000021"
+				},
+				"100000022": {
+				  "summary": "HyperEVM",
+				  "value": "100000022"
+				},
+				"100000023": {
+				  "summary": "Mantle",
+				  "value": "100000023"
+				},
+				"100000024": {
+				  "summary": "Plume",
+				  "value": "100000024"
+				}
+			  },
+			  "schema": {
+				"default": 56,
+				"enum": [
+				  "1",
+				  "10",
+				  "56",
+				  "137",
+				  "250",
+				  "8453",
+				  "42161",
+				  "43114",
+				  "59144",
+				  "7565164",
+				  "100000001",
+				  "100000002",
+				  "100000004",
+				  "100000005",
+				  "100000006",
+				  "100000008",
+				  "100000009",
+				  "100000010",
+				  "100000013",
+				  "100000014",
+				  "100000015",
+				  "100000017",
+				  "100000020",
+				  "100000021",
+				  "100000022",
+				  "100000023",
+				  "100000024"
+				],
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dstChainTokenOut",
+			  "required": true,
+			  "in": "query",
+			  "description": "An address (on a destination chain) of a target token.",
+			  "examples": {
+				"busd": {
+				  "summary": "BUSD token on BNB Chain",
+				  "value": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"native_solana": {
+				  "summary": "Native token on SOLANA",
+				  "value": "11111111111111111111111111111111"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dstChainTokenOutAmount",
+			  "required": false,
+			  "in": "query",
+			  "description": "Amount of the target asset the market maker expects to receive upon order fulfillment. This property can be set to \"auto\" so that the API will suggest the best possible outcome of the order based on current market conditions and the protocol fees, keeping the order in a reasonable-to-fullfill state",
+			  "examples": {
+				"recomended": {
+				  "summary": "Use a recommended dstChainTokenOutAmount calculated upon request (default)",
+				  "value": "auto"
+				},
+				"eth": {
+				  "summary": "0.1 ETH (decimals=18)",
+				  "value": "100000000000000000"
+				},
+				"usdt": {
+				  "summary": "50 USDT (decimals=6)",
+				  "value": "50000000"
+				},
+				"busd": {
+				  "summary": "50 BUSD (decimals=18)",
+				  "value": "50000000000000000000"
+				},
+				"usdc": {
+				  "summary": "50 USDC (decimals=6)",
+				  "value": "50000000"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "additionalTakerRewardBps",
+			  "required": false,
+			  "in": "query",
+			  "description": "`additionalTakerRewardBps` is additionally laid in on top of default taker margin.",
+			  "schema": {
+				"type": "integer"
+			  }
+			},
+			{
+			  "name": "srcIntermediaryTokenAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "An address (on a source chain) of an intermediary token a user's input funds should be swapped to prior order creation. This token must be publicly traded and listed on major DEX aggregators. Examples: USDC on Ethereum, DAI on Ethereum, USDC on Solana. This property can be either a Circle-issued USDC token or ETH, or an arbitrary token; setting an arbitrary token also requires you to specify `dstIntermediaryTokenAddress`, `intermediaryTokenUSDPrice` and `dstIntermediaryTokenSpenderAddress`  properties as well.",
+			  "examples": {
+				"default": {
+  
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"usdt": {
+				  "summary": "USDT token on Ethereum",
+				  "value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+				},
+				"native_solana": {
+				  "summary": "Native token on SOLANA",
+				  "value": "11111111111111111111111111111111"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dstIntermediaryTokenAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "An address (on a destination chain) of an intermediary token whose value assumed to be equal to the value of `srcIntermediaryTokenAddress` . This token must be publicly traded and listed on major DEX aggregators.  Examples: USDC on Ethereum, DAI on Ethereum, USDC on Solana. Setting this property also requires you to specify `srcIntermediaryTokenAddress`, `intermediaryTokenUSDPrice` and `dstIntermediaryTokenSpenderAddress` properties as well.",
+			  "examples": {
+				"default": {
+  
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"usdt": {
+				  "summary": "USDT token on Ethereum",
+				  "value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+				},
+				"native_solana": {
+				  "summary": "Native token on SOLANA",
+				  "value": "11111111111111111111111111111111"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dstIntermediaryTokenSpenderAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "Applicable to a EVM-compatible destination chain. An address (on a EVM-compatible destination chain) assumed as a spender of the intermediary token (set as `dstIntermediaryTokenAddress`) during order fulfillment. This address must hold a reasonable amount (of at least $100 in value for testing purposes, or at least 10% of the average order value) of the given intermediary token, and issue on-chain approvals to spent the given  intermediary token by the two trusted DLN contracts (DlnDestination: {CURRENT_ENV[dstChain].pmmDst} and CrosschainForwarder: {CURRENT_ENV[dstChain].evm.forwarderContract}). This property is required when `srcIntermediaryTokenAddress` and `dstIntermediaryTokenAddress` are set.",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "intermediaryTokenUSDPrice",
+			  "required": false,
+			  "in": "query",
+			  "description": "A value (a spot price) of the given intermediary token expressed in US dollars. Keep in mind this price is not used to calculate the spread of an order, but only as a reference price for operating expenses incurred by a taker during and after order fulfillment. The order spread is still calculated using the market price quoted from a major DEX.",
+			  "schema": {
+				"type": "number"
+			  }
+			},
+			{
+			  "name": "dstChainTokenOutRecipient",
+			  "required": false,
+			  "in": "query",
+			  "description": "Address (on the destination chain) where target tokens should be transferred to after the swap. **Required for transaction construction**, otherwise only the quote is returned!",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "senderAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "Address (on the source chain) who submits input tokens for a cross-chain swap",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "srcChainOrderAuthorityAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "Address (on the source chain) who submits input tokens for a cross-chain swap. **Required for transaction construction**, otherwise only the quote is returned!",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "srcAllowedCancelBeneficiary",
+			  "required": false,
+			  "in": "query",
+			  "description": "Fixed recipient of the funds of an order in case it is being cancelled. If not set, the recipient could be set later upon order cancellation.",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "referralCode",
+			  "required": false,
+			  "in": "query",
+			  "description": "Make sure you pass your referral code which can be generated here: https://app.debridge.finance/refer\nWith your referral code, your address will earn an additional 25% of deBridge points (https://debridge.finance/blog/introducing-debridge-points/), on top of the points generated by users who engage in activity on deBridge through your referral.",
+			  "schema": {
+				"type": "number"
+			  }
+			},
+			{
+			  "name": "affiliateFeePercent",
+			  "required": false,
+			  "in": "query",
+			  "description": "\nThe share of the input amount to be distributed to the `affiliateFeeRecipient` (if given) address as an affiliate fee.\n\n\n\nIf you are building on top of deSwap, you might want to take a small fee relative to the amount of a token a user provides for a swap. To achieve this, set this parameter to a desired % (e.g. `0.1` stands for 0.1%; the max value is `10` which stands for 10% of `srcAmountInParam`) and specify your wallet address in the `affiliateFeeRecipient` parameter.\n\n\n\nFor example, setting this parameter to `0.1` means that when the user gives 5000 USDT then you will receive 5 USDT immediately after transaction is being confirmed.\n      ",
+			  "examples": {
+				"no_fee": {
+				  "summary": "No affiliate fee",
+				  "value": 0
+				},
+				"fee_0.1": {
+				  "summary": "Set 0.1% affiliate fee",
+				  "value": 0.1
+				},
+				"fee_1": {
+				  "summary": "Set 1% affiliate fee",
+				  "value": 1
+				}
+			  },
+			  "schema": {
+				"type": "number"
+			  }
+			},
+			{
+			  "name": "affiliateFeeRecipient",
+			  "required": false,
+			  "in": "query",
+			  "description": "An address (on an origin chain) that will receive affiliate fees according to the `affiliateFeePercent` parameter.",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "srcChainTokenInSenderPermit",
+			  "required": false,
+			  "in": "query",
+			  "description": "Typically, a sender is required to approve token transfer to deBridge forwarder for further transfer and swap. For gas-less cases, a sender-signed permit message may be provided to be executed by deBridge forwarder before actual transfer.",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dstChainOrderAuthorityAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "Address on the destination chain whom should be granted the privileges to manage the order (patch, cancel, etc). **Required for transaction construction**, otherwise only the quote is returned!",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "enableEstimate",
+			  "required": false,
+			  "in": "query",
+			  "description": "This flag forces deSwap API to validate the resulting transaction and estimate its gas consumption. You will find the estimation at `tx.gasLimit` field of the resulting object.\n\n**Important:** to estimate a transaction, you are required to fill the `senderAddress` property with the address that will be used to execute this transaction. It should have enough assets on its balance to cover the amount specified in the `srcChainTokenInAmount` property, and enough ether to cover the protocol global fixed fee.\n\n**Caution:** if the input token (`srcChainTokenIn`) is not a native blockchain currency but an ERC-20 token, it is necessary to provide an approve to spend this token by the `tx.allowanceTarget` contract prior to such estimation. This can be done either by executing `increaseAllowance()` on-chain or by providing the permit envelope via the `srcChainTokenInSenderPermit` property. Failing to provide a correct approve to spend will result an error during transaction.",
+			  "schema": {
+				"type": "boolean"
+			  }
+			},
+			{
+			  "name": "allowedTaker",
+			  "required": false,
+			  "in": "query",
+			  "description": "An address (on a destination chain) of a allowed taker.",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "externalCall",
+			  "required": false,
+			  "in": "query",
+			  "description": "A stringified versioned JSON with data fields that form an encoded transaction call to be attached to a DLN order and would be executed upon order fulfillment on the destination chain. The following schemas are currently supported:\n    \n - for Solana as a destination chain:\n`{\n    \"version\": \"solana_1\",\n    \"fields\": {\n        \"calldata\": \"0x...\"\n    }\n}`\n    \n - for EVM-compatible chains (gas optional):\n`{\n    \"version\": \"evm_1\",\n    \"fields\": {\n        \"to\": \"0x...\",\n        \"data\": \"0x...\",\n        \"gas\": 0\n    }\n}`\n    ",
+			  "deprecated": true,
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "dlnHook",
+			  "required": false,
+			  "in": "query",
+			  "description": "JSON representing a DLN Hook to be attached to an order. Depending on the destination chain, the following templates are available:\n\n    \n - for Solana as a destination chain:\n`{\n    \"type\": \"solana_serialized_instructions\",\n    \"data\": {\n      \"instructions\": \"0x...\"\n    }\n}`\n\n    \n - for EVM-based destination chains to make an arbitrary transaction call via the universal DLN hook:\n`{\n    \"type\": \"evm_transaction_call\",\n    \"data\": {\n      \"to\": \"0x...\", \"\n      calldata\": \"0x...\",\n      \"gas\": 0\n    }\n}`\n\n    \n - for EVM-based destination chains to attach an arbitrary hook:\n`{\n  \"type\": \"evm_hook_data_v1\",\n  \"data\": {\n    \"fallbackAddress\": \"0x...\",\n    \"target\": \"0x...\",\n    \"reward\": \"0\",\n    \"isNonAtomic\": false,\n    \"isSuccessRequired\": false,\n    \"targetPayload\": \"0x\"\n   }\n}`\n",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "prependOperatingExpenses",
+			  "required": false,
+			  "in": "query",
+			  "description": "Tells API server to prepend operating expenses to the input amount",
+			  "schema": {
+				"default": false,
+				"type": "boolean"
+			  }
+			},
+			{
+			  "name": "metadata",
+			  "required": false,
+			  "in": "query",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "otc",
+			  "required": false,
+			  "in": "query",
+			  "description": "Forces a P2P order where input and output tokens are left intact(renamed to ptp)",
+			  "deprecated": true,
+			  "schema": {
+				"type": "boolean"
+			  }
+			},
+			{
+			  "name": "ptp",
+			  "required": false,
+			  "in": "query",
+			  "description": "Forces a P2P order where input and output tokens are left intact",
+			  "schema": {
+				"type": "boolean"
+			  }
+			},
+			{
+			  "name": "skipSolanaRecipientValidation",
+			  "required": false,
+			  "in": "query",
+			  "description": "Skip system address validation `dstChainTokenOutRecipient` in Solana ",
+			  "schema": {
+				"default": false,
+				"type": "boolean"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "The request has succeeded",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DlnOrderCreateTxResponse"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n\n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - SOURCE_AND_DESTINATION_CHAINS_ARE_EQUAL\n  \n  \n        - AFFILIATE_FEE_PERCENT_NOT_SET\n  \n  \n        - AFFILIATE_FEE_RECIPIENT_NOT_SET\n  \n  \n        - ESTIMATION_FAILED\n  \n  \n        - ERROR_LOW_GIVE_AMOUNT\n  \n  \n        - UNSUPPORTED_TOKEN_IN\n  \n  \n        - UNSUPPORTED_TOKEN_OUT\n  \n  \n        - SENDER_ADDRESS_EMPTY\n  \n  \n        - IMPOSSIBLE_ROUTE\n  \n  \n        - INTERMEDIARY_TOKEN_NOT_FUNDED\n  \n  \n        - INTERMEDIARY_TOKEN_APPROVALS_MISSING\n  \n  \n        - INTERMEDIARY_TOKEN_NOT_CONFIGURED\n  \n  \n        - SAME_SOURCE_AND_DESTINATION_CHAINS\n  \n  \n        - UNABLE_TO_ESTIMATE_EXTERNAL_CALL_WITHOUT_GAS\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"DLN"
+		  ]
+		}
+	  },
+	  "/v1.0/dln/order/{id}": {
+		"get": {
+		  "operationId": "DlnOrderControllerV10_getOrder",
+		  "summary": "This endpoint returns the data of order.",
+		  "description": "This endpoint returns the data of order.",
+		  "parameters": [
+			{
+			  "name": "id",
+			  "required": true,
+			  "in": "path",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "The request has succeeded",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DlnOrderResponse"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - UNKNOWN_ORDER\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"DLN"
+		  ]
+		}
+	  },
+	  "/v1.0/dln/order/{id}/status": {
+		"get": {
+		  "operationId": "DlnOrderControllerV10_getOrderStatus",
+		  "summary": "This endpoint returns the status of order.",
+		  "description": "This endpoint returns the status of order.",
+		  "parameters": [
+			{
+			  "name": "id",
+			  "required": true,
+			  "in": "path",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "The request has succeeded",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DlnOrderStatusResponse"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - UNKNOWN_ORDER\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"DLN"
+		  ]
+		}
+	  },
+	  "/v1.0/dln/tx/{hash}/order-ids": {
+		"get": {
+		  "operationId": "DlnOrderControllerV10_getOrderIdsByTx",
+		  "summary": "This endpoint returns the status of order.",
+		  "description": "This endpoint returns the status of order.",
+		  "parameters": [
+			{
+			  "name": "hash",
+			  "required": true,
+			  "in": "path",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "The request has succeeded",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DlnOrderidsByTxResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"DLN"
+		  ]
+		}
+	  },
+	  "/v1.0/dln/order/{id}/cancel-tx": {
+		"get": {
+		  "operationId": "DlnOrderControllerV10_cancelOrder",
+		  "summary": "Generates a transaction that cancels the given order",
+		  "description": "This endpoint generates a transaction that cancels the given order. This transaction must be published to the destination chain of the order. Unlocked funds would be transferred to the address specified as the orderAuthority of the given order on the source chain. This transaction can only be executed by th orderAuthority of the given order on the destination chain",
+		  "parameters": [
+			{
+			  "name": "id",
+			  "required": true,
+			  "in": "path",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "The request has succeeded",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DlnOrderCancelTxResponse"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - UNKNOWN_ORDER\n  \n  \n        - ORDER_ALREADY_FULFILLED\n  \n  \n        - ORDER_ALREADY_CANCELLED\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"DLN"
+		  ]
+		}
+	  },
+	  "/v1.0/dln/order/{id}/extcall-cancel-tx": {
+		"get": {
+		  "operationId": "DlnOrderControllerV10_extCallCancelOrder",
+		  "summary": "Generates a transaction that cancels external call in the given order",
+		  "description": "This endpoint generates a transaction that cancels external call in the given order. ",
+		  "parameters": [
+			{
+			  "name": "id",
+			  "required": true,
+			  "in": "path",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "The request has succeeded",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DlnOrderCancelTxResponse"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - UNKNOWN_ORDER\n  \n  \n        - EXTERNALCALL_CANNOT_BE_DETACHED\n  \n  \n        - EXTERNALCALL_ALREADY_EXECUTED\n  \n  \n        - NO_EXTERNALCALL_ATTACHED\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"DLN"
+		  ]
+		}
+	  },
+	  "/v1.0/supported-chains": {
+		"get": {
+		  "operationId": "AppControllerV10_getSupportedChainResponse",
+		  "summary": "",
+		  "deprecated": true,
+		  "parameters": [],
+		  "responses": {
+			"200": {
+			  "description": "",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/SupportedChainsResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"utils"
+		  ]
+		}
+	  },
+	  "/v1.0/supported-chains-info": {
+		"get": {
+		  "operationId": "AppControllerV10_getSupportedChainInfoResponse",
+		  "parameters": [],
+		  "responses": {
+			"200": {
+			  "description": "",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/SupportedChainsInfoResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"utils"
+		  ]
+		}
+	  },
+	  "/v1.0/token-list": {
+		"get": {
+		  "operationId": "AppControllerV10_getTokens",
+		  "parameters": [
+			{
+			  "name": "chainId",
+			  "required": true,
+			  "in": "query",
+			  "description": "ID of a chain",
+			  "examples": {
+				"1": {
+				  "summary": "Ethereum",
+				  "value": "1"
+				},
+				"10": {
+				  "summary": "Optimism",
+				  "value": "10"
+				},
+				"56": {
+				  "summary": "BNB Chain",
+				  "value": "56"
+				},
+				"137": {
+				  "summary": "Polygon",
+				  "value": "137"
+				},
+				"250": {
+				  "summary": "Fantom",
+				  "value": "250"
+				},
+				"8453": {
+				  "summary": "Base",
+				  "value": "8453"
+				},
+				"42161": {
+				  "summary": "Arbitrum One",
+				  "value": "42161"
+				},
+				"43114": {
+				  "summary": "Avalanche",
+				  "value": "43114"
+				},
+				"59144": {
+				  "summary": "Linea",
+				  "value": "59144"
+				},
+				"7565164": {
+				  "summary": "Solana",
+				  "value": "7565164"
+				},
+				"100000001": {
+				  "summary": "Neon",
+				  "value": "100000001"
+				},
+				"100000002": {
+				  "summary": "Gnosis",
+				  "value": "100000002"
+				},
+				"100000004": {
+				  "summary": "Metis",
+				  "value": "100000004"
+				},
+				"100000005": {
+				  "summary": "Bitrock",
+				  "value": "100000005"
+				},
+				"100000006": {
+				  "summary": "CrossFi",
+				  "value": "100000006"
+				},
+				"100000008": {
+				  "summary": "Zilliqa",
+				  "value": "100000008"
+				},
+				"100000009": {
+				  "summary": "Flow",
+				  "value": "100000009"
+				},
+				"100000010": {
+				  "summary": "zkEvmCronos",
+				  "value": "100000010"
+				},
+				"100000013": {
+				  "summary": "Story",
+				  "value": "100000013"
+				},
+				"100000014": {
+				  "summary": "Sonic",
+				  "value": "100000014"
+				},
+				"100000015": {
+				  "summary": "Zircuit",
+				  "value": "100000015"
+				},
+				"100000017": {
+				  "summary": "Abstract",
+				  "value": "100000017"
+				},
+				"100000020": {
+				  "summary": "Berachain",
+				  "value": "100000020"
+				},
+				"100000021": {
+				  "summary": "Bob",
+				  "value": "100000021"
+				},
+				"100000022": {
+				  "summary": "HyperEVM",
+				  "value": "100000022"
+				},
+				"100000023": {
+				  "summary": "Mantle",
+				  "value": "100000023"
+				},
+				"100000024": {
+				  "summary": "Plume",
+				  "value": "100000024"
+				}
+			  },
+			  "schema": {
+				"enum": [
+				  "1",
+				  "10",
+				  "56",
+				  "137",
+				  "250",
+				  "8453",
+				  "42161",
+				  "43114",
+				  "59144",
+				  "7565164",
+				  "100000001",
+				  "100000002",
+				  "100000004",
+				  "100000005",
+				  "100000006",
+				  "100000008",
+				  "100000009",
+				  "100000010",
+				  "100000013",
+				  "100000014",
+				  "100000015",
+				  "100000017",
+				  "100000020",
+				  "100000021",
+				  "100000022",
+				  "100000023",
+				  "100000024"
+				],
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/TokenListResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"utils"
+		  ]
+		}
+	  },
+	  "/v1.0/chain/transaction": {
+		"get": {
+		  "operationId": "SingleSwapControllerV10_getChainTransaction",
+		  "parameters": [
+			{
+			  "name": "chainId",
+			  "required": true,
+			  "in": "query",
+			  "description": "An ID of a chain, a chain where the swap must be performed",
+			  "examples": {
+				"1": {
+				  "summary": "Ethereum",
+				  "value": "1"
+				},
+				"10": {
+				  "summary": "Optimism",
+				  "value": "10"
+				},
+				"56": {
+				  "summary": "BNB Chain",
+				  "value": "56"
+				},
+				"137": {
+				  "summary": "Polygon",
+				  "value": "137"
+				},
+				"250": {
+				  "summary": "Fantom",
+				  "value": "250"
+				},
+				"8453": {
+				  "summary": "Base",
+				  "value": "8453"
+				},
+				"42161": {
+				  "summary": "Arbitrum One",
+				  "value": "42161"
+				},
+				"43114": {
+				  "summary": "Avalanche",
+				  "value": "43114"
+				},
+				"59144": {
+				  "summary": "Linea",
+				  "value": "59144"
+				},
+				"7565164": {
+				  "summary": "Solana",
+				  "value": "7565164"
+				},
+				"100000001": {
+				  "summary": "Neon",
+				  "value": "100000001"
+				},
+				"100000002": {
+				  "summary": "Gnosis",
+				  "value": "100000002"
+				},
+				"100000004": {
+				  "summary": "Metis",
+				  "value": "100000004"
+				},
+				"100000005": {
+				  "summary": "Bitrock",
+				  "value": "100000005"
+				},
+				"100000006": {
+				  "summary": "CrossFi",
+				  "value": "100000006"
+				},
+				"100000008": {
+				  "summary": "Zilliqa",
+				  "value": "100000008"
+				},
+				"100000009": {
+				  "summary": "Flow",
+				  "value": "100000009"
+				},
+				"100000010": {
+				  "summary": "zkEvmCronos",
+				  "value": "100000010"
+				},
+				"100000013": {
+				  "summary": "Story",
+				  "value": "100000013"
+				},
+				"100000014": {
+				  "summary": "Sonic",
+				  "value": "100000014"
+				},
+				"100000015": {
+				  "summary": "Zircuit",
+				  "value": "100000015"
+				},
+				"100000017": {
+				  "summary": "Abstract",
+				  "value": "100000017"
+				},
+				"100000020": {
+				  "summary": "Berachain",
+				  "value": "100000020"
+				},
+				"100000021": {
+				  "summary": "Bob",
+				  "value": "100000021"
+				},
+				"100000022": {
+				  "summary": "HyperEVM",
+				  "value": "100000022"
+				},
+				"100000023": {
+				  "summary": "Mantle",
+				  "value": "100000023"
+				},
+				"100000024": {
+				  "summary": "Plume",
+				  "value": "100000024"
+				}
+			  },
+			  "schema": {
+				"enum": [
+				  "1",
+				  "10",
+				  "56",
+				  "137",
+				  "250",
+				  "8453",
+				  "42161",
+				  "43114",
+				  "59144",
+				  "7565164",
+				  "100000001",
+				  "100000002",
+				  "100000004",
+				  "100000005",
+				  "100000006",
+				  "100000008",
+				  "100000009",
+				  "100000010",
+				  "100000013",
+				  "100000014",
+				  "100000015",
+				  "100000017",
+				  "100000020",
+				  "100000021",
+				  "100000022",
+				  "100000023",
+				  "100000024"
+				],
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenIn",
+			  "required": true,
+			  "in": "query",
+			  "description": "An address of an input token to swap",
+			  "examples": {
+				"usdt": {
+				  "summary": "USDT token on Ethereum",
+				  "value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"native_solana": {
+				  "summary": "Native token on SOLANA",
+				  "value": "11111111111111111111111111111111"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenInAmount",
+			  "required": true,
+			  "in": "query",
+			  "description": "An amount of input tokens to swap",
+			  "examples": {
+				"usdt": {
+				  "summary": "50 USDT (decimals=6)",
+				  "value": 50000000
+				},
+				"busd": {
+				  "summary": "50 BUSD (decimals=18)",
+				  "value": 5e+19
+				},
+				"eth": {
+				  "summary": "0.1 ETH (decimals=18)",
+				  "value": 100000000000000000
+				},
+				"sol": {
+				  "summary": "0.1 SOL (decimals=9)",
+				  "value": "100000000"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "slippage",
+			  "required": false,
+			  "in": "query",
+			  "description": "A slippage constraint (in %) is a safeguard during swaps (on both source and destination chains, if applicable). It is also used to calculate the minimum possible outcome during estimation. This property can be set to \"auto\" so that the API will suggest the best possible slippage.",
+			  "schema": {
+				"default": "auto",
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenOut",
+			  "required": true,
+			  "in": "query",
+			  "description": "An address of a target token.",
+			  "examples": {
+				"usdc": {
+				  "summary": "USDC token on the Ethereum chain",
+				  "value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenOutRecipient",
+			  "required": true,
+			  "in": "query",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "affiliateFeePercent",
+			  "required": false,
+			  "in": "query",
+			  "description": "\n The share of the input amount to be distributed to the `affiliateFeeRecipient` (if given) address as an affiliate fee.\n \n\n \nIf you are building on top of deSwap, you might want to take a small fee relative to the amount of a token a user provides for a swap. To achieve this, set this parameter to a desired % (e.g. `0.1` stands for 0.1%; the max value is `10` which stands for 10% of `srcAmountInParam`) and specify your wallet address in the `affiliateFeeRecipient` parameter.\n \n\n \nFor example, setting this parameter to `0.1` means that when the user gives 5000 USDT then you will receive 5 USDT immediately after transaction is being confirmed.\n       ",
+			  "examples": {
+				"no_fee": {
+				  "summary": "No affiliate fee",
+				  "value": 0
+				},
+				"fee_0.1": {
+				  "summary": "Set 0.1% affiliate fee",
+				  "value": 0.1
+				},
+				"fee_1": {
+				  "summary": "Set 1% affiliate fee",
+				  "value": 1
+				}
+			  },
+			  "schema": {
+				"type": "number"
+			  }
+			},
+			{
+			  "name": "affiliateFeeRecipient",
+			  "required": false,
+			  "in": "query",
+			  "description": "An address (on an origin chain) that will receive affiliate fees according to the `affiliateFeePercent` parameter. For solana affiliate fee you have to create & provide Jupiter's referral key (https://referral.jup.ag/dashboard).",
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "senderAddress",
+			  "required": false,
+			  "in": "query",
+			  "description": "Address (on the source chain) who submits input tokens for a cross-chain swap",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/ChainTransactionResponseV10"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - AFFILIATE_FEE_PERCENT_NOT_SET\n  \n  \n        - AFFILIATE_FEE_RECIPIENT_NOT_SET\n  \n  \n        - UNSUPPORTED_TOKEN_IN\n  \n  \n        - UNSUPPORTED_TOKEN_OUT\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"single chain swap"
+		  ]
+		}
+	  },
+	  "/v1.0/chain/estimation": {
+		"get": {
+		  "operationId": "SingleSwapControllerV10_getChainEstimation",
+		  "parameters": [
+			{
+			  "name": "chainId",
+			  "required": true,
+			  "in": "query",
+			  "description": "An ID of a chain, a chain where the swap must be performed",
+			  "examples": {
+				"1": {
+				  "summary": "Ethereum",
+				  "value": "1"
+				},
+				"10": {
+				  "summary": "Optimism",
+				  "value": "10"
+				},
+				"56": {
+				  "summary": "BNB Chain",
+				  "value": "56"
+				},
+				"137": {
+				  "summary": "Polygon",
+				  "value": "137"
+				},
+				"250": {
+				  "summary": "Fantom",
+				  "value": "250"
+				},
+				"8453": {
+				  "summary": "Base",
+				  "value": "8453"
+				},
+				"42161": {
+				  "summary": "Arbitrum One",
+				  "value": "42161"
+				},
+				"43114": {
+				  "summary": "Avalanche",
+				  "value": "43114"
+				},
+				"59144": {
+				  "summary": "Linea",
+				  "value": "59144"
+				},
+				"7565164": {
+				  "summary": "Solana",
+				  "value": "7565164"
+				},
+				"100000001": {
+				  "summary": "Neon",
+				  "value": "100000001"
+				},
+				"100000002": {
+				  "summary": "Gnosis",
+				  "value": "100000002"
+				},
+				"100000004": {
+				  "summary": "Metis",
+				  "value": "100000004"
+				},
+				"100000005": {
+				  "summary": "Bitrock",
+				  "value": "100000005"
+				},
+				"100000006": {
+				  "summary": "CrossFi",
+				  "value": "100000006"
+				},
+				"100000008": {
+				  "summary": "Zilliqa",
+				  "value": "100000008"
+				},
+				"100000009": {
+				  "summary": "Flow",
+				  "value": "100000009"
+				},
+				"100000010": {
+				  "summary": "zkEvmCronos",
+				  "value": "100000010"
+				},
+				"100000013": {
+				  "summary": "Story",
+				  "value": "100000013"
+				},
+				"100000014": {
+				  "summary": "Sonic",
+				  "value": "100000014"
+				},
+				"100000015": {
+				  "summary": "Zircuit",
+				  "value": "100000015"
+				},
+				"100000017": {
+				  "summary": "Abstract",
+				  "value": "100000017"
+				},
+				"100000020": {
+				  "summary": "Berachain",
+				  "value": "100000020"
+				},
+				"100000021": {
+				  "summary": "Bob",
+				  "value": "100000021"
+				},
+				"100000022": {
+				  "summary": "HyperEVM",
+				  "value": "100000022"
+				},
+				"100000023": {
+				  "summary": "Mantle",
+				  "value": "100000023"
+				},
+				"100000024": {
+				  "summary": "Plume",
+				  "value": "100000024"
+				}
+			  },
+			  "schema": {
+				"enum": [
+				  "1",
+				  "10",
+				  "56",
+				  "137",
+				  "250",
+				  "8453",
+				  "42161",
+				  "43114",
+				  "59144",
+				  "7565164",
+				  "100000001",
+				  "100000002",
+				  "100000004",
+				  "100000005",
+				  "100000006",
+				  "100000008",
+				  "100000009",
+				  "100000010",
+				  "100000013",
+				  "100000014",
+				  "100000015",
+				  "100000017",
+				  "100000020",
+				  "100000021",
+				  "100000022",
+				  "100000023",
+				  "100000024"
+				],
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenIn",
+			  "required": true,
+			  "in": "query",
+			  "description": "An address of an input token to swap",
+			  "examples": {
+				"usdt": {
+				  "summary": "USDT token on Ethereum",
+				  "value": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"native_solana": {
+				  "summary": "Native token on SOLANA",
+				  "value": "11111111111111111111111111111111"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenInAmount",
+			  "required": true,
+			  "in": "query",
+			  "description": "An amount of input tokens to swap",
+			  "examples": {
+				"usdt": {
+				  "summary": "50 USDT (decimals=6)",
+				  "value": 50000000
+				},
+				"busd": {
+				  "summary": "50 BUSD (decimals=18)",
+				  "value": 5e+19
+				},
+				"eth": {
+				  "summary": "0.1 ETH (decimals=18)",
+				  "value": 100000000000000000
+				},
+				"sol": {
+				  "summary": "0.1 SOL (decimals=9)",
+				  "value": "100000000"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "slippage",
+			  "required": false,
+			  "in": "query",
+			  "description": "A slippage constraint (in %) is a safeguard during swaps (on both source and destination chains, if applicable). It is also used to calculate the minimum possible outcome during estimation. This property can be set to \"auto\" so that the API will suggest the best possible slippage.",
+			  "schema": {
+				"default": "auto",
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "tokenOut",
+			  "required": true,
+			  "in": "query",
+			  "description": "An address of a target token.",
+			  "examples": {
+				"usdc": {
+				  "summary": "USDC token on the Ethereum chain",
+				  "value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+				},
+				"native": {
+				  "summary": "Native coin (e.g., ETH on Ethereum, BNB on BNB Chain)",
+				  "value": "0x0000000000000000000000000000000000000000"
+				},
+				"usdc_solana": {
+				  "summary": "USDC token on SOLANA",
+				  "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+				}
+			  },
+			  "schema": {
+				"type": "string"
+			  }
+			},
+			{
+			  "name": "affiliateFeePercent",
+			  "required": false,
+			  "in": "query",
+			  "description": "\n The share of the input amount to be distributed to the `affiliateFeeRecipient` (if given) address as an affiliate fee.\n \n\n \nIf you are building on top of deSwap, you might want to take a small fee relative to the amount of a token a user provides for a swap. To achieve this, set this parameter to a desired % (e.g. `0.1` stands for 0.1%; the max value is `10` which stands for 10% of `srcAmountInParam`) and specify your wallet address in the `affiliateFeeRecipient` parameter.\n \n\n \nFor example, setting this parameter to `0.1` means that when the user gives 5000 USDT then you will receive 5 USDT immediately after transaction is being confirmed.\n       ",
+			  "examples": {
+				"no_fee": {
+				  "summary": "No affiliate fee",
+				  "value": 0
+				},
+				"fee_0.1": {
+				  "summary": "Set 0.1% affiliate fee",
+				  "value": 0.1
+				},
+				"fee_1": {
+				  "summary": "Set 1% affiliate fee",
+				  "value": 1
+				}
+			  },
+			  "schema": {
+				"type": "number"
+			  }
+			},
+			{
+			  "name": "affiliateFeeRecipient",
+			  "required": false,
+			  "in": "query",
+			  "description": "An address (on an origin chain) that will receive affiliate fees according to the `affiliateFeePercent` parameter.",
+			  "schema": {
+				"type": "string"
+			  }
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/ChainEstimationResponseV10"
+				  }
+				}
+			  }
+			},
+			"400": {
+			  "description": "The request is malformed, has missing parameters, or has incorrect or contradicting parameter values. Possible error ids: \n  \n        - INVALID_QUERY_PARAMETERS\n  \n  \n        - AFFILIATE_FEE_PERCENT_NOT_SET\n  \n  \n        - AFFILIATE_FEE_RECIPIENT_NOT_SET\n  \n  \n        - UNSUPPORTED_TOKEN_IN\n  \n  \n        - UNSUPPORTED_TOKEN_OUT\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/BadRequestResponse"
+				  }
+				}
+			  }
+			},
+			"500": {
+			  "description": "The server has encountered a situation it does not know how to handle. Possible error ids: \n  \n        - INTERNAL_SERVER_ERROR\n  \n  \n        - INTERNAL_SDK_ERROR\n  \n",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/InternalServerErrorResponse"
+				  }
+				}
+			  }
+			}
+		  },
+		  "tags": [
+			"single chain swap"
+		  ]
+		}
+	  }
+	},
+	"info": {
+	  "title": "deBridge Liquidity Network (DLN) API",
+	  "description": "A turnkey solution for a high-performance cross-chain trading\u003Cbr\u003E\u003Cbr\u003E\u003Ca href=\"https://docs.debridge.finance/dln-the-debridge-liquidity-network-protocol/interacting-with-the-api/quick-start-guide\"\u003EQuick Start Guide\u003C/a\u003E",
+	  "version": "1.0.0",
+	  "contact": {
+  
+	  },
+	  "termsOfService": "https://app.debridge.finance/assets/files/DLN-TermsOfService.pdf"
+	},
+	"tags": [],
+	"servers": [],
+	"components": {
+	  "schemas": {
+		"SrcChainTokenInResponseType": {
+		  "type": "object",
+		  "properties": {
+			"address": {
+			  "type": "string"
+			},
+			"name": {
+			  "type": "string"
+			},
+			"symbol": {
+			  "type": "string"
+			},
+			"decimals": {
+			  "type": "integer"
+			},
+			"amount": {
+			  "type": "string"
+			},
+			"approximateOperatingExpense": {
+			  "type": "string"
+			},
+			"mutatedWithOperatingExpense": {
+			  "type": "boolean"
+			},
+			"approximateUsdValue": {
+			  "type": "number"
+			},
+			"originApproximateUsdValue": {
+			  "type": "number"
+			}
+		  },
+		  "required": [
+			"address",
+			"name",
+			"symbol",
+			"decimals",
+			"amount",
+			"approximateOperatingExpense",
+			"mutatedWithOperatingExpense",
+			"approximateUsdValue",
+			"originApproximateUsdValue"
+		  ]
+		},
+		"SrcChainTokenOutResponseType": {
+		  "type": "object",
+		  "properties": {
+			"address": {
+			  "type": "string"
+			},
+			"name": {
+			  "type": "string"
+			},
+			"symbol": {
+			  "type": "string"
+			},
+			"decimals": {
+			  "type": "integer"
+			},
+			"amount": {
+			  "type": "string"
+			},
+			"maxRefundAmount": {
+			  "type": "string"
+			},
+			"approximateUsdValue": {
+			  "type": "number"
+			}
+		  },
+		  "required": [
+			"address",
+			"name",
+			"symbol",
+			"decimals",
+			"amount",
+			"maxRefundAmount",
+			"approximateUsdValue"
+		  ]
+		},
+		"DstChainTokenOutResponseType": {
+		  "type": "object",
+		  "properties": {
+			"address": {
+			  "type": "string"
+			},
+			"name": {
+			  "type": "string"
+			},
+			"symbol": {
+			  "type": "string"
+			},
+			"decimals": {
+			  "type": "integer"
+			},
+			"amount": {
+			  "type": "string"
+			},
+			"recommendedAmount": {
+			  "type": "string"
+			},
+			"withoutAdditionalTakerRewardsAmount": {
+			  "type": "string"
+			},
+			"maxTheoreticalAmount": {
+			  "type": "string"
+			},
+			"approximateUsdValue": {
+			  "type": "number"
+			},
+			"recommendedApproximateUsdValue": {
+			  "type": "number"
+			},
+			"maxTheoreticalApproximateUsdValue": {
+			  "type": "number"
+			},
+			"withoutAdditionalTakerRewardsApproximateUsdValue": {
+			  "type": "number"
+			}
+		  },
+		  "required": [
+			"address",
+			"name",
+			"symbol",
+			"decimals",
+			"amount",
+			"recommendedAmount",
+			"withoutAdditionalTakerRewardsAmount",
+			"maxTheoreticalAmount"
+		  ]
+		},
+		"DlnOrderEstimation": {
+		  "type": "object",
+		  "properties": {
+			"srcChainTokenIn": {
+			  "$ref": "#/components/schemas/SrcChainTokenInResponseType"
+			},
+			"srcChainTokenOut": {
+			  "$ref": "#/components/schemas/SrcChainTokenOutResponseType"
+			},
+			"dstChainTokenOut": {
+			  "$ref": "#/components/schemas/DstChainTokenOutResponseType"
+			},
+			"recommendedSlippage": {
+			  "type": "number"
+			},
+			"costsDetails": {
+			  "type": "array",
+			  "items": {
+				"type": "string"
+			  }
+			}
+		  },
+		  "required": [
+			"srcChainTokenIn",
+			"srcChainTokenOut",
+			"dstChainTokenOut",
+			"costsDetails"
+		  ]
+		},
+		"DlnTx": {
+		  "type": "object",
+		  "properties": {
+			"to": {
+			  "type": "string"
+			},
+			"data": {
+			  "type": "string"
+			},
+			"value": {
+			  "type": "string"
+			},
+			"gasLimit": {
+			  "type": "number"
+			}
+		  },
+		  "required": [
+			"to",
+			"data",
+			"value",
+			"gasLimit"
+		  ]
+		},
+		"Order": {
+		  "type": "object",
+		  "properties": {
+			"approximateFulfillmentDelay": {
+			  "type": "number"
+			},
+			"salt": {
+			  "type": "number"
+			},
+			"metadata": {
+			  "type": "string"
+			}
+		  },
+		  "required": [
+			"approximateFulfillmentDelay",
+			"salt",
+			"metadata"
+		  ]
+		},
+		"DlnOrderCreateTxResponse": {
+		  "type": "object",
+		  "properties": {
+			"estimation": {
+			  "$ref": "#/components/schemas/DlnOrderEstimation"
+			},
+			"tx": {
+			  "$ref": "#/components/schemas/DlnTx"
+			},
+			"orderId": {
+			  "type": "string"
+			},
+			"prependedOperatingExpenseCost": {
+			  "type": "string"
+			},
+			"order": {
+			  "$ref": "#/components/schemas/Order"
+			},
+			"fixFee": {
+			  "type": "string"
+			},
+			"userPoints": {
+			  "type": "number"
+			},
+			"integratorPoints": {
+			  "type": "number"
+			},
+			"actualUserPoints": {
+			  "type": "number"
+			},
+			"actualIntegratorPoints": {
+			  "type": "number"
+			}
+		  },
+		  "required": [
+			"estimation",
+			"tx",
+			"orderId",
+			"order",
+			"fixFee",
+			"userPoints",
+			"integratorPoints",
+			"actualUserPoints",
+			"actualIntegratorPoints"
+		  ]
+		},
+		"BadRequestResponse": {
+		  "type": "object",
+		  "properties": {
+			"errorCode": {
+			  "type": "integer"
+			},
+			"errorId": {
+			  "type": "string",
+			  "enum": [
+				"INVALID_QUERY_PARAMETERS",
+				"SOURCE_AND_DESTINATION_CHAINS_ARE_EQUAL",
+				"INCLUDED_GAS_FEE_NOT_COVERED_BY_INPUT_AMOUNT",
+				"INCLUDED_GAS_FEE_CANNOT_BE_ESTIMATED_FOR_TRANSACTION_BUNDLE"
+			  ]
+			},
+			"errorMessage": {
+			  "type": "string"
+			},
+			"errorPayload": {
+			  "type": "object"
+			}
+		  },
+		  "required": [
+			"errorCode",
+			"errorId",
+			"errorMessage",
+			"errorPayload"
+		  ]
+		},
+		"InternalServerErrorResponse": {
+		  "type": "object",
+		  "properties": {
+			"errorCode": {
+			  "type": "integer"
+			},
+			"errorId": {
+			  "type": "string",
+			  "enum": [
+				"INTERNAL_SERVER_ERROR",
+				"INTERNAL_SDK_ERROR"
+			  ]
+			},
+			"errorMessage": {
+			  "type": "string"
+			},
+			"errorPayload": {
+			  "type": "object"
+			}
+		  },
+		  "required": [
+			"errorCode",
+			"errorId",
+			"errorMessage",
+			"errorPayload"
+		  ]
+		},
+		"Offer": {
+		  "type": "object",
+		  "properties": {
+			"chainId": {
+			  "type": "string",
+			  "enum": [
+				"1",
+				"10",
+				"56",
+				"137",
+				"250",
+				"8453",
+				"42161",
+				"43114",
+				"59144",
+				"7565164",
+				"100000001",
+				"100000002",
+				"100000004",
+				"100000005",
+				"100000006",
+				"100000008",
+				"100000009",
+				"100000010",
+				"100000013",
+				"100000014",
+				"100000015",
+				"100000017",
+				"100000020",
+				"100000021",
+				"100000022",
+				"100000023",
+				"100000024"
+			  ]
+			},
+			"tokenAddress": {
+			  "type": "string",
+			  "example": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+			},
+			"amount": {
+			  "type": "integer",
+			  "example": "48039251898"
+			}
+		  },
+		  "required": [
+			"chainId",
+			"tokenAddress",
+			"amount"
+		  ]
+		},
+		"OrderStruct": {
+		  "type": "object",
+		  "properties": {
+			"makerOrderNonce": {
+			  "type": "integer",
+			  "example": 0
+			},
+			"makerSrc": {
+			  "type": "string",
+			  "example": "0xfa80cd9b3becc0b4403b0f421384724f2810775f"
+			},
+			"giveOffer": {
+			  "$ref": "#/components/schemas/Offer"
+			},
+			"receiverDst": {
+			  "type": "string",
+			  "example": "0xfa80cd9b3becc0b4403b0f421384724f2810775f"
+			},
+			"takeOffer": {
+			  "$ref": "#/components/schemas/Offer"
+			},
+			"givePatchAuthoritySrc": {
+			  "type": "string",
+			  "example": "0xfa80cd9b3becc0b4403b0f421384724f2810775f"
+			},
+			"orderAuthorityAddressDst": {
+			  "type": "string",
+			  "example": "0xfa80cd9b3becc0b4403b0f421384724f2810775f"
+			},
+			"allowedTakerDst": {
+			  "type": "string",
+			  "example": "0xfa80cd9b3becc0b4403b0f421384724f2810775f"
+			},
+			"allowedCancelBeneficiarySrc": {
+			  "type": "string",
+			  "example": "0xfa80cd9b3becc0b4403b0f421384724f2810775f"
+			},
+			"externalCall": {
+			  "type": "string"
+			}
+		  },
+		  "required": [
+			"makerOrderNonce",
+			"makerSrc",
+			"giveOffer",
+			"receiverDst",
+			"takeOffer",
+			"givePatchAuthoritySrc",
+			"orderAuthorityAddressDst",
+			"allowedTakerDst",
+			"allowedCancelBeneficiarySrc",
+			"externalCall"
+		  ]
+		},
+		"DlnOrderResponse": {
+		  "type": "object",
+		  "properties": {
+			"orderId": {
+			  "type": "string",
+			  "example": "0x997cde21a489d060dd83c897c7e69bc5aa3d56398cc1129fbe34f3bc439b6db9"
+			},
+			"status": {
+			  "type": "string",
+			  "enum": [
+				"None",
+				"Created",
+				"Fulfilled",
+				"SentUnlock",
+				"OrderCancelled",
+				"SentOrderCancel",
+				"ClaimedUnlock",
+				"ClaimedOrderCancel"
+			  ],
+			  "example": "Fulfilled"
+			},
+			"externalCallState": {
+			  "type": "string",
+			  "enum": [
+				"NoExtCall",
+				"AwaitingOrderFulfillment",
+				"AwaitingExecution",
+				"Executing",
+				"Completed",
+				"Failed",
+				"Cancelled"
+			  ],
+			  "example": "AwaitingOrderFulfillment"
+			},
+			"orderStruct": {
+			  "$ref": "#/components/schemas/OrderStruct"
+			}
+		  },
+		  "required": [
+			"orderId",
+			"status",
+			"orderStruct"
+		  ]
+		},
+		"DlnOrderStatusResponse": {
+		  "type": "object",
+		  "properties": {
+			"orderId": {
+			  "type": "string",
+			  "example": "0x997cde21a489d060dd83c897c7e69bc5aa3d56398cc1129fbe34f3bc439b6db9"
+			},
+			"status": {
+			  "type": "string",
+			  "enum": [
+				"None",
+				"Created",
+				"Fulfilled",
+				"SentUnlock",
+				"OrderCancelled",
+				"SentOrderCancel",
+				"ClaimedUnlock",
+				"ClaimedOrderCancel"
+			  ],
+			  "example": "Fulfilled"
+			}
+		  },
+		  "required": [
+			"orderId",
+			"status"
+		  ]
+		},
+		"DlnOrderidsByTxResponse": {
+		  "type": "object",
+		  "properties": {
+			"orderIds": {
+			  "type": "array",
+			  "items": {
+				"type": "string"
+			  }
+			}
+		  },
+		  "required": [
+			"orderIds"
+		  ]
+		},
+		"DlnOrderCancelTxResponse": {
+		  "type": "object",
+		  "properties": {
+			"to": {
+			  "type": "string"
+			},
+			"data": {
+			  "type": "string"
+			},
+			"value": {
+			  "type": "string"
+			},
+			"chainId": {
+			  "type": "number"
+			},
+			"from": {
+			  "type": "string"
+			},
+			"cancelBeneficiary": {
+			  "type": "string"
+			}
+		  },
+		  "required": [
+			"to",
+			"data",
+			"value",
+			"chainId",
+			"from",
+			"cancelBeneficiary"
+		  ]
+		},
+		"SupportedChainsResponse": {
+		  "type": "object",
+		  "properties": {
+			"chains": {
+			  "example": [1],
+			  "type": "array",
+			  "items": {
+				"type": "array"
+			  }
+			}
+		  },
+		  "required": [
+			"chains"
+		  ]
+		},
+		"SupportedChainsInfoItemResponse": {
+		  "type": "object",
+		  "properties": {
+			"chainId": {
+			  "type": "number",
+			  "enum": [1, 56, 128, 137, 42161, 43114, 43113, 42, 97, 256, 80001, 421611, 7565164, 250, 59144, 8453, 10, 100000001, 100000002, 100000003, 100000004, 100000005, 100000006, 100000009, 100000010, 100000013, 100000014, 100000015, 100000017, 100000020, 100000021, 100000022, 100000008, 100000023, 100000024],
+			  "example": 137
+			},
+			"originalChainId": {
+			  "type": "number",
+			  "example": 100
+			},
+			"chainName": {
+			  "type": "string",
+			  "example": "Polygon"
+			}
+		  },
+		  "required": [
+			"chainId",
+			"originalChainId",
+			"chainName"
+		  ]
+		},
+		"SupportedChainsInfoResponse": {
+		  "type": "object",
+		  "properties": {
+			"chains": {
+			  "type": "array",
+			  "items": {
+				"$ref": "#/components/schemas/SupportedChainsInfoItemResponse"
+			  }
+			}
+		  },
+		  "required": [
+			"chains"
+		  ]
+		},
+		"TokenListResponse": {
+		  "type": "object",
+		  "properties": {
+			"tokens": {
+			  "type": "object",
+			  "example": {
+				"0x0327112423f3a68efdf1fcf402f6c5cb9f7c33fd": {
+				  "symbol": "BTC++",
+				  "name": "PieDAO BTC++",
+				  "decimals": 18,
+				  "address": "0x0327112423f3a68efdf1fcf402f6c5cb9f7c33fd",
+				  "logoURI": "https://tokens.1inch.io/0x0327112423f3a68efdf1fcf402f6c5cb9f7c33fd.png",
+				  "tags": [
+					"tokens",
+					"PEG:BTC"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "required": [
+			"tokens"
+		  ]
+		},
+		"TokenWithAmount": {
+		  "type": "object",
+		  "properties": {
+			"address": {
+			  "type": "string"
+			},
+			"name": {
+			  "type": "string"
+			},
+			"symbol": {
+			  "type": "string"
+			},
+			"decimals": {
+			  "type": "integer"
+			},
+			"amount": {
+			  "type": "string"
+			}
+		  },
+		  "required": [
+			"address",
+			"name",
+			"symbol",
+			"decimals",
+			"amount"
+		  ]
+		},
+		"TokenWithMinAmount": {
+		  "type": "object",
+		  "properties": {
+			"address": {
+			  "type": "string"
+			},
+			"name": {
+			  "type": "string"
+			},
+			"symbol": {
+			  "type": "string"
+			},
+			"decimals": {
+			  "type": "integer"
+			},
+			"amount": {
+			  "type": "string"
+			},
+			"minAmount": {
+			  "type": "string"
+			}
+		  },
+		  "required": [
+			"address",
+			"name",
+			"symbol",
+			"decimals",
+			"amount",
+			"minAmount"
+		  ]
+		},
+		"Tx": {
+		  "type": "object",
+		  "properties": {
+			"to": {
+			  "type": "string"
+			},
+			"data": {
+			  "type": "string"
+			},
+			"value": {
+			  "type": "string"
+			}
+		  },
+		  "required": [
+			"to",
+			"data",
+			"value"
+		  ]
+		},
+		"ChainTransactionResponseV10": {
+		  "type": "object",
+		  "properties": {
+			"tokenIn": {
+			  "$ref": "#/components/schemas/TokenWithAmount"
+			},
+			"tokenOut": {
+			  "$ref": "#/components/schemas/TokenWithMinAmount"
+			},
+			"slippage": {
+			  "type": "number"
+			},
+			"recommendedSlippage": {
+			  "type": "number"
+			},
+			"tx": {
+			  "$ref": "#/components/schemas/Tx"
+			}
+		  },
+		  "required": [
+			"tokenIn",
+			"tokenOut",
+			"slippage",
+			"recommendedSlippage",
+			"tx"
+		  ]
+		},
+		"SingleChainEstimation": {
+		  "type": "object",
+		  "properties": {
+			"tokenIn": {
+			  "$ref": "#/components/schemas/TokenWithAmount"
+			},
+			"tokenOut": {
+			  "$ref": "#/components/schemas/TokenWithMinAmount"
+			},
+			"slippage": {
+			  "type": "number"
+			},
+			"recommendedSlippage": {
+			  "type": "number"
+			}
+		  },
+		  "required": [
+			"tokenIn",
+			"tokenOut",
+			"slippage",
+			"recommendedSlippage"
+		  ]
+		},
+		"ChainEstimationResponseV10": {
+		  "type": "object",
+		  "properties": {
+			"estimation": {
+			  "$ref": "#/components/schemas/SingleChainEstimation"
+			}
+		  },
+		  "required": [
+			"estimation"
+		  ]
+		}
+	  }
+	},
+	"externalDocs": {
+	  "description": "DLN API documentation",
+	  "url": "https://docs.debridge.finance/dln-the-debridge-liquidity-network-protocol/introduction"
+	}
+}

@@ -36,28 +36,34 @@ export const SmartSwapInput = z
     tokenIn: z
       .string()
       .optional()
+      .nullable()
       .describe("The address of the input token (token you're selling)"),
     tokenOut: z
       .string()
       .optional()
+      .nullable()
       .describe("The address of the output token (token you're buying)"),
     tokenInSymbol: z
       .string()
       .optional()
+      .nullable()
       .describe("The symbol of the input token (e.g., 'ETH', 'USDC')"),
     tokenOutSymbol: z
       .string()
       .optional()
+      .nullable()
       .describe("The symbol of the output token (e.g., 'ETH', 'USDC')"),
     amount: z.string().describe("The amount of input token to swap"),
     slippage: z
       .string()
       .optional()
+      .nullable()
       .default("auto")
       .describe("Slippage tolerance in percentage (e.g., '0.5') or 'auto'"),
     approveMax: z
       .boolean()
       .optional()
+      .nullable()
       .default(false)
       .describe("Whether to approve maximum token allowance"),
   })
@@ -207,7 +213,7 @@ Example: "Swap 0.01 USDT to WETH with approveMax: true"`;
         tokenInAddress as `0x${string}`,
         spenderAddress,
         BigInt(formattedAmount),
-        args.approveMax,
+        args.approveMax ?? false,
       );
 
       if (!approvalResult.success) {

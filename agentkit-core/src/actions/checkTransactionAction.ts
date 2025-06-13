@@ -20,14 +20,17 @@ export const CheckTransactionInput = z
     confirmations: z
       .number()
       .optional()
+      .nullable()
       .describe("Number of block confirmations to wait for (default: 1)"),
     maxDuration: z
       .number()
       .optional()
+      .nullable()
       .describe("Maximum time to wait in milliseconds (default: 30000)"),
     interval: z
       .number()
       .optional()
+      .nullable()
       .describe("How often to check status in milliseconds (default: 5000)"),
   })
   .strip()
@@ -46,9 +49,9 @@ export async function checkTransactionStatus(
 ): Promise<string> {
   try {
     const status = await waitForTransaction(wallet, args.userOpHash, {
-      confirmations: args.confirmations,
-      maxDuration: args.maxDuration,
-      interval: args.interval,
+      confirmations: args.confirmations ?? undefined,
+      maxDuration: args.maxDuration ?? undefined,
+      interval: args.interval ?? undefined,
     });
 
     switch (status.status) {

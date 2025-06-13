@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Account, createPublicClient, createWalletClient, http, PublicClient } from "viem";
+import { Account, createWalletClient, http } from "viem";
 import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
 import { ZeroXgaslessSmartAccount, createSmartAccountClient } from "@0xgasless/smart-account";
 
@@ -59,19 +59,12 @@ export interface SmartAgentOptions extends PublicAgentOptions {
 }
 
 export class Agentkit {
-  private publicClient: PublicClient;
   private smartAccount?: ZeroXgaslessSmartAccount;
 
   public constructor(config: PublicAgentOptions) {
     if (!supportedChains[config.chainID]) {
       throw new Error(`Chain ID ${config.chainID} is not supported`);
     }
-
-    // Configure public client
-    this.publicClient = createPublicClient({
-      chain: supportedChains[config.chainID],
-      transport: config.rpcUrl ? http(config.rpcUrl) : http(),
-    });
   }
 
   public static async configureWithWallet(config: SmartAgentOptions): Promise<Agentkit> {

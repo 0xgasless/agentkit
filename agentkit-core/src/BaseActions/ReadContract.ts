@@ -34,7 +34,8 @@ export const ReadContractSchema = z.object({
     .describe(
       "The arguments for the function as a JSON string array. Omit or use '[]' for functions with no arguments.",
     )
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 // Infer the type from the schema
