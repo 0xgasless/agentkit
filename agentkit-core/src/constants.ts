@@ -9,6 +9,9 @@ export const supportedChains: Record<number, Chain> = {
   56: bsc,
 };
 
+// API Configuration
+export const API_BASE_URL = process.env.AGENTKIT_API_URL ?? "http://localhost:3001";
+
 // Token mappings by chain ID and ticker symbol
 export const tokenMappings: Record<number, Record<string, `0x${string}`>> = {
   // Avalanche (43114)

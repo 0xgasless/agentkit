@@ -12,7 +12,7 @@ import { TokenABI, tokenMappings } from "../constants";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { encodeFunctionData, getContract, parseUnits } from "viem";
 import { TransactionResponse, TransactionStatus, TokenDetails, TransactionMeta } from "../types";
-import { apiRequest, API_BASE_URL } from "./apiClient";
+import { apiRequest } from "./apiClient";
 
 const DEFAULT_WAIT_INTERVAL = 5000; // 5 seconds
 const DEFAULT_MAX_DURATION = 30000; // 30 seconds

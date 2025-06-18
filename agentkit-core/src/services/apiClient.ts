@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.AGENTKIT_API_URL ?? "http://localhost:3001";
+import { API_BASE_URL } from "../constants";
 
 export async function apiRequest(path: string, method: string, body?: unknown): Promise<any> {
   const url = `${API_BASE_URL}${path}`;
