@@ -7,6 +7,7 @@ export type TransactionResponse = {
   error?: string | { message: string; code: number };
   message?: string;
   receipt?: UserOpReceipt;
+  transactionId?: number;
 };
 
 export type TokenDetails = {
@@ -23,4 +24,13 @@ export type TransactionStatus = {
   error?: string;
   blockNumber?: number;
   blockConfirmations?: number;
+};
+
+export type TransactionMeta = {
+  agentkitId: string;
+  walletId: string;
+  from?: string;
+  to?: string;
+  chainId?: number;
+  amount?: string;
 };

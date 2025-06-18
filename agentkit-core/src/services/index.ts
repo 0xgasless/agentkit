@@ -11,12 +11,43 @@ import {
 import { TokenABI, tokenMappings } from "../constants";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { encodeFunctionData, getContract, parseUnits } from "viem";
-import { TransactionResponse, TransactionStatus, TokenDetails } from "../types";
+import { TransactionResponse, TransactionStatus, TokenDetails, TransactionMeta } from "../types";
+import { apiRequest, API_BASE_URL } from "./apiClient";
 
 const DEFAULT_WAIT_INTERVAL = 5000; // 5 seconds
 const DEFAULT_MAX_DURATION = 30000; // 30 seconds
 export const isNodeLikeEnvironment =
   typeof process !== "undefined" && process.versions != null && process.versions.node != null;
+
+// Transaction mapping to track userOpHash to database ID
+// References: /Users/kushalsrinivas/apps/0x/agentkit-api/src/handlers.ts
+const transactionMap = new Map<string, number>();
+
+/**
+ * Log transaction to agentkit-api
+ * References: /Users/kushalsrinivas/apps/0x/agentkit-api/src/handlers.ts
+ */
+async function logTransaction(payload: TransactionMeta & { transactionHash?: string; userOpHash?: string; }): Promise<number | null> {
+  try {
+    const response = await apiRequest('/transactions', 'POST', payload);
+    return response.id || null;
+  } catch (error) {
+    console.error('Failed to log transaction:', error);
+    return null;
+  }
+}
+
+/**
+ * Update transaction status in agentkit-api
+ * References: /Users/kushalsrinivas/apps/0x/agentkit-api/src/handlers.ts
+ */
+async function updateTransactionStatus(id: number, status: "pending" | "success" | "failed"): Promise<void> {
+  try {
+    await apiRequest(`/transactions/${id}`, 'PATCH', { status });
+  } catch (error) {
+    console.error('Failed to update transaction status:', error);
+  }
+}
 
 export async function createWallet() {
   const wallet = generatePrivateKey();
@@ -43,11 +74,13 @@ export async function createWallet() {
  * Sends a transaction without waiting for confirmation
  * @param wallet The smart account to send the transaction from
  * @param tx The transaction to send
+ * @param meta Optional transaction metadata for logging
  * @returns The user operation response or false if the request failed
  */
 export async function sendTransaction(
   wallet: ZeroXgaslessSmartAccount,
   tx: Transaction,
+  meta?: TransactionMeta,
 ): Promise<TransactionResponse> {
   try {
     const request = await wallet.sendTransaction(tx, {
@@ -63,12 +96,30 @@ export async function sendTransaction(
       };
     }
 
+    // Log transaction if meta is provided
+    let transactionId: number | undefined;
+    if (meta && request.userOpHash) {
+      // Hard-coded values as requested since agentkitId and walletId are not available
+      const logPayload = {
+        ...meta,
+        agentkitId: "default-agentkit-id",
+        walletId: "default-wallet-id",
+        userOpHash: request.userOpHash,
+      };
+      const dbId = await logTransaction(logPayload);
+      if (dbId) {
+        transactionId = dbId;
+        transactionMap.set(request.userOpHash, dbId);
+      }
+    }
+
     const receipt = await request.wait();
 
     if (receipt.reason) {
       return {
         success: false,
         error: receipt.reason,
+        transactionId,
       };
     }
     if (receipt.success && receipt.receipt?.transactionHash) {
@@ -77,11 +128,13 @@ export async function sendTransaction(
         txHash: receipt.receipt?.transactionHash,
         message: `Transaction confirmed!\nTx Hash: ${receipt.receipt?.transactionHash}\n\n.`,
         receipt,
+        transactionId,
       };
     }
     return {
       success: false,
       error: `Transaction failed: ${receipt.reason}`,
+      transactionId,
     };
   } catch (error) {
     return {
@@ -157,6 +210,14 @@ export async function waitForTransaction(
 
             if (confirmedBlocks >= confirmations) {
               clearInterval(intervalId);
+              
+              // Update transaction status in database
+              const dbId = transactionMap.get(userOpHash);
+              if (dbId) {
+                await updateTransactionStatus(dbId, receipt.success ? "success" : "failed");
+                transactionMap.delete(userOpHash);
+              }
+              
               resolve({
                 status: "confirmed",
                 receipt,
@@ -167,6 +228,14 @@ export async function waitForTransaction(
             }
           } else {
             clearInterval(intervalId);
+            
+            // Update transaction status in database
+            const dbId = transactionMap.get(userOpHash);
+            if (dbId) {
+              await updateTransactionStatus(dbId, receipt.success ? "success" : "failed");
+              transactionMap.delete(userOpHash);
+            }
+            
             resolve({
               status: "confirmed",
               receipt,
