@@ -83,6 +83,7 @@ jspm_packages/
 bower_components
 web_modules/
 .pnp.*
+package-lock.json
 
 # Cache
 .npm
