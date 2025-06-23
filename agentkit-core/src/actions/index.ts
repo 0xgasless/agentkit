@@ -7,6 +7,8 @@ import { AgentkitAction, ActionSchemaAny } from "../agentkit";
 import { GetAddressAction } from "./getAddressAction";
 import { CreateAndStoreKeyAction } from "./createAndStoreKeyAction";
 import { SxtAction } from "./sxt";
+import { ListServerWalletsAction } from "./listServerWalletsAction";
+import { SelectServerWalletAction } from "./selectServerWalletAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -19,6 +21,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SmartBridgeAction(),
     new CreateAndStoreKeyAction(),
     new SxtAction(),
+    new ListServerWalletsAction(),
+    new SelectServerWalletAction(),
   ];
 }
 

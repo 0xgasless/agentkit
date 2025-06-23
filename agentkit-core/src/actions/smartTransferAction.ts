@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account";
 import { encodeFunctionData, parseEther, parseUnits } from "viem";
 import { TokenABI } from "../constants";
-import { sendTransaction } from "../services";
+import { sendTransactionUnified } from "../services";
 import { AgentkitAction } from "../agentkit";
 
 const SMART_TRANSFER_PROMPT = `
@@ -16,6 +16,7 @@ It takes the following inputs:
 Important notes:
 - Gasless transfers are only available on supported networks: Avalanche C-Chain, Metis chain, BASE, BNB chain, FANTOM, Moonbeam.
 - The transaction will be submitted and the tool will wait for confirmation by default.
+- In server mode, this will use the currently selected wallet (use select_server_wallet to change it).
 `;
 
 /**
@@ -35,15 +36,22 @@ export const SmartTransferInput = z
 /**
  * Transfers assets using gasless transactions.
  *
- * @param wallet - The smart account to transfer from.
+ * @param walletOrAgentkit - The smart account or Agentkit instance to transfer from.
  * @param args - The input arguments for the action.
  * @returns A message containing the transfer details.
  */
 export async function smartTransfer(
-  wallet: ZeroXgaslessSmartAccount,
+  walletOrAgentkit: ZeroXgaslessSmartAccount | unknown,
   args: z.infer<typeof SmartTransferInput>,
 ): Promise<string> {
   try {
+    // For server mode, we need to handle things differently
+    const isServerMode = walletOrAgentkit && 
+      typeof walletOrAgentkit === 'object' && 
+      'isServerMode' in walletOrAgentkit && 
+      typeof (walletOrAgentkit as { isServerMode?: unknown }).isServerMode === 'function' &&
+      (walletOrAgentkit as { isServerMode: () => boolean }).isServerMode();
+    
     const isEth = args.tokenAddress.toLowerCase() === "eth";
     let tx: Transaction;
 
@@ -55,29 +63,52 @@ export async function smartTransfer(
         value: parseEther(args.amount),
       };
     } else {
-      // ERC20 token transfer
-      const decimals = await wallet.rpcProvider.readContract({
-        abi: TokenABI,
-        address: args.tokenAddress as `0x${string}`,
-        functionName: "decimals",
-      });
-      const data = encodeFunctionData({
-        abi: TokenABI,
-        functionName: "transfer",
-        args: [
-          args.destination as `0x${string}`,
-          parseUnits(args.amount, (decimals as number) || 18),
-        ],
-      });
+      // For server mode, we can't read contract decimals directly
+      // We'll assume standard 18 decimals or let the server handle it
+      if (isServerMode) {
+        // For server mode, we'll use standard 18 decimals
+        // The server should handle token-specific decimals
+        const data = encodeFunctionData({
+          abi: TokenABI,
+          functionName: "transfer",
+          args: [
+            args.destination as `0x${string}`,
+            parseUnits(args.amount, 18), // Default to 18 decimals
+          ],
+        });
 
-      tx = {
-        to: args.tokenAddress as `0x${string}`,
-        data,
-        value: 0n,
-      };
+        tx = {
+          to: args.tokenAddress as `0x${string}`,
+          data,
+          value: 0n,
+        };
+      } else {
+        // Local mode - read decimals from contract
+        const wallet = walletOrAgentkit as ZeroXgaslessSmartAccount;
+        const decimals = await wallet.rpcProvider.readContract({
+          abi: TokenABI,
+          address: args.tokenAddress as `0x${string}`,
+          functionName: "decimals",
+        });
+        
+        const data = encodeFunctionData({
+          abi: TokenABI,
+          functionName: "transfer",
+          args: [
+            args.destination as `0x${string}`,
+            parseUnits(args.amount, (decimals as number) || 18),
+          ],
+        });
+
+        tx = {
+          to: args.tokenAddress as `0x${string}`,
+          data,
+          value: 0n,
+        };
+      }
     }
 
-    const response = await sendTransaction(wallet, tx);
+    const response = await sendTransactionUnified(walletOrAgentkit, tx);
 
     if (!response || !response.success) {
       return `Transaction failed: ${response?.error || "Unknown error"}`;
@@ -99,5 +130,5 @@ export class SmartTransferAction implements AgentkitAction<typeof SmartTransferI
   public description = SMART_TRANSFER_PROMPT;
   public argsSchema = SmartTransferInput;
   public func = smartTransfer;
-  public smartAccountRequired = true;
+  public smartAccountRequired = false; // Works in both local and server mode
 }

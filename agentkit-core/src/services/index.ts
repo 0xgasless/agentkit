@@ -1,4 +1,5 @@
 export * from "./keyManagementService";
+export * from "./serverWalletService";
 import {
   ZeroXgaslessSmartAccount,
   Transaction,
@@ -436,4 +437,46 @@ export async function checkAndApproveTokenAllowance(
   const maxUint256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
   const approvalAmount = approveMax ? maxUint256 : amount;
   return await approveToken(wallet, tokenAddress, spenderAddress, approvalAmount);
+}
+
+// Type guard to check if the object is an Agentkit instance
+function isAgentkit(obj: unknown): obj is { isServerMode: () => boolean; getApiKey: () => string | undefined; getServerUrl: () => string | undefined; getSelectedWalletIndex: () => number } {
+  return typeof obj === 'object' && 
+    obj !== null && 
+    'isServerMode' in obj && 
+    typeof (obj as { isServerMode?: unknown }).isServerMode === 'function';
+}
+
+/**
+ * Unified transaction sending function that handles both local and server modes
+ * @param walletOrAgentkit Either a ZeroXgaslessSmartAccount (local mode) or Agentkit instance (server mode)
+ * @param tx The transaction to send
+ * @returns The transaction response
+ */
+export async function sendTransactionUnified(
+  walletOrAgentkit: ZeroXgaslessSmartAccount | unknown,
+  tx: Transaction,
+): Promise<TransactionResponse> {
+  // Check if this is an Agentkit instance in server mode
+  if (isAgentkit(walletOrAgentkit) && walletOrAgentkit.isServerMode()) {
+    // Import dynamically to avoid circular dependency
+    const { ServerWalletService } = await import("./serverWalletService");
+    
+    const apiKey = walletOrAgentkit.getApiKey();
+    const serverUrl = walletOrAgentkit.getServerUrl();
+    const walletIndex = walletOrAgentkit.getSelectedWalletIndex();
+    
+    if (!apiKey || !serverUrl) {
+      return {
+        success: false,
+        error: "Server mode configuration is incomplete",
+      };
+    }
+    
+    const serverService = new ServerWalletService(apiKey, serverUrl);
+    return await serverService.sendTransaction(walletIndex, tx);
+  }
+  
+  // Local mode - use existing sendTransaction
+  return await sendTransaction(walletOrAgentkit as ZeroXgaslessSmartAccount, tx);
 }

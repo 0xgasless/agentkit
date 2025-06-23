@@ -75,15 +75,88 @@ async function resolveTokenSymbols(
 /**
  * Gets balance for the smart account.
  *
- * @param wallet - The smart account to get the balance for.
+ * @param walletOrAgentkit - The smart account or Agentkit instance to get the balance for.
  * @param args - The input arguments for the action.
  * @returns A message containing the balance information.
  */
 export async function getBalance(
-  wallet: ZeroXgaslessSmartAccount,
+  walletOrAgentkit: ZeroXgaslessSmartAccount | unknown,
   args: z.infer<typeof GetBalanceInput>,
 ): Promise<string> {
   try {
+    // Check if we're in server mode
+    const isServerMode = walletOrAgentkit && 
+      typeof walletOrAgentkit === 'object' && 
+      'isServerMode' in walletOrAgentkit && 
+      typeof (walletOrAgentkit as { isServerMode?: unknown }).isServerMode === 'function' &&
+      (walletOrAgentkit as { isServerMode: () => boolean }).isServerMode();
+    
+    if (isServerMode) {
+      // For server mode, we need to get the wallet address from the server
+      const agentkitTyped = (walletOrAgentkit as unknown) as {
+        getApiKey: () => string | undefined;
+        getServerUrl: () => string | undefined;
+        getSelectedWalletIndex: () => number;
+        getChainId: () => Promise<number>;
+      };
+      
+      const { ServerWalletService } = await import("../services/serverWalletService");
+      const apiKey = agentkitTyped.getApiKey();
+      const serverUrl = agentkitTyped.getServerUrl();
+      const walletIndex = agentkitTyped.getSelectedWalletIndex();
+      const chainId = await agentkitTyped.getChainId();
+      
+      if (!apiKey || !serverUrl) {
+        return "Error: Server configuration is incomplete. Missing API key or server URL.";
+      }
+      
+      const serverService = new ServerWalletService(apiKey, serverUrl);
+      const wallets = await serverService.listWallets();
+      const currentWallet = wallets.find(w => w.accountIndex === walletIndex);
+      
+      if (!currentWallet) {
+        return `Error: No wallet found at index ${walletIndex}. Use list_server_wallets to see available wallets.`;
+      }
+      
+      // Generate Snowscan URL based on chain ID
+      let explorerUrl = "";
+      let explorerName = "Explorer";
+      
+      switch (chainId) {
+        case 43114: // Avalanche
+          explorerUrl = `https://snowscan.xyz/address/${currentWallet.smartAddress}`;
+          explorerName = "Snowscan";
+          break;
+        case 56: // BSC
+          explorerUrl = `https://bscscan.com/address/${currentWallet.smartAddress}`;
+          explorerName = "BscScan";
+          break;
+        case 8453: // Base
+          explorerUrl = `https://basescan.org/address/${currentWallet.smartAddress}`;
+          explorerName = "BaseScan";
+          break;
+        case 250: // Fantom
+          explorerUrl = `https://ftmscan.com/address/${currentWallet.smartAddress}`;
+          explorerName = "FTMScan";
+          break;
+        case 1284: // Moonbeam
+          explorerUrl = `https://moonscan.io/address/${currentWallet.smartAddress}`;
+          explorerName = "Moonscan";
+          break;
+        case 1088: // Metis
+          explorerUrl = `https://explorer.metis.io/address/${currentWallet.smartAddress}`;
+          explorerName = "Metis Explorer";
+          break;
+        default:
+          explorerUrl = `https://etherscan.io/address/${currentWallet.smartAddress}`;
+          explorerName = "Etherscan";
+      }
+      
+      return `Server Wallet Balance Check\n\nWallet Address: ${currentWallet.smartAddress}\nWallet Index: ${walletIndex}\n\nFor server-managed wallets, balances cannot be checked directly through the SDK.\nPlease check your balance on ${explorerName}:\n${explorerUrl}\n\nNote: Direct balance checking for server wallets will be available in a future update.`;
+    }
+    
+    // Local mode - existing implementation
+    const wallet = walletOrAgentkit as ZeroXgaslessSmartAccount;
     let tokenAddresses: `0x${string}`[] = [];
     const smartAccount = await wallet.getAddress();
     const chainId = wallet.rpcProvider.chain?.id;
@@ -205,5 +278,5 @@ export class GetBalanceAction implements AgentkitAction<typeof GetBalanceInput> 
   public description = GET_BALANCE_PROMPT;
   public argsSchema = GetBalanceInput;
   public func = getBalance;
-  public smartAccountRequired = true;
+  public smartAccountRequired = false; // Works in both local and server mode
 }

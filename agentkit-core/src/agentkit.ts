@@ -60,6 +60,10 @@ export interface SmartAgentOptions extends PublicAgentOptions {
 
 export class Agentkit {
   private smartAccount?: ZeroXgaslessSmartAccount;
+  private serverMode: boolean = false;
+  private apiKey?: string;
+  private serverUrl?: string;
+  private selectedWalletIndex: number = 0;
 
   public constructor(config: PublicAgentOptions) {
     if (!supportedChains[config.chainID]) {
@@ -110,16 +114,53 @@ export class Agentkit {
     return agentkit;
   }
 
+  public static async configureWithServer(config: {
+    apiKey: string;
+    chainID: number;
+    serverUrl?: string;
+  }): Promise<Agentkit> {
+    if (!config.apiKey || config.apiKey === "") {
+      throw new Error("API_KEY is required for server configuration");
+    }
+
+    const agentkit = new Agentkit({ chainID: config.chainID });
+    agentkit.serverMode = true;
+    agentkit.apiKey = config.apiKey;
+    agentkit.serverUrl = config.serverUrl || "https://api.0xgasless.com";
+    agentkit.selectedWalletIndex = 0; // Default to wallet index 0
+
+    return agentkit;
+  }
+
+  public static async configureWithAPIKey(apiKey: string): Promise<Agentkit> {
+    if (!apiKey || apiKey === "") {
+      throw new Error("API_KEY is required for smart agent configuration");
+    }
+
+    const agentkit = new Agentkit({
+      chainID: 1,
+    });
+    return agentkit;
+  }
+
   async run<TActionSchema extends ActionSchemaAny>(
     action: AgentkitAction<TActionSchema>,
     args: TActionSchema,
   ): Promise<string> {
-    if (!this.smartAccount) {
+    if (!this.smartAccount && !this.serverMode) {
       return `Unable to run Action: ${action.name}. A Smart Account is required. Please configure Agentkit with a Wallet to run this action.`;
     }
+    
+    // Pass the agentkit instance for server mode actions
+    if (this.serverMode) {
+      // For server mode, we pass the Agentkit instance instead of a smart account
+      // The action's func will need to handle both types
+      return await action.func(this as unknown as ZeroXgaslessSmartAccount, args);
+    }
+    
     return await (
       action.func as (account: ZeroXgaslessSmartAccount, args: TActionSchema) => Promise<string>
-    )(this.smartAccount, args);
+    )(this.smartAccount!, args);
   }
 
   async getAddress(): Promise<string> {
@@ -134,5 +175,26 @@ export class Agentkit {
       throw new Error("Smart account not configured");
     }
     return this.smartAccount.SmartAccountConfig.chainId;
+  }
+
+  // New getters for server mode
+  isServerMode(): boolean {
+    return this.serverMode;
+  }
+
+  getApiKey(): string | undefined {
+    return this.apiKey;
+  }
+
+  getServerUrl(): string | undefined {
+    return this.serverUrl;
+  }
+
+  getSelectedWalletIndex(): number {
+    return this.selectedWalletIndex;
+  }
+
+  setSelectedWalletIndex(index: number): void {
+    this.selectedWalletIndex = index;
   }
 }

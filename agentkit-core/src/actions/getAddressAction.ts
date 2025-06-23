@@ -26,11 +26,48 @@ export const GetAddressInput = z
  * @returns A message containing the smart account address.
  */
 export async function getAddress(
-  wallet: ZeroXgaslessSmartAccount,
-  args: z.infer<typeof GetAddressInput>,
+  walletOrAgentkit: ZeroXgaslessSmartAccount | unknown,
+  _args: z.infer<typeof GetAddressInput>,
 ): Promise<string> {
   try {
-    const smartAccount = await wallet.getAddress(args);
+    // Check if we're in server mode
+    const isServerMode = walletOrAgentkit && 
+      typeof walletOrAgentkit === 'object' && 
+      'isServerMode' in walletOrAgentkit && 
+      typeof (walletOrAgentkit as { isServerMode?: unknown }).isServerMode === 'function' &&
+      (walletOrAgentkit as { isServerMode: () => boolean }).isServerMode();
+    
+    if (isServerMode) {
+      // For server mode, we need to get the wallet address from the server
+      const agentkitTyped = (walletOrAgentkit as unknown) as {
+        getApiKey: () => string | undefined;
+        getServerUrl: () => string | undefined;
+        getSelectedWalletIndex: () => number;
+      };
+      
+      const { ServerWalletService } = await import("../services/serverWalletService");
+      const apiKey = agentkitTyped.getApiKey();
+      const serverUrl = agentkitTyped.getServerUrl();
+      const walletIndex = agentkitTyped.getSelectedWalletIndex();
+      
+      if (!apiKey || !serverUrl) {
+        return "Error: Server configuration is incomplete. Missing API key or server URL.";
+      }
+      
+      const serverService = new ServerWalletService(apiKey, serverUrl);
+      const wallets = await serverService.listWallets();
+      const currentWallet = wallets.find(w => w.accountIndex === walletIndex);
+      
+      if (!currentWallet) {
+        return `Error: No wallet found at index ${walletIndex}. Use list_server_wallets to see available wallets.`;
+      }
+      
+      return `Smart Account (Server Wallet Index ${walletIndex}): ${currentWallet.smartAddress}`;
+    }
+    
+    // Local mode - existing implementation
+    const wallet = walletOrAgentkit as ZeroXgaslessSmartAccount;
+    const smartAccount = await wallet.getAddress();
 
     return `Smart Account: ${smartAccount}`;
   } catch (error) {
@@ -47,5 +84,5 @@ export class GetAddressAction implements AgentkitAction<typeof GetAddressInput> 
   public description = GET_ADDRESS_PROMPT;
   public argsSchema = GetAddressInput;
   public func = getAddress;
-  public smartAccountRequired = true;
+  public smartAccountRequired = false; // Works in both local and server mode
 }

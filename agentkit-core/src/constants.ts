@@ -1,5 +1,8 @@
 import { avalanche, fantom, moonbeam, metis, base, bsc, Chain } from "viem/chains";
 
+// TODO: Change to production URL
+export const API_URL = "http://localhost:3000";
+
 export const supportedChains: Record<number, Chain> = {
   8453: base,
   250: fantom,
