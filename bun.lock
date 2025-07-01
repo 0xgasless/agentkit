@@ -16,7 +16,7 @@
     },
     "agentkit-core": {
       "name": "@0xgasless/agentkit",
-      "version": "0.0.12",
+      "version": "0.0.14",
       "dependencies": {
         "@0xgasless/smart-account": "latest",
         "@langchain/core": "^0.3.40",
