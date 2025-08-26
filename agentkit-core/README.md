@@ -18,12 +18,39 @@
 
 ## Supported Networks
 
-- Base (8453)
-- Fantom (250)
-- Moonbeam (1284)
-- Metis (1088)
 - Avalanche (43114)
 - BSC (56)
+- Base (8453)
+- Sonic (146)
+- Moonbeam (1284)
+
+
+### CowSwap Integration (NEW!)
+
+The AgentKit now includes CowSwap integration for optimal trading with MEV protection:
+
+- **Ethereum Mainnet (1)**: Full CowSwap support
+- **Gnosis Chain (100)**: Full CowSwap support
+- **Avalanche (43114)**: Full CowSwap support (NEW!)
+
+#### CowSwap Features:
+- **🛡️ MEV Protection**: Built-in protection against Maximum Extractable Value attacks
+- **🔄 Coincidence of Wants**: Direct peer-to-peer trading when orders match
+- **💰 Better Pricing**: Often superior prices compared to traditional AMMs
+- **📋 Limit Orders**: Set precise execution prices with automatic fulfillment
+- **🎯 Batch Auctions**: Orders are batched for optimal execution
+
+#### Available CowSwap Actions:
+- `cowswap_quote`: Get quotes from CowSwap for optimal pricing
+- `cowswap_execute`: Prepare and execute CowSwap trades with automatic approval
+- `cowswap_limit_order`: Create limit order parameters
+- `cowswap_order_query`: Query order status and details
+- `cowswap_cancel_order`: Get information about order cancellation
+
+#### CowSwap Supported Networks:
+- **Ethereum Mainnet (1)**: Full CowSwap support
+- **Gnosis Chain (100)**: Full CowSwap support  
+- **Avalanche (43114)**: Full CowSwap support (NEW!)
 
 ## Installation
 

@@ -31,12 +31,14 @@
   },
   "dependencies": {
     "@0xgasless/smart-account": "latest",
+    "@cowprotocol/cow-sdk": "^6.1.0-lens-bsc.2",
     "@langchain/core": "^0.3.40",
     "axios": "^1.7.9",
+    "ethers": "^5.7.2",
     "merkletreejs": "^0.4.1",
+    "sqlite3": "^5.1.7",
     "viem": "2",
-    "zod": "^3.23.8",
-    "sqlite3": "^5.1.7"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

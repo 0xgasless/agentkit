@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Account, createWalletClient, http } from "viem";
+import { Account, createWalletClient, http, WalletClient } from "viem";
 import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
 import { ZeroXgaslessSmartAccount, createSmartAccountClient } from "@0xgasless/smart-account";
 
@@ -41,6 +41,42 @@ export interface AgentkitAction<TActionSchema extends ActionSchemaAny> {
 }
 
 /**
+ * Extended action interface for actions that need access to the full Agentkit instance
+ * (e.g., for signTypedData functionality via wallet client)
+ */
+export interface ExtendedAgentkitAction<TActionSchema extends ActionSchemaAny> {
+  /**
+   * The name of the action
+   */
+  name: string;
+
+  /**
+   * A description of what the action does
+   */
+  description: string;
+
+  /**
+   * Schema for validating action arguments
+   */
+  argsSchema: TActionSchema;
+
+  /**
+   * Indicates whether a smart account is required for this action
+   */
+  smartAccountRequired?: boolean;
+
+  /**
+   * The function to execute for this action - receives full Agentkit instance
+   */
+  func: (agentkit: Agentkit, args: z.infer<TActionSchema>) => Promise<string>;
+
+  /**
+   * Indicates this action needs the full Agentkit instance
+   */
+  needsFullAgentkit?: boolean;
+}
+
+/**
  * Configuration options for the Agentkit
  */
 export interface PublicAgentOptions {
@@ -60,6 +96,7 @@ export interface SmartAgentOptions extends PublicAgentOptions {
 
 export class Agentkit {
   private smartAccount?: ZeroXgaslessSmartAccount;
+  private walletClient?: WalletClient; // Store the underlying wallet client for signTypedData
 
   public constructor(config: PublicAgentOptions) {
     if (!supportedChains[config.chainID]) {
@@ -96,6 +133,7 @@ export class Agentkit {
       // Configure smart account
       const bundlerUrl = `https://bundler.0xgasless.com/${config.chainID}`;
       const paymasterUrl = `https://paymaster.0xgasless.com/v1/${config.chainID}/rpc/${config.apiKey}`;
+      // const paymasterUrl = `http://localhost:3000/v1/${config.chainID}/rpc/${config.apiKey}`;
 
       agentkit.smartAccount = await createSmartAccountClient({
         bundlerUrl,
@@ -103,6 +141,9 @@ export class Agentkit {
         chainId: config.chainID,
         signer: wallet,
       });
+
+      // Store the wallet client for signTypedData functionality
+      agentkit.walletClient = wallet;
     } catch (error) {
       throw new Error(`Failed to initialize smart account: ${error}`);
     }
@@ -111,15 +152,23 @@ export class Agentkit {
   }
 
   async run<TActionSchema extends ActionSchemaAny>(
-    action: AgentkitAction<TActionSchema>,
+    action: AgentkitAction<TActionSchema> | ExtendedAgentkitAction<TActionSchema>,
     args: TActionSchema,
   ): Promise<string> {
     if (!this.smartAccount) {
       return `Unable to run Action: ${action.name}. A Smart Account is required. Please configure Agentkit with a Wallet to run this action.`;
     }
-    return await (
-      action.func as (account: ZeroXgaslessSmartAccount, args: TActionSchema) => Promise<string>
-    )(this.smartAccount, args);
+    
+    // Check if this is an extended action that needs the full Agentkit instance
+    if ('needsFullAgentkit' in action && action.needsFullAgentkit) {
+      return await (
+        action as ExtendedAgentkitAction<TActionSchema>
+      ).func(this, args);
+    } else {
+      return await (
+        action.func as (account: ZeroXgaslessSmartAccount, args: TActionSchema) => Promise<string>
+      )(this.smartAccount, args);
+    }
   }
 
   async getAddress(): Promise<string> {
@@ -134,5 +183,31 @@ export class Agentkit {
       throw new Error("Smart account not configured");
     }
     return this.smartAccount.SmartAccountConfig.chainId;
+  }
+
+  /**
+   * Gets the underlying wallet client for signTypedData functionality
+   * @returns {WalletClient} The underlying wallet client
+   */
+  getWalletClient(): WalletClient {
+    if (!this.walletClient) {
+      throw new Error(
+        "Wallet client not configured. Call configureWithWallet() to configure the wallet client.",
+      );
+    }
+    return this.walletClient;
+  }
+
+  /**
+   * Gets the smart account from this agentkit
+   * @returns {ZeroXgaslessSmartAccount} The configured smart account
+   */
+  getSmartAccount(): ZeroXgaslessSmartAccount {
+    if (!this.smartAccount) {
+      throw new Error(
+        "Smart account not configured. Call configureWithWallet() to configure the smart account.",
+      );
+    }
+    return this.smartAccount;
   }
 }

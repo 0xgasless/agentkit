@@ -3,6 +3,13 @@ import { SmartTransferAction } from "./smartTransferAction";
 import { GetTokenDetailsAction } from "./getTokenDetailsAction";
 import { CheckTransactionAction } from "./checkTransactionAction";
 import { SmartSwapAction, SmartBridgeAction } from "./DebridgeAction";
+import {
+  CowSwapSwapAction,
+  CowSwapExecuteAction,
+  CowSwapLimitOrderAction,
+  CowSwapOrderQueryAction,
+  CowSwapCancelOrderAction,
+} from "./CowSwapAction";
 import { AgentkitAction, ActionSchemaAny } from "../agentkit";
 import { GetAddressAction } from "./getAddressAction";
 import { CreateAndStoreKeyAction } from "./createAndStoreKeyAction";
@@ -17,6 +24,11 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SmartTransferAction(),
     new SmartSwapAction(),
     new SmartBridgeAction(),
+    new CowSwapSwapAction(),
+    new CowSwapExecuteAction(),
+    new CowSwapLimitOrderAction(),
+    new CowSwapOrderQueryAction(),
+    new CowSwapCancelOrderAction(),
     new CreateAndStoreKeyAction(),
     new SxtAction(),
   ];

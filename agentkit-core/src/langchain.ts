@@ -4,7 +4,7 @@ import {
   StructuredTool,
 } from "@langchain/core/tools";
 import { AGENTKIT_ACTIONS } from "./actions";
-import { Agentkit, AgentkitAction } from "./agentkit";
+import { Agentkit, AgentkitAction, ExtendedAgentkitAction } from "./agentkit";
 import { z } from "zod";
 
 /**
@@ -34,14 +34,18 @@ import { z } from "zod";
  * Available tools include:
  * - get_balance: Check ETH and token balances (uses the already configured wallet)
  * - smart_transfer: Transfer tokens gaslessly
- * - swap: Perform token swaps without gas fees
- * - deploy_token: Deploy new ERC20 tokens
+ * - smart_swap: Perform token swaps via Debridge without gas fees
+ * - smart_bridge: Bridge tokens cross-chain via Debridge
+ * - cowswap_quote: Get quotes from CowSwap for optimal pricing and MEV protection
+ * - cowswap_execute: Prepare and execute CowSwap trades with automatic approval
+ * - cowswap_limit_order: Create limit order parameters for CowSwap
+ * - cowswap_order_query: Query order status and details from CowSwap
+ * - cowswap_cancel_order: Get information about cancelling CowSwap orders
  *
  * Supported Networks:
  * - Base (8453)
- * - Fantom (250)
+ * - Sonic (146)
  * - Moonbeam (1284)
- * - Metis (1088)
  * - Avalanche (43114)
  * - BSC (56)
  */
@@ -106,7 +110,7 @@ export class AgentkitTool<TActionSchema extends ActionSchemaAny> extends Structu
   /**
    * The Agentkit Action
    */
-  private action: AgentkitAction<TActionSchema>;
+  private action: AgentkitAction<TActionSchema> | ExtendedAgentkitAction<TActionSchema>;
 
   /**
    * Constructor for the Agentkit Tool class
@@ -114,7 +118,7 @@ export class AgentkitTool<TActionSchema extends ActionSchemaAny> extends Structu
    * @param action - The Agentkit action to execute
    * @param agentkit - The Agentkit wrapper to use
    */
-  constructor(action: AgentkitAction<TActionSchema>, agentkit: Agentkit) {
+  constructor(action: AgentkitAction<TActionSchema> | ExtendedAgentkitAction<TActionSchema>, agentkit: Agentkit) {
     super();
     this.action = action;
     this.agentkit = agentkit;
