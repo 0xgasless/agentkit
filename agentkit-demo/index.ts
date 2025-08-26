@@ -32,6 +32,14 @@ function validateEnvironment(): void {
   if (!process.env.CHAIN_ID) {
     console.warn("Warning: CHAIN_ID not set, defaulting to base-sepolia");
   }
+
+  // Enforce explicit USE_EOA selection for clarity
+  const useEoa = process.env.USE_EOA;
+  if (useEoa !== "true" && useEoa !== "false") {
+    console.error("Error: USE_EOA must be explicitly set to 'true' or 'false'.");
+    console.error("Example: USE_EOA=false  # Smart Account mode (default)\n         or USE_EOA=true   # EOA mode");
+    process.exit(1);
+  }
 }
 
 validateEnvironment();
@@ -72,6 +80,8 @@ async function initializeAgent() {
         IMPORTANT: The wallet is already configured with the SDK. DO NOT generate or mention private keys when using any tools.
 
         TOOL USAGE GUIDELINES:
+        - Always use the smart account for blockchain actions (transfers, swaps, reads, approvals, etc.).
+        - Only use the EOA when explicitly asked by the user or when calling the 'get_eoa_address' tool.
         - When a user provides specific values for a tool's arguments in their prompt (e.g., token addresses, amounts, chain IDs), use those values directly if they match the tool's requirements. Do NOT ask for them again if they are clearly provided.
         - For the 'get_balance' tool: When a user asks to check or get balances, use it immediately without asking for confirmation. If the user doesn't specify tokens, call the tool with no parameters to get the ETH balance. If tokens are mentioned by name (e.g., "USDC"), use 'tokenSymbols'. Only use 'tokenAddresses' if contract addresses are explicitly given.
         

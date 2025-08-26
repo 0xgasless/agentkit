@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
-import { getWalletBalance } from "../services";
+import { getWalletBalance, isEoaMode, getActiveAddress } from "../services";
 import { AgentkitAction } from "../agentkit";
 import { tokenMappings, commonTokens } from "../constants";
 
@@ -85,7 +85,7 @@ export async function getBalance(
 ): Promise<string> {
   try {
     let tokenAddresses: `0x${string}`[] = [];
-    const smartAccount = await wallet.getAddress();
+    const activeAddress = await getActiveAddress(wallet);
     const chainId = wallet.rpcProvider.chain?.id;
 
     // If no specific tokens requested, get all tokens from tokenMappings for the current chain
@@ -187,10 +187,12 @@ export async function getBalance(
         : "Balances:";
 
     if (balanceStrings.length === 0) {
-      return `Smart Account: ${smartAccount}\n${responseTitle}\nNo non-zero balances found`;
+      const label = isEoaMode() ? "EOA" : "Smart Account";
+      return `${label}: ${activeAddress}\n${responseTitle}\nNo non-zero balances found`;
     }
 
-    return `Smart Account: ${smartAccount}\n${responseTitle}\n${balanceStrings.join("\n")}`;
+    const label = isEoaMode() ? "EOA" : "Smart Account";
+    return `${label}: ${activeAddress}\n${responseTitle}\n${balanceStrings.join("\n")}`;
   } catch (error) {
     console.error("Balance fetch error:", error);
     return `Error getting balance: ${error instanceof Error ? error.message : String(error)}`;
