@@ -86,7 +86,11 @@ export function createEoaWallet(options: {
     rpcUrls: { default: { http: [rpcUrl] } },
   });
 
-  const client = createWalletClient({ account, chain: customChain, transport: httpTransport(rpcUrl) });
+  const client = createWalletClient({
+    account,
+    chain: customChain,
+    transport: httpTransport(rpcUrl),
+  });
   return { address: account.address as `0x${string}`, account, client };
 }
 
@@ -122,7 +126,7 @@ export async function sendEoaTransaction(
       account: eoa.account,
       chain: eoa.client.chain,
       to: tx.to as `0x${string}`,
-      data: (tx.data as `0x${string}` | undefined),
+      data: tx.data as `0x${string}` | undefined,
       value:
         typeof tx.value === "bigint"
           ? tx.value
@@ -351,7 +355,10 @@ export async function getWalletBalance(
       if (!eoa || !pc) return false;
       const native = await pc.getBalance({ address: eoa.address });
       const balances: BalancePayload[] = [
-        { address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", formattedAmount: formatEther(native) } as unknown as BalancePayload,
+        {
+          address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          formattedAmount: formatEther(native),
+        } as unknown as BalancePayload,
       ];
       if (tokenAddress && tokenAddress.length > 0) {
         for (const addr of tokenAddress) {
@@ -371,7 +378,10 @@ export async function getWalletBalance(
             const whole = bal / denom;
             const frac = bal % denom;
             const formatted = `${whole}.${frac.toString().padStart(dec, "0").replace(/0+$/, "") || "0"}`;
-            balances.push({ address: addr, formattedAmount: formatted } as unknown as BalancePayload);
+            balances.push({
+              address: addr,
+              formattedAmount: formatted,
+            } as unknown as BalancePayload);
           } catch (_e) {
             balances.push({ address: addr, formattedAmount: "0" } as unknown as BalancePayload);
           }
@@ -398,9 +408,21 @@ export async function fetchTokenDetails(
     if (!pc) return false;
     try {
       const [name, symbol, decimals] = await Promise.all([
-        pc.readContract({ abi: TokenABI, address: tokenAddress as `0x${string}`, functionName: "name" }) as Promise<string>,
-        pc.readContract({ abi: TokenABI, address: tokenAddress as `0x${string}`, functionName: "symbol" }) as Promise<string>,
-        pc.readContract({ abi: TokenABI, address: tokenAddress as `0x${string}`, functionName: "decimals" }) as Promise<number>,
+        pc.readContract({
+          abi: TokenABI,
+          address: tokenAddress as `0x${string}`,
+          functionName: "name",
+        }) as Promise<string>,
+        pc.readContract({
+          abi: TokenABI,
+          address: tokenAddress as `0x${string}`,
+          functionName: "symbol",
+        }) as Promise<string>,
+        pc.readContract({
+          abi: TokenABI,
+          address: tokenAddress as `0x${string}`,
+          functionName: "decimals",
+        }) as Promise<number>,
       ]);
       return {
         name,

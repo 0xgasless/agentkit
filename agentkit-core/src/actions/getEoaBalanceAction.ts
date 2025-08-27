@@ -7,7 +7,11 @@ import { TokenABI } from "../constants";
 
 export const GetEoaBalanceInput = z
   .object({
-    tokenAddresses: z.array(z.string()).optional().nullable().describe("Optional ERC-20 token addresses to query"),
+    tokenAddresses: z
+      .array(z.string())
+      .optional()
+      .nullable()
+      .describe("Optional ERC-20 token addresses to query"),
   })
   .strip();
 
@@ -35,8 +39,16 @@ export async function getEoaBalance(
       for (const addr of args.tokenAddresses) {
         try {
           const [decimals, symbol, bal] = await Promise.all([
-            publicClient.readContract({ abi: TokenABI, address: addr as `0x${string}`, functionName: "decimals" }) as Promise<number>,
-            publicClient.readContract({ abi: TokenABI, address: addr as `0x${string}`, functionName: "symbol" }) as Promise<string>,
+            publicClient.readContract({
+              abi: TokenABI,
+              address: addr as `0x${string}`,
+              functionName: "decimals",
+            }) as Promise<number>,
+            publicClient.readContract({
+              abi: TokenABI,
+              address: addr as `0x${string}`,
+              functionName: "symbol",
+            }) as Promise<string>,
             publicClient.readContract({
               abi: TokenABI,
               address: addr as `0x${string}`,
@@ -50,7 +62,9 @@ export async function getEoaBalance(
           const formatted = `${whole}.${frac.toString().padStart(decimals, "0").replace(/0+$/, "") || "0"}`;
           lines.push(`${symbol} (${addr}): ${formatted}`);
         } catch (err) {
-          lines.push(`${addr}: error reading balance (${err instanceof Error ? err.message : String(err)})`);
+          lines.push(
+            `${addr}: error reading balance (${err instanceof Error ? err.message : String(err)})`,
+          );
         }
       }
       result += lines.join("\n");
