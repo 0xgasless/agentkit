@@ -21,7 +21,7 @@ Important notes:
 - All recipients will receive the same token type (either ETH or the specified ERC20 token)
 - Each recipient can receive a different amount
 - Maximum 50 recipients per batch for optimal performance
-- Available on supported networks: Avalanche C-Chain, Metis chain, BASE, BNB chain, FANTOM, Moonbeam
+- Available on supported networks: Avalanche C-Chain, Sonic chain, BASE, BNB chain, Moonbeam, Avalanche Fuji
 - The transaction will be submitted and confirmed automatically
 
 Example usage:

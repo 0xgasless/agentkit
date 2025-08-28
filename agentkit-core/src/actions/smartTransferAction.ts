@@ -14,7 +14,7 @@ It takes the following inputs:
 - destination: Where to send the funds (must be a valid onchain address)
 
 Important notes:
-- Gasless transfers are only available on supported networks: Avalanche C-Chain, Metis chain, BASE, BNB chain, FANTOM, Moonbeam.
+- Gasless transfers are only available on supported networks: Avalanche C-Chain, Sonic chain, BASE, BNB chain, Moonbeam, Avalanche Fuji.
 - The transaction will be submitted and the tool will wait for confirmation by default.
 `;
 

@@ -26,7 +26,7 @@ EXAMPLES:
 - Swap by symbol: "Swap 10 USDC to ETH"
 - With max approval: "Swap 10 USDT to ETH with approveMax: true"
 
-Note: This action works on supported networks only (Base, Fantom, Moonbeam, Metis, Avalanche, BSC).
+Note: This action works on supported networks only (Base, Sonic, Moonbeam, Avalanche, BSC).
 All swaps are gasless - no native tokens needed for gas fees.
 The transaction will be submitted and the tool will wait for confirmation by default.
 `;

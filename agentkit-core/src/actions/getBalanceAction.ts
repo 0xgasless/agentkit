@@ -19,7 +19,7 @@ USAGE GUIDANCE:
 - If the user mentions specific tokens by name (like "USDC" or "USDT"), use the tokenSymbols parameter
 - Only use tokenAddresses parameter if the user specifically provides contract addresses
 
-Note: This action works on supported networks only (Base, Fantom, Moonbeam, Metis, Avalanche, BSC).
+Note: This action works on supported networks only (Base, Sonic, Moonbeam, Avalanche, BSC).
 `;
 
 export const GetBalanceInput = z
@@ -153,10 +153,10 @@ export async function getBalance(
             displayName = "BNB";
           } else if (chainId === 43114) {
             displayName = "AVAX";
-          } else if (chainId === 250) {
-            displayName = "FTM";
-          } else if (chainId === 1088) {
-            displayName = "METIS";
+          } else if (chainId === 156) {
+            displayName = "S";
+          } else if (chainId === 43113) {
+            displayName = "AVAX";
           } else if (chainId === 8453) {
             displayName = "ETH";
           } else if (chainId === 1284) {

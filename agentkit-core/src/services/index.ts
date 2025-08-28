@@ -485,7 +485,7 @@ export async function resolveTokenSymbol(
     normalizedSymbol === "AVAX" ||
     normalizedSymbol === "BNB" ||
     normalizedSymbol === "FTM" ||
-    normalizedSymbol === "METIS" ||
+    normalizedSymbol === "S" ||
     normalizedSymbol === "GLMR"
   ) {
     return "0x0000000000000000000000000000000000000000";
