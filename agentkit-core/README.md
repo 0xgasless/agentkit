@@ -21,9 +21,9 @@
 - Base (8453)
 - Fantom (250)
 - Moonbeam (1284)
-- Metis (1088)
 - Avalanche (43114)
 - BSC (56)
+- 
 
 ## Installation
 

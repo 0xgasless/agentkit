@@ -12,7 +12,7 @@ USAGE GUIDANCE:
 - The address can be used for receiving tokens or for verification purposes
 - This is a read-only operation that doesn't modify any blockchain state
 
-Note: This action works on all supported networks (Base, Fantom, Moonbeam, Metis, Avalanche, BSC).
+Note: This action works on all supported networks (Base, Sonic, Moonbeam, Avalanche, BSC).
 `;
 
 export const GetAddressInput = z

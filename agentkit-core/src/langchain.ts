@@ -39,10 +39,10 @@ import { z } from "zod";
  *
  * Supported Networks:
  * - Base (8453)
- * - Fantom (250)
+ * - Sonic (156)
  * - Moonbeam (1284)
- * - Metis (1088)
  * - Avalanche (43114)
+ * - Avalanche Fuji (43113)
  * - BSC (56)
  */
 export class AgentkitToolkit extends Toolkit {

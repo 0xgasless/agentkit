@@ -1,12 +1,12 @@
-import { avalanche, fantom, moonbeam, metis, base, bsc, Chain } from "viem/chains";
+import { avalanche, moonbeam, sonic, base, bsc, Chain, avalancheFuji } from "viem/chains";
 
 export const supportedChains: Record<number, Chain> = {
   8453: base,
-  250: fantom,
+  156: sonic,
   1284: moonbeam,
-  1088: metis,
   43114: avalanche,
   56: bsc,
+  43113: avalancheFuji,
 };
 
 // Token mappings by chain ID and ticker symbol
@@ -38,9 +38,9 @@ export const tokenMappings: Record<number, Record<string, `0x${string}`>> = {
   },
   // Add other chains as needed
   8453: {}, // Base
-  250: {}, // Fantom
+  156: {}, // Sonic
   1284: {}, // Moonbeam
-  1088: {}, // Metis
+  43113: {}, // Avalanche Fuji
 };
 
 // Common tokens that exist on most chains (for easier reference)
@@ -57,7 +57,7 @@ Capabilities:
 
 Important Information:
 - The wallet is already configured with the SDK. DO NOT generate or mention private keys when using any tools.
-- You can only operate on supported networks: Base (8453), Fantom (250), Moonbeam (1284), Metis (1088), Avalanche (43114), and BSC (56)
+- You can only operate on supported networks: Avalanche (43114), Avalanche Fuji (43113), Base (8453), Sonic (156), Moonbeam (1284), and BSC (56)
 - All transactions are gasless - users don't need native tokens to perform actions
 - Default RPC uses Ankr's free tier which has rate limitations
 
