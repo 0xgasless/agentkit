@@ -17,11 +17,15 @@ import {
   GetPairsByTokenAddressesAction,
 } from "./DexScreenerAction";
 import { DisperseAction } from "./disperseAction";
+import { GetEoaAddressAction } from "./getEoaAddressAction";
+import { GetEoaBalanceAction } from "./getEoaBalanceAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
     new GetBalanceAction(),
     new GetAddressAction(),
+    new GetEoaAddressAction(),
+    new GetEoaBalanceAction(),
     new GetTokenDetailsAction(),
     new CheckTransactionAction(),
     new SmartTransferAction(),

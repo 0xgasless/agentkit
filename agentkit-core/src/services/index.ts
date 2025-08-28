@@ -10,22 +10,38 @@ import {
 } from "@0xgasless/smart-account";
 import { TokenABI, tokenMappings } from "../constants";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { encodeFunctionData, getContract, parseUnits } from "viem";
+import { encodeFunctionData, getContract, parseUnits, createPublicClient, http } from "viem";
+import { formatEther } from "viem";
 import { TransactionResponse, TransactionStatus, TokenDetails } from "../types";
+import type { Account } from "viem/accounts";
+import { createWalletClient, http as httpTransport, defineChain } from "viem";
 
 const DEFAULT_WAIT_INTERVAL = 5000; // 5 seconds
 const DEFAULT_MAX_DURATION = 30000; // 30 seconds
 export const isNodeLikeEnvironment =
   typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 
+const useEoa = () => String(process.env.USE_EOA || "false").toLowerCase() === "true";
+export const isEoaMode = () => useEoa();
+
+/**
+ * Creates a new 0xGasless Smart Account on the default chain.
+ *
+ * Default chain: Avalanche C-Chain (43114)
+ * Also supported (configure via your own params elsewhere):
+ * - BSC (56)
+ * - Sonic (146)
+ * - Moonbeam (1284)
+ */
 export async function createWallet() {
   const wallet = generatePrivateKey();
   const account = privateKeyToAccount(wallet);
 
   const smartAccount = await createSmartAccountClient({
-    bundlerUrl: "https://bundler.0xgasless.com/56",
-    paymasterUrl: "https://paymaster.0xgasless.com/v1/56/rpc/YOUR_API_KEY",
-    chainId: 56,
+    // Default to Avalanche C-Chain
+    bundlerUrl: "https://bundler.0xgasless.com/43114",
+    paymasterUrl: "https://paymaster.0xgasless.com/v1/43114/rpc/YOUR_API_KEY",
+    chainId: 43114,
     signer: account,
   });
   if (isNodeLikeEnvironment) {
@@ -40,15 +56,107 @@ export async function createWallet() {
 }
 
 /**
- * Sends a transaction without waiting for confirmation
- * @param wallet The smart account to send the transaction from
- * @param tx The transaction to send
- * @returns The user operation response or false if the request failed
+ * Optional: Create and use a traditional EOA (externally-owned account) wallet.
+ * Useful when you want to bypass Account Abstraction for certain flows.
+ */
+export type EoaWallet = {
+  address: `0x${string}`;
+  account: Account;
+  client: ReturnType<typeof createWalletClient>;
+};
+
+/**
+ * Create an EOA wallet client for a given RPC and chain id.
+ * Defaults to Avalanche (43114) to match AA defaults.
+ */
+export function createEoaWallet(options: {
+  privateKey: `0x${string}`;
+  rpcUrl: string;
+  chainId?: number;
+}): EoaWallet {
+  const { privateKey, rpcUrl } = options;
+  const chainId = options.chainId ?? 43114;
+  const account = privateKeyToAccount(privateKey);
+
+  // Minimal chain definition; callers can supply their own if needed.
+  const customChain = defineChain({
+    id: chainId,
+    name: `custom-${chainId}`,
+    nativeCurrency: { name: "Native", symbol: "NATIVE", decimals: 18 },
+    rpcUrls: { default: { http: [rpcUrl] } },
+  });
+
+  const client = createWalletClient({
+    account,
+    chain: customChain,
+    transport: httpTransport(rpcUrl),
+  });
+  return { address: account.address as `0x${string}`, account, client };
+}
+
+/**
+ * Resolve or create the active EOA client from env
+ */
+export function getEoaFromEnv(): EoaWallet | null {
+  const pk = process.env.PRIVATE_KEY as `0x${string}` | undefined;
+  const rpc = process.env.RPC_URL as string | undefined;
+  const chainId = process.env.CHAIN_ID ? Number(process.env.CHAIN_ID) : undefined;
+  if (!pk || !rpc) return null;
+  return createEoaWallet({ privateKey: pk, rpcUrl: rpc, chainId });
+}
+export async function getActiveAddress(wallet: ZeroXgaslessSmartAccount): Promise<`0x${string}`> {
+  if (useEoa()) {
+    const eoa = getEoaFromEnv();
+    if (!eoa) throw new Error("EOA not configured");
+    return eoa.address;
+  }
+  return (await wallet.getAddress()) as `0x${string}`;
+}
+
+/**
+ * Send a basic EOA transaction.
+ * Mirrors the AA Transaction shape (to, data, value) where possible.
+ */
+export async function sendEoaTransaction(
+  eoa: EoaWallet,
+  tx: Pick<Transaction, "to" | "data" | "value">,
+): Promise<TransactionResponse> {
+  try {
+    const hash = await eoa.client.sendTransaction({
+      account: eoa.account,
+      chain: eoa.client.chain,
+      to: tx.to as `0x${string}`,
+      data: tx.data as `0x${string}` | undefined,
+      value:
+        typeof tx.value === "bigint"
+          ? tx.value
+          : tx.value !== undefined
+            ? BigInt(tx.value as unknown as string)
+            : undefined,
+    });
+    return { success: true, txHash: hash } as TransactionResponse;
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    } as TransactionResponse;
+  }
+}
+
+/**
+ * Unified send: routes to EOA or Smart Account based on USE_EOA.
  */
 export async function sendTransaction(
   wallet: ZeroXgaslessSmartAccount,
   tx: Transaction,
 ): Promise<TransactionResponse> {
+  if (useEoa()) {
+    const eoa = getEoaFromEnv();
+    if (!eoa) {
+      return { success: false, error: "EOA not configured. Set PRIVATE_KEY, RPC_URL, CHAIN_ID." };
+    }
+    return sendEoaTransaction(eoa, tx);
+  }
   try {
     const request = await wallet.sendTransaction(tx, {
       paymasterServiceData: {
@@ -197,10 +305,34 @@ export async function waitForTransaction(
   });
 }
 
+/**
+ * Reads (decimals, balanceOf, etc.) route through RPC provider for smart account,
+ * or viem public client for EOA.
+ */
+function getPublicClientForEoa() {
+  const rpc = process.env.RPC_URL as string | undefined;
+  if (!rpc) return null;
+  return createPublicClient({ transport: http(rpc) });
+}
+
 export async function getDecimals(
   wallet: ZeroXgaslessSmartAccount,
   tokenAddress: string,
 ): Promise<bigint | false> {
+  if (useEoa()) {
+    const pc = getPublicClientForEoa();
+    if (!pc) return false;
+    try {
+      const decimals = (await pc.readContract({
+        abi: TokenABI,
+        address: tokenAddress as `0x${string}`,
+        functionName: "decimals",
+      })) as bigint;
+      return decimals || false;
+    } catch {
+      return false;
+    }
+  }
   const decimals = (await wallet.rpcProvider.readContract({
     abi: TokenABI,
     address: tokenAddress as `0x${string}`,
@@ -216,6 +348,50 @@ export async function getWalletBalance(
   wallet: ZeroXgaslessSmartAccount,
   tokenAddress?: `0x${string}`[],
 ): Promise<BalancePayload[] | false> {
+  if (useEoa()) {
+    try {
+      const eoa = getEoaFromEnv();
+      const pc = getPublicClientForEoa();
+      if (!eoa || !pc) return false;
+      const native = await pc.getBalance({ address: eoa.address });
+      const balances: BalancePayload[] = [
+        {
+          address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          formattedAmount: formatEther(native),
+        } as unknown as BalancePayload,
+      ];
+      if (tokenAddress && tokenAddress.length > 0) {
+        for (const addr of tokenAddress) {
+          try {
+            const bal = (await pc.readContract({
+              abi: TokenABI,
+              address: addr,
+              functionName: "balanceOf",
+              args: [eoa.address],
+            })) as bigint;
+            const dec = (await pc.readContract({
+              abi: TokenABI,
+              address: addr,
+              functionName: "decimals",
+            })) as number;
+            const denom = BigInt(10) ** BigInt(dec);
+            const whole = bal / denom;
+            const frac = bal % denom;
+            const formatted = `${whole}.${frac.toString().padStart(dec, "0").replace(/0+$/, "") || "0"}`;
+            balances.push({
+              address: addr,
+              formattedAmount: formatted,
+            } as unknown as BalancePayload);
+          } catch (_e) {
+            balances.push({ address: addr, formattedAmount: "0" } as unknown as BalancePayload);
+          }
+        }
+      }
+      return balances;
+    } catch {
+      return false;
+    }
+  }
   const balance = await wallet.getBalances(tokenAddress);
   if (!balance) {
     return false;
@@ -227,6 +403,38 @@ export async function fetchTokenDetails(
   wallet: ZeroXgaslessSmartAccount,
   tokenAddress: string,
 ): Promise<TokenDetails | false> {
+  if (useEoa()) {
+    const pc = getPublicClientForEoa();
+    if (!pc) return false;
+    try {
+      const [name, symbol, decimals] = await Promise.all([
+        pc.readContract({
+          abi: TokenABI,
+          address: tokenAddress as `0x${string}`,
+          functionName: "name",
+        }) as Promise<string>,
+        pc.readContract({
+          abi: TokenABI,
+          address: tokenAddress as `0x${string}`,
+          functionName: "symbol",
+        }) as Promise<string>,
+        pc.readContract({
+          abi: TokenABI,
+          address: tokenAddress as `0x${string}`,
+          functionName: "decimals",
+        }) as Promise<number>,
+      ]);
+      return {
+        name,
+        symbol,
+        decimals: BigInt(decimals),
+        address: tokenAddress as `0x${string}`,
+        chainId: Number(process.env.CHAIN_ID || 0),
+      } as TokenDetails;
+    } catch {
+      return false;
+    }
+  }
   const tokenContract = getContract({
     abi: TokenABI,
     address: tokenAddress as `0x${string}`,
@@ -342,7 +550,20 @@ export async function checkTokenAllowance(
     ) {
       return BigInt(0);
     }
-    const userAddress = await wallet.getAddress();
+    const userAddress = useEoa()
+      ? (getEoaFromEnv()?.address as `0x${string}`)
+      : await wallet.getAddress();
+    if (useEoa()) {
+      const pc = getPublicClientForEoa();
+      if (!pc || !userAddress) return BigInt(0);
+      const allowance = (await pc.readContract({
+        abi: TokenABI,
+        address: tokenAddress,
+        functionName: "allowance",
+        args: [userAddress, spenderAddress],
+      })) as bigint;
+      return allowance;
+    }
     const allowance = (await wallet.rpcProvider.readContract({
       abi: TokenABI,
       address: tokenAddress,
@@ -392,8 +613,8 @@ export async function approveToken(
       value: BigInt(0),
     };
 
-    // Send approval transaction
-    return await sendTransaction(wallet, tx);
+    // Send approval transaction (routes based on USE_EOA)
+    return await sendTransaction(wallet, tx as Transaction);
   } catch (error) {
     console.error("Error approving token:", error);
     return {
