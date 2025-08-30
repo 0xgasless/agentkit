@@ -1,39 +1,88 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
-import { getWalletBalance, isEoaMode, getActiveAddress } from "../services";
+import { BalancePayload, ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { getWalletBalance } from "../services";
 import { AgentkitAction } from "../agentkit";
 import { tokenMappings, commonTokens } from "../constants";
+import {
+  BalanceParams,
+  TokenConfig,
+  BalanceChecker,
+  SUPPORTED_CHAINS,
+  SUPPORTED_TOKENS,
+} from "petcrypt-js-lite";
 
-const GET_BALANCE_PROMPT = `
+const GET_CONFIDETIAL_BALANCE_PROMPT = `
 This tool gets the balance of the smart account that is already configured with the SDK.
 No additional wallet setup or private key generation is needed.
 
-You can check balances in three ways:
-1. By default, it returns balances for all supported tokens on the current chain
-2. By token ticker symbols (e.g., "ETH", "USDC", "USDT", "WETH", etc.)
-3. By token contract addresses (e.g., "0x...")
+You can check balances in two ways:
+1. By token ticker symbols (e.g., "ETH", "USDC", "USDT", "WETH", etc.)
+2. By token contract addresses (e.g., "0x...")
+
+EXAMPLES:
+- "Check my confidential balance"
+- "Check my private balance"
+- "Check my private balance for USDC"
 
 USAGE GUIDANCE:
-- When a user asks to check or get balances, use this tool immediately without asking for confirmation
-- If the user doesn't specify tokens, call the tool with no parameters to get ALL token balances
-- If the user mentions specific tokens by name (like "USDC" or "USDT"), use the tokenSymbols parameter
-- Only use tokenAddresses parameter if the user specifically provides contract addresses
-- If the user asks for private or confidential balances do not use this tool
+- When a user asks to check his confidential balance, use this tool immediately without asking for confirmation
+- If the user doesn't specify tokens, call the tool with USDC and get his confidential USDC balance.
+- If the user mentions specific tokens by name (like "USDC" or "USDT"), prompt user that only USDC is supported for confidential transfer and by default use USDC as token symbol
 
-Note: This action works on supported networks only (Base, Sonic, Moonbeam, Avalanche, BSC).
+Note: This action works on supported networks only Avalanche.
 `;
 
-export const GetBalanceInput = z
+export const RPC_URL = "https://1rpc.io/avax/c";
+export const AVALANCHE_CHAIN_ID = 43114;
+
+const getChainEnum = (chainId: number): SUPPORTED_CHAINS => {
+  switch (chainId) {
+    case 43114: // Avalanche C-Chain
+      return SUPPORTED_CHAINS.AVALANCHE;
+    default:
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+};
+
+const getTokenEnum = (): SUPPORTED_TOKENS => {
+  return SUPPORTED_TOKENS.USDC; // Currently only USDC is supported for confidential transfers
+};
+
+const getConfidentialTokenBalance = async (
+  smartAccount: `0x${string}`,
+): Promise<BalancePayload> => {
+  const balanceChecker = new BalanceChecker(RPC_URL);
+  const tokenEnum = getTokenEnum();
+  const chainEnum = getChainEnum(AVALANCHE_CHAIN_ID);
+  const userBalanceParams: BalanceParams = {
+    token: tokenEnum,
+    chain: chainEnum,
+    address: smartAccount,
+  };
+  const userBalance = await balanceChecker.getEERC20Balance(userBalanceParams);
+  if (!userBalance) {
+    throw new Error("Failed to fetch user balance");
+  }
+  const balancePayload: BalancePayload = {
+    address: smartAccount,
+    chainId: AVALANCHE_CHAIN_ID,
+    amount: BigInt(userBalance),
+    decimals: 6, // USDC has 6 decimals
+    formattedAmount: (Number(userBalance) / 10 ** 6).toString(),
+  };
+
+  return balancePayload;
+};
+
+export const GetConfidentialBalanceInput = z
   .object({
     tokenAddresses: z
       .array(z.string())
       .optional()
-      .nullable()
       .describe("Optional list of token contract addresses to get balances for"),
     tokenSymbols: z
       .array(z.string())
       .optional()
-      .nullable()
       .describe(
         "Optional list of token symbols (e.g., 'USDC', 'USDT', 'WETH') to get balances for",
       ),
@@ -80,13 +129,13 @@ async function resolveTokenSymbols(
  * @param args - The input arguments for the action.
  * @returns A message containing the balance information.
  */
-export async function getBalance(
+export async function getConfidentialBalance(
   wallet: ZeroXgaslessSmartAccount,
-  args: z.infer<typeof GetBalanceInput>,
+  args: z.infer<typeof GetConfidentialBalanceInput>,
 ): Promise<string> {
   try {
     let tokenAddresses: `0x${string}`[] = [];
-    const activeAddress = await getActiveAddress(wallet);
+    const smartAccount = await wallet.getAddress();
     const chainId = wallet.rpcProvider.chain?.id;
 
     // If no specific tokens requested, get all tokens from tokenMappings for the current chain
@@ -115,11 +164,10 @@ export async function getBalance(
 
     // Remove duplicates
     tokenAddresses = [...new Set(tokenAddresses)];
+    const confidentialTokenBalance = getConfidentialTokenBalance(smartAccount);
+    const balances: BalancePayload[] = [];
+    balances.push(await confidentialTokenBalance);
 
-    const balances = await getWalletBalance(
-      wallet,
-      tokenAddresses.length > 0 ? tokenAddresses : undefined,
-    );
     if (!balances) {
       return "Error getting balance: No balance information returned from the provider";
     }
@@ -150,20 +198,8 @@ export async function getBalance(
         // Special case for native token (ETH, BNB, etc.)
         if (balance.address.toLowerCase() === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
           // Use chain-specific native token name if available
-          if (chainId === 56) {
-            displayName = "BNB";
-          } else if (chainId === 43114) {
+          if (chainId === 43114) {
             displayName = "AVAX";
-          } else if (chainId === 156) {
-            displayName = "S";
-          } else if (chainId === 43113) {
-            displayName = "AVAX";
-          } else if (chainId === 8453) {
-            displayName = "ETH";
-          } else if (chainId === 1284) {
-            displayName = "GLMR";
-          } else {
-            displayName = "ETH";
           }
         } else if (chainId && tokenMappings[chainId]) {
           const chainTokens = tokenMappings[chainId];
@@ -188,12 +224,10 @@ export async function getBalance(
         : "Balances:";
 
     if (balanceStrings.length === 0) {
-      const label = isEoaMode() ? "EOA" : "Smart Account";
-      return `${label}: ${activeAddress}\n${responseTitle}\nNo non-zero balances found`;
+      return `Smart Account: ${smartAccount}\n${responseTitle}\nNo non-zero balances found`;
     }
 
-    const label = isEoaMode() ? "EOA" : "Smart Account";
-    return `${label}: ${activeAddress}\n${responseTitle}\n${balanceStrings.join("\n")}`;
+    return `Smart Account: ${smartAccount}\n${responseTitle}\n${balanceStrings.join("\n")}`;
   } catch (error) {
     console.error("Balance fetch error:", error);
     return `Error getting balance: ${error instanceof Error ? error.message : String(error)}`;
@@ -203,10 +237,12 @@ export async function getBalance(
 /**
  * Get wallet balance action.
  */
-export class GetBalanceAction implements AgentkitAction<typeof GetBalanceInput> {
-  public name = "get_balance";
-  public description = GET_BALANCE_PROMPT;
-  public argsSchema = GetBalanceInput;
-  public func = getBalance;
+export class GetConfidentialBalanceAction
+  implements AgentkitAction<typeof GetConfidentialBalanceInput>
+{
+  public name = "get_confidential_balance";
+  public description = GET_CONFIDETIAL_BALANCE_PROMPT;
+  public argsSchema = GetConfidentialBalanceInput;
+  public func = getConfidentialBalance;
   public smartAccountRequired = true;
 }
