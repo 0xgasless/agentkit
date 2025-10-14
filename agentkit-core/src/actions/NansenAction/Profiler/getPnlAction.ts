@@ -7,7 +7,7 @@ Retrieve detailed profit and loss information for a specific wallet address acro
 
 Key Features:
 - Detailed PnL information for a specific wallet
-- Multi-chain support
+- Multi-chain support (looped client-side)
 - Transaction-level PnL data
 - Individual trade performance
 - Detailed trading metrics
@@ -15,17 +15,13 @@ Key Features:
 This endpoint requires a Nansen API key to be configured.
 `;
 
-/**
- * Input schema for getting PnL data.
- */
+// Input schema (chains now ENUM but for API only one chain per request)
 export const GetPnlInput = z
   .object({
     wallet_address: z.string().describe("The wallet address to get PnL data for"),
-
     chains: z
       .array(
         z.enum([
-          "all",
           "arbitrum",
           "avalanche",
           "base",
@@ -50,79 +46,61 @@ export const GetPnlInput = z
           "solana",
         ]),
       )
-      .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
-
+      .describe("Chains to include in the analysis. Each chain requested separately."),
     filters: z
       .object({
-        transaction_hash: z.string().optional().describe("Transaction hash filter"),
-        token_address: z.string().optional().describe("Token address filter"),
-        token_symbol: z.string().optional().describe("Token symbol filter"),
-        token_sectors: z.array(z.string()).optional().describe("Token sectors filter"),
+        transaction_hash: z.string().optional(),
+        token_address: z.string().optional(),
+        token_symbol: z.string().optional(),
+        token_sectors: z.array(z.string()).optional(),
         pnl_usd: z
           .object({
             min: z.number().optional(),
             max: z.number().optional(),
           })
-          .optional()
-          .describe("PnL range filter in USD"),
+          .optional(),
         pnl_percent: z
           .object({
             min: z.number().optional(),
             max: z.number().optional(),
           })
-          .optional()
-          .describe("PnL percentage range filter"),
+          .optional(),
         timestamp: z
           .object({
             from: z.string().optional(),
             to: z.string().optional(),
           })
-          .optional()
-          .describe("Timestamp range filter"),
+          .optional(),
       })
-      .optional()
-      .describe("Additional filters to apply"),
-
+      .optional(),
     pagination: z
       .object({
-        page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z
-          .number()
-          .min(1)
-          .max(1000)
-          .default(10)
-          .describe("Number of records per page (max 1000)"),
+        page: z.number().min(1).default(1),
+        per_page: z.number().min(1).max(1000).default(10),
       })
-      .optional()
-      .describe("Pagination parameters"),
-
+      .optional(),
     order_by: z
       .array(
         z.object({
-          field: z
-            .enum([
-              "chain",
-              "transaction_hash",
-              "token_address",
-              "token_symbol",
-              "token_sectors",
-              "pnl_usd",
-              "pnl_percent",
-              "timestamp",
-            ])
-            .describe("Field to sort by"),
-          direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
+          field: z.enum([
+            "chain",
+            "transaction_hash",
+            "token_address",
+            "token_symbol",
+            "token_sectors",
+            "pnl_usd",
+            "pnl_percent",
+            "timestamp",
+          ]),
+          direction: z.enum(["ASC", "DESC"]),
         }),
       )
-      .optional()
-      .describe("Custom sort order to override the endpoint's default ordering"),
+      .optional(),
   })
   .strip()
   .describe("Instructions for getting PnL data");
 
-/**
- * Response interface for PnL data.
- */
+// Response Interface
 interface Pnl {
   chain: string;
   transaction_hash: string;
@@ -143,97 +121,123 @@ interface PnlResponse {
   };
 }
 
-/**
- * Fetches PnL data from Nansen API.
- *
- * @param _wallet - The smart account (not used for this action).
- * @param args - The input arguments containing wallet address, chains, filters, pagination, and sorting options.
- * @returns A formatted string containing the PnL data.
- */
+interface PnlRequestBody {
+  address: string;
+  chain: string;
+  date?: { from?: string; to?: string };
+  pagination?: { page: number; per_page: number };
+  order_by?: { field: string; direction: string }[];
+  transaction_hash?: string;
+  token_address?: string;
+  token_symbol?: string;
+  token_sectors?: string[];
+  pnl_usd?: { min?: number; max?: number };
+  pnl_percent?: { min?: number; max?: number };
+}
+
+// Main function - loops over chains, fetches separately!
 export async function getPnl(
   _wallet: ZeroXgaslessSmartAccount,
   args: z.infer<typeof GetPnlInput>,
 ): Promise<string> {
   try {
     const apiKey = process.env.NANSEN_API_KEY;
-    if (!apiKey) {
-      return "Error: NANSEN_API_KEY environment variable is required but not set.";
+    if (!apiKey) return "Error: NANSEN_API_KEY environment variable is required but not set.";
+
+    let allResults = "";
+
+    for (const chain of args.chains) {
+      const requestBody: PnlRequestBody = {
+        address: args.wallet_address, // API expects 'address'
+        chain: chain, // API expects 'chain' (string)
+      };
+
+      // Time filter mapping
+      if (args.filters?.timestamp) {
+        requestBody.date = {
+          from: args.filters.timestamp.from,
+          to: args.filters.timestamp.to,
+        };
+      }
+
+      // Pagination
+      if (args.pagination) {
+        requestBody.pagination = args.pagination;
+      }
+
+      // If sorting, handle
+      if (args.order_by) {
+        requestBody.order_by = args.order_by;
+      }
+
+      // Other filters: flatten if present
+      if (args.filters) {
+        if (args.filters.transaction_hash)
+          requestBody.transaction_hash = args.filters.transaction_hash;
+        if (args.filters.token_address) requestBody.token_address = args.filters.token_address;
+        if (args.filters.token_symbol) requestBody.token_symbol = args.filters.token_symbol;
+        if (args.filters.token_sectors) requestBody.token_sectors = args.filters.token_sectors;
+        if (args.filters.pnl_usd) requestBody.pnl_usd = args.filters.pnl_usd;
+        if (args.filters.pnl_percent) requestBody.pnl_percent = args.filters.pnl_percent;
+      }
+
+      const response = await fetch("https://api.nansen.ai/api/v1/profiler/address/pnl", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apiKey: apiKey,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401)
+          return "Error: Invalid Nansen API key. Please check your NANSEN_API_KEY environment variable.";
+        if (response.status === 403)
+          return "Error: Insufficient subscription tier for this endpoint.";
+        if (response.status === 429)
+          return "Error: Rate limit exceeded. Please wait before making another request.";
+        allResults += `Error fetching PnL: ${response.status} ${response.statusText} for chain ${chain}\n`;
+        continue;
+      }
+
+      const data: PnlResponse = await response.json();
+
+      if (!data.data || data.data.length === 0) {
+        allResults += `No PnL data found for wallet ${args.wallet_address} on ${chain}.\n`;
+        continue;
+      }
+
+      allResults += `💰 PnL Details for ${args.wallet_address} on ${chain}:\n\n`;
+      data.data.forEach((pnl, index) => {
+        const timestamp = pnl.timestamp ? new Date(pnl.timestamp).toLocaleString() : "N/A";
+        const pnlEmoji = pnl.pnl_usd !== undefined && pnl.pnl_usd >= 0 ? "📈" : "📉";
+        allResults += `${index + 1}. PnL Transaction ${pnlEmoji}\n`;
+        allResults += `   • Token: ${pnl.token_symbol} (${pnl.token_address})\n`;
+        allResults += `   • PnL: $${pnl.pnl_usd !== undefined ? pnl.pnl_usd.toLocaleString() : "N/A"}\n`;
+        allResults += `   • PnL %: ${pnl.pnl_percent !== undefined ? pnl.pnl_percent.toFixed(2) : "N/A"}%\n`;
+        if (pnl.token_sectors && pnl.token_sectors.length > 0) {
+          allResults += `   • Sectors: ${pnl.token_sectors.join(", ")}\n`;
+        }
+        allResults += `   • Time: ${timestamp}\n`;
+        allResults += `   • Tx Hash: ${pnl.transaction_hash}\n\n`;
+      });
+      if (!data.pagination.is_last_page) {
+        allResults += `Page ${data.pagination.page} of results. Use pagination to get more results.\n`;
+      }
     }
 
-    const requestBody = {
-      wallet_address: args.wallet_address,
-      chains: args.chains,
-      ...(args.filters && { filters: args.filters }),
-      ...(args.pagination && { pagination: args.pagination }),
-      ...(args.order_by && { order_by: args.order_by }),
-    };
-
-    const response = await fetch("https://api.nansen.ai/api/v1/profiler/pnl", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apiKey: apiKey,
-        "User-Agent": "0xGasless-AgentKit/1.0",
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        return "Error: Invalid Nansen API key. Please check your NANSEN_API_KEY environment variable.";
-      }
-      if (response.status === 403) {
-        return "Error: Insufficient subscription tier for this endpoint.";
-      }
-      if (response.status === 429) {
-        return "Error: Rate limit exceeded. Please wait before making another request.";
-      }
-      return `Error fetching PnL: ${response.status} ${response.statusText}`;
-    }
-
-    const data: PnlResponse = await response.json();
-
-    if (!data.data || data.data.length === 0) {
-      return `No PnL data found for wallet ${args.wallet_address}.`;
-    }
-
-    let result = `💰 PnL Details for ${args.wallet_address}:\n\n`;
-
-    data.data.forEach((pnl, index) => {
-      const timestamp = new Date(pnl.timestamp).toLocaleString();
-      const pnlEmoji = pnl.pnl_usd && pnl.pnl_usd >= 0 ? "📈" : "📉";
-
-      result += `${index + 1}. PnL Transaction ${pnlEmoji}\n`;
-      result += `   • Token: ${pnl.token_symbol} (${pnl.token_address})\n`;
-      result += `   • Chain: ${pnl.chain}\n`;
-      if (pnl.pnl_usd !== undefined) {
-        result += `   • PnL: $${pnl.pnl_usd.toLocaleString()}\n`;
-      }
-      if (pnl.pnl_percent !== undefined) {
-        result += `   • PnL %: ${pnl.pnl_percent.toFixed(2)}%\n`;
-      }
-      if (pnl.token_sectors && pnl.token_sectors.length > 0) {
-        result += `   • Sectors: ${pnl.token_sectors.join(", ")}\n`;
-      }
-      result += `   • Time: ${timestamp}\n`;
-      result += `   • Tx Hash: ${pnl.transaction_hash}\n`;
-      result += "\n";
-    });
-
-    if (!data.pagination.is_last_page) {
-      result += `Page ${data.pagination.page} of results. Use pagination to get more results.\n`;
-    }
-
-    return result;
+    return (
+      allResults.trim() ||
+      `No PnL data found for wallet ${args.wallet_address} on requested chains.`
+    );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return `Error fetching PnL: ${errorMessage}`;
   }
 }
 
-/**
- * Get PnL action.
- */
+// AgentKit Action class
 export class GetPnlAction implements AgentkitAction<typeof GetPnlInput> {
   public name = "get_pnl";
   public description = GET_PNL_PROMPT;
