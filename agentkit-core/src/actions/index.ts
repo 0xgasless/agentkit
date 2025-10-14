@@ -19,6 +19,31 @@ import {
 import { DisperseAction } from "./disperseAction";
 import { GetEoaAddressAction } from "./getEoaAddressAction";
 import { GetEoaBalanceAction } from "./getEoaBalanceAction";
+import {
+  GetSmartMoneyNetflowAction,
+  GetSmartMoneyHoldingsAction,
+  GetSmartMoneyDexTradesAction,
+  GetSmartMoneyDcasAction,
+  GetCurrentBalanceAction,
+  GetHistoricalBalanceAction,
+  GetTransactionsAction,
+  GetCounterpartiesAction,
+  GetRelatedWalletsAction,
+  GetPnlSummaryAction,
+  GetPnlAction,
+  GetLabelsAction,
+  GetTransactionLookupAction,
+  GetTokenScreenerAction,
+  GetFlowIntelligenceAction,
+  GetHoldersAction,
+  GetFlowsAction,
+  GetWhoBoughtSoldAction,
+  GetDexTradesAction,
+  GetTransfersAction,
+  GetJupiterDcasAction,
+  GetPnlLeaderboardAction,
+  GetDefiHoldingsAction,
+} from "./NansenAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -41,6 +66,33 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SearchPairsAction(),
     new GetPairsByTokenAddressesAction(),
     new DisperseAction(),
+    // Nansen Smart Money Actions
+    new GetSmartMoneyNetflowAction(),
+    new GetSmartMoneyHoldingsAction(),
+    new GetSmartMoneyDexTradesAction(),
+    new GetSmartMoneyDcasAction(),
+    // Nansen Profiler Actions
+    new GetCurrentBalanceAction(),
+    new GetHistoricalBalanceAction(),
+    new GetTransactionsAction(),
+    new GetCounterpartiesAction(),
+    new GetRelatedWalletsAction(),
+    new GetPnlSummaryAction(),
+    new GetPnlAction(),
+    new GetLabelsAction(),
+    new GetTransactionLookupAction(),
+    // Nansen Token God Mode Actions
+    new GetTokenScreenerAction(),
+    new GetFlowIntelligenceAction(),
+    new GetHoldersAction(),
+    new GetFlowsAction(),
+    new GetWhoBoughtSoldAction(),
+    new GetDexTradesAction(),
+    new GetTransfersAction(),
+    new GetJupiterDcasAction(),
+    new GetPnlLeaderboardAction(),
+    // Nansen Portfolio Actions
+    new GetDefiHoldingsAction(),
   ];
 }
 
