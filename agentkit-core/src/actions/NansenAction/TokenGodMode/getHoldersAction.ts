@@ -48,7 +48,7 @@ export const GetHoldersInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -85,7 +85,12 @@ export const GetHoldersInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -106,7 +111,7 @@ export const GetHoldersInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -195,11 +200,17 @@ export async function getHolders(
 
     data.data.forEach((holder, index) => {
       const timestamp = new Date(holder.timestamp).toLocaleString();
-      const typeEmoji = holder.holder_type === "exchange" ? "🏦" : 
-                       holder.holder_type === "defi" ? "🔄" : 
-                       holder.holder_type === "smart_money" ? "🧠" : 
-                       holder.holder_type === "whale" ? "🐋" : "👤";
-      
+      const typeEmoji =
+        holder.holder_type === "exchange"
+          ? "🏦"
+          : holder.holder_type === "defi"
+            ? "🔄"
+            : holder.holder_type === "smart_money"
+              ? "🧠"
+              : holder.holder_type === "whale"
+                ? "🐋"
+                : "👤";
+
       result += `${index + 1}. Holder ${typeEmoji}\n`;
       result += `   • Address: ${holder.holder_address}\n`;
       result += `   • Label: ${holder.holder_label}\n`;

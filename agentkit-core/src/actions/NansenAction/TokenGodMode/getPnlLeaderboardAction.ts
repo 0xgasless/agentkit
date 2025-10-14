@@ -48,7 +48,7 @@ export const GetPnlLeaderboardInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -92,7 +92,12 @@ export const GetPnlLeaderboardInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -114,7 +119,7 @@ export const GetPnlLeaderboardInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -206,11 +211,17 @@ export async function getPnlLeaderboard(
       const timestamp = new Date(trader.timestamp).toLocaleString();
       const rankEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🏅";
       const pnlEmoji = trader.pnl_usd && trader.pnl_usd >= 0 ? "📈" : "📉";
-      const typeEmoji = trader.trader_type === "exchange" ? "🏦" : 
-                       trader.trader_type === "defi" ? "🔄" : 
-                       trader.trader_type === "smart_money" ? "🧠" : 
-                       trader.trader_type === "whale" ? "🐋" : "👤";
-      
+      const typeEmoji =
+        trader.trader_type === "exchange"
+          ? "🏦"
+          : trader.trader_type === "defi"
+            ? "🔄"
+            : trader.trader_type === "smart_money"
+              ? "🧠"
+              : trader.trader_type === "whale"
+                ? "🐋"
+                : "👤";
+
       result += `${index + 1}. ${rankEmoji} Trader ${pnlEmoji}\n`;
       result += `   • Trader: ${typeEmoji} ${trader.trader_label || trader.trader_address}\n`;
       result += `   • Type: ${trader.trader_type}\n`;

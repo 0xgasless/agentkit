@@ -48,7 +48,7 @@ export const GetFlowsInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -88,7 +88,12 @@ export const GetFlowsInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -112,7 +117,7 @@ export const GetFlowsInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -204,10 +209,15 @@ export async function getFlows(
 
     data.data.forEach((flow, index) => {
       const timestamp = new Date(flow.timestamp).toLocaleString();
-      const flowEmoji = flow.flow_type === "transfer" ? "📤" : 
-                       flow.flow_type === "swap" ? "🔄" : 
-                       flow.flow_type === "mint" ? "🪙" : "📄";
-      
+      const flowEmoji =
+        flow.flow_type === "transfer"
+          ? "📤"
+          : flow.flow_type === "swap"
+            ? "🔄"
+            : flow.flow_type === "mint"
+              ? "🪙"
+              : "📄";
+
       result += `${index + 1}. Flow ${flowEmoji}\n`;
       result += `   • Type: ${flow.flow_type}\n`;
       result += `   • Chain: ${flow.chain}\n`;

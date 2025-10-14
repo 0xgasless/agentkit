@@ -48,7 +48,7 @@ export const GetDexTradesInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -94,7 +94,12 @@ export const GetDexTradesInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -118,7 +123,7 @@ export const GetDexTradesInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -210,11 +215,17 @@ export async function getDexTrades(
 
     data.data.forEach((trade, index) => {
       const timestamp = new Date(trade.timestamp).toLocaleString();
-      const typeEmoji = trade.trader_type === "exchange" ? "🏦" : 
-                       trade.trader_type === "defi" ? "🔄" : 
-                       trade.trader_type === "smart_money" ? "🧠" : 
-                       trade.trader_type === "whale" ? "🐋" : "👤";
-      
+      const typeEmoji =
+        trade.trader_type === "exchange"
+          ? "🏦"
+          : trade.trader_type === "defi"
+            ? "🔄"
+            : trade.trader_type === "smart_money"
+              ? "🧠"
+              : trade.trader_type === "whale"
+                ? "🐋"
+                : "👤";
+
       result += `${index + 1}. DEX Trade ${typeEmoji}\n`;
       result += `   • Trader: ${trade.trader_label || trade.trader_address}\n`;
       result += `   • Type: ${trade.trader_type}\n`;

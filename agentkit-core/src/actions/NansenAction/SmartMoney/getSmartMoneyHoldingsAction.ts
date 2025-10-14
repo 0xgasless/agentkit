@@ -45,22 +45,48 @@ export const GetSmartMoneyHoldingsInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
-      .describe("Chains to include in the analysis (only smart money supported chains). Use 'all' to include all available chains."),
+      .describe(
+        "Chains to include in the analysis (only smart money supported chains). Use 'all' to include all available chains.",
+      ),
 
     filters: z
       .object({
         include_smart_money_labels: z
-          .array(z.enum(["Fund", "Smart Trader", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"]))
+          .array(
+            z.enum([
+              "Fund",
+              "Smart Trader",
+              "30D Smart Trader",
+              "90D Smart Trader",
+              "180D Smart Trader",
+            ]),
+          )
           .optional()
           .describe("Smart money category filters to include"),
         exclude_smart_money_labels: z
-          .array(z.enum(["Fund", "Smart Trader", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"]))
+          .array(
+            z.enum([
+              "Fund",
+              "Smart Trader",
+              "30D Smart Trader",
+              "90D Smart Trader",
+              "180D Smart Trader",
+            ]),
+          )
           .optional()
           .describe("Smart money category filters to exclude"),
-        include_stablecoins: z.boolean().optional().default(false).describe("Whether to include stablecoins in the results"),
-        include_native_tokens: z.boolean().optional().default(false).describe("Whether to include native tokens (e.g., ETH, SOL) in the results"),
+        include_stablecoins: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether to include stablecoins in the results"),
+        include_native_tokens: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether to include native tokens (e.g., ETH, SOL) in the results"),
         value_usd: z
           .object({
             min: z.number().optional(),
@@ -113,7 +139,12 @@ export const GetSmartMoneyHoldingsInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -135,7 +166,7 @@ export const GetSmartMoneyHoldingsInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -261,7 +292,9 @@ export async function getSmartMoneyHoldings(
 /**
  * Get Smart Money Holdings action.
  */
-export class GetSmartMoneyHoldingsAction implements AgentkitAction<typeof GetSmartMoneyHoldingsInput> {
+export class GetSmartMoneyHoldingsAction
+  implements AgentkitAction<typeof GetSmartMoneyHoldingsInput>
+{
   public name = "get_smart_money_holdings";
   public description = GET_SMART_MONEY_HOLDINGS_PROMPT;
   public argsSchema = GetSmartMoneyHoldingsInput;

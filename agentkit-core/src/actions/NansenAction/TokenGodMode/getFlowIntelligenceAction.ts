@@ -48,14 +48,17 @@ export const GetFlowIntelligenceInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
     filters: z
       .object({
         entity_type: z.array(z.string()).optional().describe("Entity type filter"),
-        flow_type: z.array(z.string()).optional().describe("Flow type filter (inflow, outflow, net)"),
+        flow_type: z
+          .array(z.string())
+          .optional()
+          .describe("Flow type filter (inflow, outflow, net)"),
         value_usd: z
           .object({
             min: z.number().optional(),
@@ -77,7 +80,12 @@ export const GetFlowIntelligenceInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -86,17 +94,10 @@ export const GetFlowIntelligenceInput = z
       .array(
         z.object({
           field: z
-            .enum([
-              "chain",
-              "token_address",
-              "entity_type",
-              "flow_type",
-              "value_usd",
-              "timestamp",
-            ])
+            .enum(["chain", "token_address", "entity_type", "flow_type", "value_usd", "timestamp"])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -183,12 +184,17 @@ export async function getFlowIntelligence(
 
     data.data.forEach((flow, index) => {
       const timestamp = new Date(flow.timestamp).toLocaleString();
-      const flowEmoji = flow.flow_type === "inflow" ? "📈" : 
-                       flow.flow_type === "outflow" ? "📉" : "⚖️";
-      const entityEmoji = flow.entity_type === "exchange" ? "🏦" : 
-                         flow.entity_type === "defi" ? "🔄" : 
-                         flow.entity_type === "smart_money" ? "🧠" : "👤";
-      
+      const flowEmoji =
+        flow.flow_type === "inflow" ? "📈" : flow.flow_type === "outflow" ? "📉" : "⚖️";
+      const entityEmoji =
+        flow.entity_type === "exchange"
+          ? "🏦"
+          : flow.entity_type === "defi"
+            ? "🔄"
+            : flow.entity_type === "smart_money"
+              ? "🧠"
+              : "👤";
+
       result += `${index + 1}. Flow Data ${flowEmoji}\n`;
       result += `   • Entity: ${entityEmoji} ${flow.entity_type}\n`;
       result += `   • Flow Type: ${flow.flow_type}\n`;

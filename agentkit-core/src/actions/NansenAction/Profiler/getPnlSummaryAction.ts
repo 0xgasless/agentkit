@@ -48,7 +48,7 @@ export const GetPnlSummaryInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -85,7 +85,12 @@ export const GetPnlSummaryInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -105,7 +110,7 @@ export const GetPnlSummaryInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -195,7 +200,7 @@ export async function getPnlSummary(
       const timestamp = new Date(summary.timestamp).toLocaleString();
       const pnlEmoji = summary.pnl_usd && summary.pnl_usd >= 0 ? "📈" : "📉";
       const winRateEmoji = summary.win_rate >= 0.6 ? "🎯" : summary.win_rate >= 0.4 ? "⚖️" : "🎲";
-      
+
       result += `${index + 1}. PnL Summary ${pnlEmoji}\n`;
       result += `   • Token: ${summary.token_symbol} (${summary.token_address})\n`;
       result += `   • Chain: ${summary.chain}\n`;

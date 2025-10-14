@@ -48,14 +48,17 @@ export const GetWhoBoughtSoldInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
     filters: z
       .object({
         transaction_hash: z.string().optional().describe("Transaction hash filter"),
-        action_type: z.array(z.enum(["buy", "sell"])).optional().describe("Action type filter (buy, sell)"),
+        action_type: z
+          .array(z.enum(["buy", "sell"]))
+          .optional()
+          .describe("Action type filter (buy, sell)"),
         trader_address: z.string().optional().describe("Trader address filter"),
         trader_label: z.string().optional().describe("Trader label filter"),
         trader_type: z.array(z.string()).optional().describe("Trader type filter"),
@@ -87,7 +90,12 @@ export const GetWhoBoughtSoldInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -110,7 +118,7 @@ export const GetWhoBoughtSoldInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -202,11 +210,17 @@ export async function getWhoBoughtSold(
     data.data.forEach((trade, index) => {
       const timestamp = new Date(trade.timestamp).toLocaleString();
       const actionEmoji = trade.action_type === "buy" ? "🟢" : "🔴";
-      const typeEmoji = trade.trader_type === "exchange" ? "🏦" : 
-                       trade.trader_type === "defi" ? "🔄" : 
-                       trade.trader_type === "smart_money" ? "🧠" : 
-                       trade.trader_type === "whale" ? "🐋" : "👤";
-      
+      const typeEmoji =
+        trade.trader_type === "exchange"
+          ? "🏦"
+          : trade.trader_type === "defi"
+            ? "🔄"
+            : trade.trader_type === "smart_money"
+              ? "🧠"
+              : trade.trader_type === "whale"
+                ? "🐋"
+                : "👤";
+
       result += `${index + 1}. Trade ${actionEmoji}\n`;
       result += `   • Action: ${trade.action_type.toUpperCase()}\n`;
       result += `   • Trader: ${typeEmoji} ${trade.trader_label || trade.trader_address}\n`;

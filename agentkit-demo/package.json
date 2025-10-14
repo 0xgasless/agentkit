@@ -20,7 +20,7 @@
     "@langchain/langgraph": "^0.2.21",
     "@langchain/openai": "^0.3.14",
     "axios": "^1.7.9",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "merkletreejs": "^0.4.1",
     "tslib": "^2.8.1",
     "viem": "^2.22.17",

@@ -73,7 +73,12 @@ export const GetJupiterDcasInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -99,7 +104,7 @@ export const GetJupiterDcasInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -193,11 +198,17 @@ export async function getJupiterDcas(
     data.data.forEach((dca, index) => {
       const createdDate = new Date(dca.dca_created_at).toLocaleString();
       const statusEmoji = dca.dca_status === "active" ? "🟢" : "🔴";
-      const typeEmoji = dca.trader_type === "exchange" ? "🏦" : 
-                       dca.trader_type === "defi" ? "🔄" : 
-                       dca.trader_type === "smart_money" ? "🧠" : 
-                       dca.trader_type === "whale" ? "🐋" : "👤";
-      
+      const typeEmoji =
+        dca.trader_type === "exchange"
+          ? "🏦"
+          : dca.trader_type === "defi"
+            ? "🔄"
+            : dca.trader_type === "smart_money"
+              ? "🧠"
+              : dca.trader_type === "whale"
+                ? "🐋"
+                : "👤";
+
       result += `${index + 1}. DCA Order ${statusEmoji}\n`;
       result += `   • Trader: ${typeEmoji} ${dca.trader_label || dca.trader_address}\n`;
       result += `   • Type: ${dca.trader_type}\n`;

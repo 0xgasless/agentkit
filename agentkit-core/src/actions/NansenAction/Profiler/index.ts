@@ -1,9 +1,9 @@
-export { GetCurrentBalanceAction } from "./getCurrentBalanceAction";
-export { GetHistoricalBalanceAction } from "./getHistoricalBalanceAction";
-export { GetTransactionsAction } from "./getTransactionsAction";
-export { GetCounterpartiesAction } from "./getCounterpartiesAction";
-export { GetRelatedWalletsAction } from "./getRelatedWalletsAction";
-export { GetPnlSummaryAction } from "./getPnlSummaryAction";
-export { GetPnlAction } from "./getPnlAction";
-export { GetLabelsAction } from "./getLabelsAction";
-export { GetTransactionLookupAction } from "./getTransactionLookupAction";
+export * from "./getCurrentBalanceAction";
+export * from "./getHistoricalBalanceAction";
+export * from "./getTransactionsAction";
+export * from "./getCounterpartiesAction";
+export * from "./getRelatedWalletsAction";
+export * from "./getPnlSummaryAction";
+export * from "./getPnlAction";
+export * from "./getLabelsAction";
+export * from "./getTransactionLookupAction";

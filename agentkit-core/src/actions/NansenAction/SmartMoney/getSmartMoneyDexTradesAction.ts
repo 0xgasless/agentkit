@@ -46,25 +46,46 @@ export const GetSmartMoneyDexTradesInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
-      .describe("Chains to include in the analysis (only smart money supported chains). Use 'all' to include all available chains."),
+      .describe(
+        "Chains to include in the analysis (only smart money supported chains). Use 'all' to include all available chains.",
+      ),
 
     filters: z
       .object({
         include_smart_money_labels: z
-          .array(z.enum(["Fund", "Smart Trader", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"]))
+          .array(
+            z.enum([
+              "Fund",
+              "Smart Trader",
+              "30D Smart Trader",
+              "90D Smart Trader",
+              "180D Smart Trader",
+            ]),
+          )
           .optional()
           .describe("Smart money category filters to include"),
         exclude_smart_money_labels: z
-          .array(z.enum(["Fund", "Smart Trader", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"]))
+          .array(
+            z.enum([
+              "Fund",
+              "Smart Trader",
+              "30D Smart Trader",
+              "90D Smart Trader",
+              "180D Smart Trader",
+            ]),
+          )
           .optional()
           .describe("Smart money category filters to exclude"),
         chain: z.string().optional().describe("Blockchain network filter"),
         transaction_hash: z.string().optional().describe("Transaction hash filter"),
         trader_address: z.string().optional().describe("Trader address filter"),
         trader_address_label: z.string().optional().describe("Trader name or label filter"),
-        token_bought_address: z.string().optional().describe("Token address filter for bought tokens"),
+        token_bought_address: z
+          .string()
+          .optional()
+          .describe("Token address filter for bought tokens"),
         token_sold_address: z.string().optional().describe("Token address filter for sold tokens"),
         token_bought_amount: z
           .object({
@@ -124,7 +145,12 @@ export const GetSmartMoneyDexTradesInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -153,7 +179,7 @@ export const GetSmartMoneyDexTradesInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -279,7 +305,9 @@ export async function getSmartMoneyDexTrades(
 /**
  * Get Smart Money DEX Trades action.
  */
-export class GetSmartMoneyDexTradesAction implements AgentkitAction<typeof GetSmartMoneyDexTradesInput> {
+export class GetSmartMoneyDexTradesAction
+  implements AgentkitAction<typeof GetSmartMoneyDexTradesInput>
+{
   public name = "get_smart_money_dex_trades";
   public description = GET_SMART_MONEY_DEX_TRADES_PROMPT;
   public argsSchema = GetSmartMoneyDexTradesInput;

@@ -48,7 +48,7 @@ export const GetPnlInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -86,7 +86,12 @@ export const GetPnlInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -107,7 +112,7 @@ export const GetPnlInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -197,7 +202,7 @@ export async function getPnl(
     data.data.forEach((pnl, index) => {
       const timestamp = new Date(pnl.timestamp).toLocaleString();
       const pnlEmoji = pnl.pnl_usd && pnl.pnl_usd >= 0 ? "📈" : "📉";
-      
+
       result += `${index + 1}. PnL Transaction ${pnlEmoji}\n`;
       result += `   • Token: ${pnl.token_symbol} (${pnl.token_address})\n`;
       result += `   • Chain: ${pnl.chain}\n`;

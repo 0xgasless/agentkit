@@ -48,7 +48,7 @@ export const GetLabelsInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -78,7 +78,12 @@ export const GetLabelsInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -97,7 +102,7 @@ export const GetLabelsInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -184,9 +189,9 @@ export async function getLabels(
 
     data.data.forEach((label, index) => {
       const timestamp = new Date(label.timestamp).toLocaleString();
-      const confidenceEmoji = label.confidence_score >= 0.8 ? "🎯" : 
-                            label.confidence_score >= 0.6 ? "⚖️" : "🎲";
-      
+      const confidenceEmoji =
+        label.confidence_score >= 0.8 ? "🎯" : label.confidence_score >= 0.6 ? "⚖️" : "🎲";
+
       result += `${index + 1}. Label ${confidenceEmoji}\n`;
       result += `   • Name: ${label.label_name}\n`;
       result += `   • Type: ${label.label_type}\n`;

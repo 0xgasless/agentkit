@@ -48,7 +48,7 @@ export const GetRelatedWalletsInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -91,7 +91,12 @@ export const GetRelatedWalletsInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -111,7 +116,7 @@ export const GetRelatedWalletsInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -199,9 +204,13 @@ export async function getRelatedWallets(
 
     data.data.forEach((wallet, index) => {
       const timestamp = new Date(wallet.timestamp).toLocaleString();
-      const strengthEmoji = wallet.relationship_strength >= 0.8 ? "🔗" : 
-                           wallet.relationship_strength >= 0.6 ? "🔗" : "🔗";
-      
+      const strengthEmoji =
+        wallet.relationship_strength >= 0.8
+          ? "🔗"
+          : wallet.relationship_strength >= 0.6
+            ? "🔗"
+            : "🔗";
+
       result += `${index + 1}. Related Wallet ${strengthEmoji}\n`;
       result += `   • Address: ${wallet.related_wallet_address}\n`;
       result += `   • Relationship: ${wallet.relationship_type}\n`;

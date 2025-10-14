@@ -48,7 +48,7 @@ export const GetTransactionLookupInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -79,7 +79,12 @@ export const GetTransactionLookupInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -99,7 +104,7 @@ export const GetTransactionLookupInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -187,10 +192,15 @@ export async function getTransactionLookup(
 
     data.data.forEach((tx, index) => {
       const timestamp = new Date(tx.timestamp).toLocaleString();
-      const typeEmoji = tx.transaction_type === "swap" ? "🔄" : 
-                       tx.transaction_type === "transfer" ? "📤" : 
-                       tx.transaction_type === "mint" ? "🪙" : "📄";
-      
+      const typeEmoji =
+        tx.transaction_type === "swap"
+          ? "🔄"
+          : tx.transaction_type === "transfer"
+            ? "📤"
+            : tx.transaction_type === "mint"
+              ? "🪙"
+              : "📄";
+
       result += `${index + 1}. Transaction Detail ${typeEmoji}\n`;
       result += `   • Type: ${tx.transaction_type}\n`;
       result += `   • Chain: ${tx.chain}\n`;
@@ -219,7 +229,9 @@ export async function getTransactionLookup(
 /**
  * Get Transaction Lookup action.
  */
-export class GetTransactionLookupAction implements AgentkitAction<typeof GetTransactionLookupInput> {
+export class GetTransactionLookupAction
+  implements AgentkitAction<typeof GetTransactionLookupInput>
+{
   public name = "get_transaction_lookup";
   public description = GET_TRANSACTION_LOOKUP_PROMPT;
   public argsSchema = GetTransactionLookupInput;

@@ -48,7 +48,7 @@ export const GetTransfersInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -89,7 +89,12 @@ export const GetTransfersInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -114,7 +119,7 @@ export const GetTransfersInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -207,15 +212,27 @@ export async function getTransfers(
 
     data.data.forEach((transfer, index) => {
       const timestamp = new Date(transfer.timestamp).toLocaleString();
-      const fromEmoji = transfer.from_type === "exchange" ? "🏦" : 
-                       transfer.from_type === "defi" ? "🔄" : 
-                       transfer.from_type === "smart_money" ? "🧠" : 
-                       transfer.from_type === "whale" ? "🐋" : "👤";
-      const toEmoji = transfer.to_type === "exchange" ? "🏦" : 
-                     transfer.to_type === "defi" ? "🔄" : 
-                     transfer.to_type === "smart_money" ? "🧠" : 
-                     transfer.to_type === "whale" ? "🐋" : "👤";
-      
+      const fromEmoji =
+        transfer.from_type === "exchange"
+          ? "🏦"
+          : transfer.from_type === "defi"
+            ? "🔄"
+            : transfer.from_type === "smart_money"
+              ? "🧠"
+              : transfer.from_type === "whale"
+                ? "🐋"
+                : "👤";
+      const toEmoji =
+        transfer.to_type === "exchange"
+          ? "🏦"
+          : transfer.to_type === "defi"
+            ? "🔄"
+            : transfer.to_type === "smart_money"
+              ? "🧠"
+              : transfer.to_type === "whale"
+                ? "🐋"
+                : "👤";
+
       result += `${index + 1}. Transfer ${fromEmoji}→${toEmoji}\n`;
       result += `   • From: ${transfer.from_label || transfer.from_address}\n`;
       result += `   • To: ${transfer.to_label || transfer.to_address}\n`;

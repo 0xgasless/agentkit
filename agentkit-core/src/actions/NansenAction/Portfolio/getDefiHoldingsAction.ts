@@ -48,7 +48,7 @@ export const GetDefiHoldingsInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -80,7 +80,12 @@ export const GetDefiHoldingsInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -102,7 +107,7 @@ export const GetDefiHoldingsInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -192,14 +197,25 @@ export async function getDefiHoldings(
 
     data.data.forEach((holding, index) => {
       const timestamp = new Date(holding.timestamp).toLocaleString();
-      const protocolEmoji = holding.protocol_type === "lending" ? "💰" : 
-                           holding.protocol_type === "dex" ? "🔄" : 
-                           holding.protocol_type === "yield" ? "📈" : 
-                           holding.protocol_type === "staking" ? "🔒" : "🏛️";
-      const positionEmoji = holding.position_type === "supply" ? "📤" : 
-                           holding.position_type === "borrow" ? "📥" : 
-                           holding.position_type === "liquidity" ? "💧" : "📊";
-      
+      const protocolEmoji =
+        holding.protocol_type === "lending"
+          ? "💰"
+          : holding.protocol_type === "dex"
+            ? "🔄"
+            : holding.protocol_type === "yield"
+              ? "📈"
+              : holding.protocol_type === "staking"
+                ? "🔒"
+                : "🏛️";
+      const positionEmoji =
+        holding.position_type === "supply"
+          ? "📤"
+          : holding.position_type === "borrow"
+            ? "📥"
+            : holding.position_type === "liquidity"
+              ? "💧"
+              : "📊";
+
       result += `${index + 1}. DeFi Position ${protocolEmoji}${positionEmoji}\n`;
       result += `   • Protocol: ${holding.protocol_name}\n`;
       result += `   • Type: ${holding.protocol_type}\n`;

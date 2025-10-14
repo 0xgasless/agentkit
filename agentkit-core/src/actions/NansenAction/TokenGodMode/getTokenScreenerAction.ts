@@ -48,7 +48,7 @@ export const GetTokenScreenerInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -98,7 +98,12 @@ export const GetTokenScreenerInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -120,7 +125,7 @@ export const GetTokenScreenerInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -210,9 +215,13 @@ export async function getTokenScreener(
 
     data.data.forEach((token, index) => {
       const timestamp = new Date(token.timestamp).toLocaleString();
-      const marketCapEmoji = token.market_cap_usd && token.market_cap_usd > 1000000000 ? "🚀" : 
-                            token.market_cap_usd && token.market_cap_usd > 100000000 ? "📈" : "📊";
-      
+      const marketCapEmoji =
+        token.market_cap_usd && token.market_cap_usd > 1000000000
+          ? "🚀"
+          : token.market_cap_usd && token.market_cap_usd > 100000000
+            ? "📈"
+            : "📊";
+
       result += `${index + 1}. Token Data ${marketCapEmoji}\n`;
       result += `   • Symbol: ${token.token_symbol}\n`;
       result += `   • Chain: ${token.chain}\n`;

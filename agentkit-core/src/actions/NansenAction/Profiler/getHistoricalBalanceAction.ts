@@ -48,14 +48,22 @@ export const GetHistoricalBalanceInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
     filters: z
       .object({
-        include_stablecoins: z.boolean().optional().default(false).describe("Whether to include stablecoins in the results"),
-        include_native_tokens: z.boolean().optional().default(false).describe("Whether to include native tokens (e.g., ETH, SOL) in the results"),
+        include_stablecoins: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether to include stablecoins in the results"),
+        include_native_tokens: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether to include native tokens (e.g., ETH, SOL) in the results"),
         value_usd: z
           .object({
             min: z.number().optional(),
@@ -80,7 +88,12 @@ export const GetHistoricalBalanceInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -100,7 +113,7 @@ export const GetHistoricalBalanceInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -215,7 +228,9 @@ export async function getHistoricalBalance(
 /**
  * Get Historical Balance action.
  */
-export class GetHistoricalBalanceAction implements AgentkitAction<typeof GetHistoricalBalanceInput> {
+export class GetHistoricalBalanceAction
+  implements AgentkitAction<typeof GetHistoricalBalanceInput>
+{
   public name = "get_historical_balance";
   public description = GET_HISTORICAL_BALANCE_PROMPT;
   public argsSchema = GetHistoricalBalanceInput;

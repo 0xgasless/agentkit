@@ -20,42 +20,52 @@ This endpoint requires a Nansen API key to be configured.
  */
 export const GetCurrentBalanceInput = z
   .object({
-    wallet_address: z.string().describe("The wallet address to get balances for"),
+    address: z.string().describe("The wallet address to get balances for"),
 
-    chains: z
-      .array(
-        z.enum([
-          "all",
-          "arbitrum",
-          "avalanche",
-          "base",
-          "berachain",
-          "blast",
-          "bnb",
-          "ethereum",
-          "goat",
-          "hyperevm",
-          "iotaevm",
-          "linea",
-          "mantle",
-          "optimism",
-          "plasma",
-          "polygon",
-          "ronin",
-          "sei",
-          "scroll",
-          "sonic",
-          "unichain",
-          "zksync",
-          "solana",
-        ])
-      )
-      .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
+    chain: z
+      .enum([
+        "all",
+        "arbitrum",
+        "avalanche",
+        "base",
+        "berachain",
+        "blast",
+        "bnb",
+        "ethereum",
+        "goat",
+        "hyperevm",
+        "iotaevm",
+        "linea",
+        "mantle",
+        "optimism",
+        "plasma",
+        "polygon",
+        "ronin",
+        "sei",
+        "scroll",
+        "sonic",
+        "unichain",
+        "zksync",
+        "solana",
+        "bitcoin",
+        "starknet",
+        "ton",
+        "tron",
+      ])
+      .describe("Chain to include in the analysis. Use 'all' to include all available chains."),
 
     filters: z
       .object({
-        include_stablecoins: z.boolean().optional().default(false).describe("Whether to include stablecoins in the results"),
-        include_native_tokens: z.boolean().optional().default(false).describe("Whether to include native tokens (e.g., ETH, SOL) in the results"),
+        include_stablecoins: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether to include stablecoins in the results"),
+        include_native_tokens: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether to include native tokens (e.g., ETH, SOL) in the results"),
         value_usd: z
           .object({
             min: z.number().optional(),
@@ -73,7 +83,12 @@ export const GetCurrentBalanceInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -92,7 +107,7 @@ export const GetCurrentBalanceInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -108,7 +123,7 @@ interface CurrentBalance {
   token_address: string;
   token_symbol: string;
   token_sectors: string[];
-  balance: number;
+  token_amount: number;
   value_usd?: number;
 }
 
@@ -139,14 +154,14 @@ export async function getCurrentBalance(
     }
 
     const requestBody = {
-      wallet_address: args.wallet_address,
-      chains: args.chains,
+      address: args.address,
+      chain: args.chain,
       ...(args.filters && { filters: args.filters }),
       ...(args.pagination && { pagination: args.pagination }),
       ...(args.order_by && { order_by: args.order_by }),
     };
 
-    const response = await fetch("https://api.nansen.ai/api/v1/profiler/current-balance", {
+    const response = await fetch("https://api.nansen.ai/api/v1/profiler/address/current-balance", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -172,15 +187,15 @@ export async function getCurrentBalance(
     const data: CurrentBalanceResponse = await response.json();
 
     if (!data.data || data.data.length === 0) {
-      return `No balance data found for wallet ${args.wallet_address}.`;
+      return `No balance data found for wallet ${args.address}.`;
     }
 
-    let result = `💰 Current Balance for ${args.wallet_address}:\n\n`;
+    let result = `💰 Current Balance for ${args.address}:\n\n`;
 
     data.data.forEach((balance, index) => {
       result += `${index + 1}. ${balance.token_symbol} (${balance.chain})\n`;
       result += `   • Token Address: ${balance.token_address}\n`;
-      result += `   • Balance: ${balance.balance.toFixed(6)}\n`;
+      result += `   • Balance: ${balance.token_amount.toFixed(6)}\n`;
       if (balance.value_usd) {
         result += `   • Value: $${balance.value_usd.toLocaleString()}\n`;
       }

@@ -23,11 +23,27 @@ export const GetSmartMoneyDcasInput = z
     filters: z
       .object({
         include_smart_money_labels: z
-          .array(z.enum(["Fund", "Smart Trader", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"]))
+          .array(
+            z.enum([
+              "Fund",
+              "Smart Trader",
+              "30D Smart Trader",
+              "90D Smart Trader",
+              "180D Smart Trader",
+            ]),
+          )
           .optional()
           .describe("Smart money category filters to include"),
         exclude_smart_money_labels: z
-          .array(z.enum(["Fund", "Smart Trader", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"]))
+          .array(
+            z.enum([
+              "Fund",
+              "Smart Trader",
+              "30D Smart Trader",
+              "90D Smart Trader",
+              "180D Smart Trader",
+            ]),
+          )
           .optional()
           .describe("Smart money category filters to exclude"),
         dca_created_at: z
@@ -70,7 +86,12 @@ export const GetSmartMoneyDcasInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -91,7 +112,7 @@ export const GetSmartMoneyDcasInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -187,7 +208,7 @@ export async function getSmartMoneyDcas(
       const createdDate = new Date(dca.dca_created_at).toLocaleString();
       const updatedDate = new Date(dca.dca_updated_at).toLocaleString();
       const statusEmoji = dca.dca_status === "active" ? "🟢" : "🔴";
-      
+
       result += `${index + 1}. DCA Order ${statusEmoji}\n`;
       result += `   • Trader: ${dca.trader_address_label || dca.trader_address}\n`;
       result += `   • Strategy: ${dca.input_token_symbol} → ${dca.output_token_symbol}\n`;

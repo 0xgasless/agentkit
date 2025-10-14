@@ -48,7 +48,7 @@ export const GetCounterpartiesInput = z
           "unichain",
           "zksync",
           "solana",
-        ])
+        ]),
       )
       .describe("Chains to include in the analysis. Use 'all' to include all available chains."),
 
@@ -85,7 +85,12 @@ export const GetCounterpartiesInput = z
     pagination: z
       .object({
         page: z.number().min(1).default(1).describe("Page number (1-based)"),
-        per_page: z.number().min(1).max(1000).default(10).describe("Number of records per page (max 1000)"),
+        per_page: z
+          .number()
+          .min(1)
+          .max(1000)
+          .default(10)
+          .describe("Number of records per page (max 1000)"),
       })
       .optional()
       .describe("Pagination parameters"),
@@ -105,7 +110,7 @@ export const GetCounterpartiesInput = z
             ])
             .describe("Field to sort by"),
           direction: z.enum(["ASC", "DESC"]).describe("Sort direction"),
-        })
+        }),
       )
       .optional()
       .describe("Custom sort order to override the endpoint's default ordering"),
@@ -193,10 +198,15 @@ export async function getCounterparties(
 
     data.data.forEach((counterparty, index) => {
       const timestamp = new Date(counterparty.timestamp).toLocaleString();
-      const typeEmoji = counterparty.counterparty_type === "exchange" ? "🏦" : 
-                       counterparty.counterparty_type === "defi" ? "🔄" : 
-                       counterparty.counterparty_type === "nft" ? "🎨" : "👤";
-      
+      const typeEmoji =
+        counterparty.counterparty_type === "exchange"
+          ? "🏦"
+          : counterparty.counterparty_type === "defi"
+            ? "🔄"
+            : counterparty.counterparty_type === "nft"
+              ? "🎨"
+              : "👤";
+
       result += `${index + 1}. Counterparty ${typeEmoji}\n`;
       result += `   • Address: ${counterparty.counterparty_address}\n`;
       result += `   • Label: ${counterparty.counterparty_label}\n`;
