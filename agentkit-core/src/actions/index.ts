@@ -19,6 +19,13 @@ import {
 import { DisperseAction } from "./disperseAction";
 import { GetEoaAddressAction } from "./getEoaAddressAction";
 import { GetEoaBalanceAction } from "./getEoaBalanceAction";
+import {
+  LaunchTokenAction,
+  BuyTokenAction,
+  SellTokenAction,
+  GetTokenInfoAction,
+  GetTrendingTokensAction,
+} from "./FourMemeAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -41,6 +48,12 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new SearchPairsAction(),
     new GetPairsByTokenAddressesAction(),
     new DisperseAction(),
+    // Four.meme Protocol Actions
+    new LaunchTokenAction(),
+    new BuyTokenAction(),
+    new SellTokenAction(),
+    new GetTokenInfoAction(),
+    new GetTrendingTokensAction(),
   ];
 }
 
