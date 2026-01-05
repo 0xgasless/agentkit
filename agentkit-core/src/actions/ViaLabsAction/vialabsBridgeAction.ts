@@ -52,18 +52,10 @@ Example usage:
  */
 export const ViaLabsBridgeInput = z
   .object({
-    tokenAddress: z
-      .string()
-      .describe("The ViaLabs-enabled token contract address to bridge from"),
-    destChainId: z
-      .number()
-      .describe("The destination chain ID to bridge tokens to"),
-    recipient: z
-      .string()
-      .describe("The recipient address on the destination chain"),
-    amount: z
-      .string()
-      .describe("The amount of tokens to bridge (e.g., '10.5')"),
+    tokenAddress: z.string().describe("The ViaLabs-enabled token contract address to bridge from"),
+    destChainId: z.number().describe("The destination chain ID to bridge tokens to"),
+    recipient: z.string().describe("The recipient address on the destination chain"),
+    amount: z.string().describe("The amount of tokens to bridge (e.g., '10.5')"),
   })
   .strip()
   .describe("Input for bridging tokens across chains using ViaLabs");
@@ -88,6 +80,15 @@ const CHAIN_RPC_ENDPOINTS: Record<number, string> = {
   56: "https://bsc-dataseed.binance.org/", // BNB Chain
 };
 
+// Chain explorers for transaction links
+const CHAIN_EXPLORERS: Record<number, string> = {
+  43113: "https://testnet.snowtrace.io/tx/",
+  84532: "https://sepolia.basescan.org/tx/",
+  43114: "https://snowtrace.io/tx/",
+  8453: "https://basescan.org/tx/",
+  56: "https://bscscan.com/tx/",
+};
+
 // Destination token addresses (same order as HELLO_ERC20_TESTNET_TOKENS)
 const DESTINATION_TOKEN_ADDRESSES: Record<number, `0x${string}`> = {
   43113: "0xc8600dE63d7cbA25967ecf4894be84dB1c9Ee137", // Avalanche Fuji
@@ -98,7 +99,23 @@ const DESTINATION_TOKEN_ADDRESSES: Record<number, `0x${string}`> = {
  * Sleep utility
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Log step with formatting
+ */
+function logStep(step: number, message: string, data?: Record<string, string | number>) {
+  const timestamp = new Date().toISOString().split("T")[1].split(".")[0];
+  console.log(`\n[ViaLabs] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  console.log(`[ViaLabs] STEP ${step}: ${message}`);
+  console.log(`[ViaLabs] Time: ${timestamp}`);
+  if (data) {
+    for (const [key, value] of Object.entries(data)) {
+      console.log(`[ViaLabs]   ${key}: ${value}`);
+    }
+  }
+  console.log(`[ViaLabs] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 }
 
 /**
@@ -141,162 +158,217 @@ export async function vialabsBridge(
   try {
     const sourceChainId = wallet.rpcProvider.chain?.id;
     const startTime = Date.now();
+    let currentStep = 0;
+
+    console.log(`\n${"═".repeat(60)}`);
+    console.log(`   VIALABS CROSS-CHAIN BRIDGE - STARTING`);
+    console.log(`${"═".repeat(60)}\n`);
 
     if (!sourceChainId) {
       return "Error: Could not determine source chain ID from wallet.";
     }
 
-    // Validate source chain is supported
+    const sourceConfig = getVialabsChainConfig(sourceChainId);
+    const destConfig = getVialabsChainConfig(args.destChainId);
+
+    // Step 1: Validate chains
+    currentStep++;
+    logStep(currentStep, "VALIDATING CHAINS", {
+      "Source Chain": `${sourceConfig?.name || sourceChainId} (${sourceChainId})`,
+      "Destination Chain": `${destConfig?.name || args.destChainId} (${args.destChainId})`,
+    });
+
     if (!isVialabsChainSupported(sourceChainId)) {
       return `Error: Source chain ${sourceChainId} is not supported by ViaLabs.\n\n${getSupportedChainsSummary()}`;
     }
 
-    // Validate destination chain is supported
     if (!isVialabsChainSupported(args.destChainId)) {
       return `Error: Destination chain ${args.destChainId} is not supported by ViaLabs.\n\n${getSupportedChainsSummary()}`;
     }
 
-    // Validate route
     if (!isRouteSupported(sourceChainId, args.destChainId)) {
       return `Error: Route from chain ${sourceChainId} to ${args.destChainId} is not supported.`;
     }
 
-    // Cannot bridge to same chain
     if (sourceChainId === args.destChainId) {
       return "Error: Cannot bridge to the same chain. Use a regular transfer instead.";
     }
 
+    console.log(`[ViaLabs]   ✅ Chains validated successfully`);
+
     const tokenAddress = args.tokenAddress as `0x${string}`;
     const recipient = args.recipient as `0x${string}`;
 
-    // Get token info
+    // Step 2: Get token info
+    currentStep++;
+    logStep(currentStep, "FETCHING TOKEN INFO", {
+      "Token Contract": tokenAddress,
+    });
+
     const tokenInfo = await getVialabsTokenInfo(wallet, tokenAddress);
     if (!tokenInfo) {
       return `Error: Could not get token info for ${tokenAddress}. Make sure this is a valid ViaLabs-enabled token contract.`;
     }
 
-    // Check if destination chain is active on the token contract
+    console.log(`[ViaLabs]   Token Name: ${tokenInfo.name}`);
+    console.log(`[ViaLabs]   Token Symbol: ${tokenInfo.symbol}`);
+    console.log(`[ViaLabs]   Decimals: ${tokenInfo.decimals}`);
+    console.log(`[ViaLabs]   ✅ Token info retrieved`);
+
+    // Step 3: Check destination chain is active
+    currentStep++;
+    logStep(currentStep, "CHECKING DESTINATION CHAIN CONFIG", {
+      "Destination Chain ID": args.destChainId,
+    });
+
     const isActive = await isDestinationChainActive(wallet, tokenAddress, args.destChainId);
     if (!isActive) {
-      const destConfig = getVialabsChainConfig(args.destChainId);
-      return `Error: Destination chain ${destConfig?.name || args.destChainId} is not configured on this token contract. The token contract owner needs to configure this chain first.`;
+      return `Error: Destination chain ${destConfig?.name || args.destChainId} is not configured on this token contract.`;
     }
+    console.log(`[ViaLabs]   ✅ Destination chain is active and configured`);
 
-    // Get wallet address - try smart account first, fall back to EOA wallet
+    // Step 4: Get wallet address
+    currentStep++;
+    logStep(currentStep, "GETTING WALLET ADDRESS");
+
     let walletAddress: `0x${string}`;
     try {
       walletAddress = (await wallet.getAddress()) as `0x${string}`;
-    } catch (addrError) {
-      // If smart account fails, try to create EOA wallet from env
+      console.log(`[ViaLabs]   Wallet Type: Smart Account`);
+    } catch (_addrError) {
       const pk = process.env.PRIVATE_KEY as `0x${string}` | undefined;
       const rpc = process.env.RPC_URL;
       const chainId = process.env.CHAIN_ID ? Number(process.env.CHAIN_ID) : undefined;
-      
-      if (!pk) {
-        return `Error: Could not get wallet address. Smart account may not be initialized on this chain and no PRIVATE_KEY configured for EOA fallback.`;
+
+      if (!pk || !rpc) {
+        return `Error: Could not get wallet address. No PRIVATE_KEY or RPC_URL configured.`;
       }
-      
-      if (!rpc) {
-        return `Error: Could not get wallet address. Smart account may not be initialized on this chain and no RPC_URL configured for EOA fallback.`;
-      }
-      
-      try {
-        const { createEoaWallet } = await import("../../services");
-        const eoa = createEoaWallet({ privateKey: pk, rpcUrl: rpc, chainId });
-        walletAddress = eoa.address as `0x${string}`;
-      } catch (eoaError) {
-        return `Error: Could not get wallet address. Smart account failed and EOA fallback also failed: ${eoaError instanceof Error ? eoaError.message : String(eoaError)}`;
-      }
+
+      const { createEoaWallet } = await import("../../services");
+      const eoa = createEoaWallet({ privateKey: pk, rpcUrl: rpc, chainId });
+      walletAddress = eoa.address as `0x${string}`;
+      console.log(`[ViaLabs]   Wallet Type: EOA (Externally Owned Account)`);
     }
-    
+
+    console.log(`[ViaLabs]   Address: ${walletAddress}`);
+    console.log(`[ViaLabs]   ✅ Wallet address retrieved`);
+
+    // Step 5: Check balance
+    currentStep++;
+    logStep(currentStep, "CHECKING TOKEN BALANCE", {
+      "Amount to Bridge": `${args.amount} ${tokenInfo.symbol}`,
+    });
+
     const balance = await getVialabsTokenBalance(wallet, tokenAddress, walletAddress);
     const amountBigInt = parseUnits(args.amount, tokenInfo.decimals);
+    const formattedBalance = (Number(balance) / 10 ** tokenInfo.decimals).toFixed(6);
+
+    console.log(`[ViaLabs]   Current Balance: ${formattedBalance} ${tokenInfo.symbol}`);
+    console.log(`[ViaLabs]   Required Amount: ${args.amount} ${tokenInfo.symbol}`);
 
     if (balance < amountBigInt) {
-      const formattedBalance = (Number(balance) / 10 ** tokenInfo.decimals).toFixed(6);
+      console.log(`[ViaLabs]   ❌ Insufficient balance!`);
       return `Error: Insufficient balance. You have ${formattedBalance} ${tokenInfo.symbol} but trying to bridge ${args.amount} ${tokenInfo.symbol}.`;
     }
+    console.log(`[ViaLabs]   ✅ Sufficient balance confirmed`);
 
-    // Get initial balance on destination chain for tracking
+    // Step 6: Get initial destination balance
+    currentStep++;
+    logStep(currentStep, "CHECKING INITIAL DESTINATION BALANCE", {
+      Recipient: recipient,
+      Chain: destConfig?.name || String(args.destChainId),
+    });
+
     let initialDestBalance: bigint;
     try {
       initialDestBalance = await getDestinationBalance(args.destChainId, tokenAddress, recipient);
-    } catch (e) {
+      const formattedInitial = (Number(initialDestBalance) / 10 ** tokenInfo.decimals).toFixed(6);
+      console.log(`[ViaLabs]   Initial Balance: ${formattedInitial} ${tokenInfo.symbol}`);
+    } catch (_e) {
       initialDestBalance = 0n;
+      console.log(`[ViaLabs]   Initial Balance: 0 (could not fetch)`);
     }
+    console.log(`[ViaLabs]   ✅ Initial balance recorded`);
 
-    // Encode the bridge function call
+    // Step 7: Execute bridge transaction
+    currentStep++;
+    logStep(currentStep, "EXECUTING BRIDGE TRANSACTION", {
+      Action: "Burn tokens & send cross-chain message",
+      Amount: `${args.amount} ${tokenInfo.symbol}`,
+      "To Chain": destConfig?.name || String(args.destChainId),
+    });
+
     const data = encodeFunctionData({
       abi: ViaLabsBridgeABI,
       functionName: "bridge",
       args: [BigInt(args.destChainId), recipient, amountBigInt],
     });
 
-    // Create and send transaction
     const tx: Transaction = {
       to: tokenAddress,
       data,
       value: 0n,
     };
 
+    console.log(`[ViaLabs]   Sending transaction...`);
     const response = await sendTransaction(wallet, tx);
 
     if (!response || !response.success) {
+      console.log(`[ViaLabs]   ❌ Transaction failed!`);
       return `Bridge transaction failed: ${response?.error || "Unknown error"}`;
     }
 
     const txTime = Date.now();
+    const explorerUrl = `${CHAIN_EXPLORERS[sourceChainId] || ""}${response.txHash}`;
 
-    // Format initial success message
-    const sourceConfig = getVialabsChainConfig(sourceChainId);
-    const destConfig = getVialabsChainConfig(args.destChainId);
-    const summary = formatBridgeSummary({
-      tokenSymbol: tokenInfo.symbol,
-      amount: args.amount,
-      sourceChainId,
-      destChainId: args.destChainId,
-      recipient: args.recipient,
-      txHash: response.txHash,
+    console.log(`[ViaLabs]   ✅ TRANSACTION CONFIRMED!`);
+    console.log(`[ViaLabs]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`[ViaLabs]   TX Hash: ${response.txHash}`);
+    console.log(`[ViaLabs]   Explorer: ${explorerUrl}`);
+    console.log(`[ViaLabs]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+
+    // Step 8: Wait for ViaLabs validators
+    currentStep++;
+    logStep(currentStep, "WAITING FOR VIALABS VALIDATORS", {
+      Status: "Cross-chain message submitted to validator network",
+      Polling: "Checking destination chain every 15 seconds",
     });
 
-    // Build status message with source chain confirmation
-    let statusMessage = `✅ SOURCE CHAIN TRANSACTION CONFIRMED!\n\n${summary}\n\n`;
-    statusMessage += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-    statusMessage += `🔄 VIALABS CROSS-CHAIN VALIDATION IN PROGRESS...\n`;
-    statusMessage += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    statusMessage += `⏳ Waiting for ViaLabs validators to relay message...\n`;
-    statusMessage += `   • Source: ${sourceConfig?.name || sourceChainId} ✅\n`;
-    statusMessage += `   • Validators: Processing...\n`;
-    statusMessage += `   • Destination: ${destConfig?.name || args.destChainId} ⏳\n\n`;
-
-    // Poll for destination balance change
     const maxWaitTime = 10 * 60 * 1000; // 10 minutes max
     const pollInterval = 15 * 1000; // Check every 15 seconds
     let elapsed = 0;
     let bridgeCompleted = false;
     let finalDestBalance = initialDestBalance;
+    let pollCount = 0;
 
     while (elapsed < maxWaitTime) {
       await sleep(pollInterval);
       elapsed = Date.now() - txTime;
+      pollCount++;
 
       try {
         finalDestBalance = await getDestinationBalance(args.destChainId, tokenAddress, recipient);
-        
+
         if (finalDestBalance > initialDestBalance) {
           bridgeCompleted = true;
           break;
         }
-      } catch (e) {
+      } catch (_e) {
         // Continue polling on error
       }
 
-      // Update progress (this won't show in real-time due to how the action returns, 
-      // but we log it for debugging)
       const elapsedSecs = Math.floor(elapsed / 1000);
-      console.log(`[ViaLabs] Waiting for cross-chain message... ${elapsedSecs}s elapsed`);
+      const mins = Math.floor(elapsedSecs / 60);
+      const secs = elapsedSecs % 60;
+      const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+      console.log(
+        `[ViaLabs] ⏳ Polling #${pollCount} - ${timeStr} elapsed - Waiting for validators...`,
+      );
     }
 
+    // Step 9: Report final result
+    currentStep++;
     const totalTime = Date.now() - startTime;
     const totalSeconds = Math.floor(totalTime / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -306,26 +378,77 @@ export async function vialabsBridge(
     if (bridgeCompleted) {
       const receivedAmount = finalDestBalance - initialDestBalance;
       const formattedReceived = (Number(receivedAmount) / 10 ** tokenInfo.decimals).toFixed(6);
+      const finalBalanceFormatted = (Number(finalDestBalance) / 10 ** tokenInfo.decimals).toFixed(
+        6,
+      );
 
-      return `✅ CROSS-CHAIN BRIDGE COMPLETE!\n\n${summary}\n\n` +
+      logStep(currentStep, "BRIDGE COMPLETE! ✅", {
+        "Burned on Source": `${args.amount} ${tokenInfo.symbol}`,
+        "Minted on Destination": `${formattedReceived} ${tokenInfo.symbol}`,
+        "New Balance": `${finalBalanceFormatted} ${tokenInfo.symbol}`,
+        "Total Time": timeString,
+      });
+
+      console.log(`\n${"═".repeat(60)}`);
+      console.log(`   🎉 VIALABS CROSS-CHAIN BRIDGE - SUCCESS!`);
+      console.log(`${"═".repeat(60)}\n`);
+
+      const summary = formatBridgeSummary({
+        tokenSymbol: tokenInfo.symbol,
+        amount: args.amount,
+        sourceChainId,
+        destChainId: args.destChainId,
+        recipient: args.recipient,
+        txHash: response.txHash,
+      });
+
+      return (
+        `✅ CROSS-CHAIN BRIDGE COMPLETE!\n\n${summary}\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `🎉 TOKENS RECEIVED ON DESTINATION CHAIN!\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+        `Source TX: ${response.txHash}\n` +
+        `Explorer: ${explorerUrl}\n\n` +
         `   • Source: ${sourceConfig?.name || sourceChainId} ✅ (burned ${args.amount} ${tokenInfo.symbol})\n` +
         `   • ViaLabs Validators: Relayed ✅\n` +
         `   • Destination: ${destConfig?.name || args.destChainId} ✅ (minted ${formattedReceived} ${tokenInfo.symbol})\n\n` +
         `⏱️ Total cross-chain time: ${timeString}\n` +
-        `📊 ViaLabs validator processing verified!`;
+        `📊 ViaLabs validator processing verified!`
+      );
     } else {
-      return statusMessage +
-        `⚠️ Destination chain confirmation pending after ${timeString}.\n` +
-        `   ViaLabs validators are still processing the message.\n` +
-        `   The tokens should arrive soon. You can check the balance manually:\n\n` +
-        `   Destination Token: ${DESTINATION_TOKEN_ADDRESSES[args.destChainId] || tokenAddress}\n` +
-        `   Recipient: ${recipient}\n` +
-        `   Chain: ${destConfig?.name || args.destChainId}`;
+      logStep(currentStep, "BRIDGE PENDING ⏳", {
+        Status: "Validators still processing",
+        "Time Elapsed": timeString,
+      });
+
+      console.log(`\n${"═".repeat(60)}`);
+      console.log(`   ⏳ VIALABS CROSS-CHAIN BRIDGE - PENDING`);
+      console.log(`${"═".repeat(60)}\n`);
+
+      const summary = formatBridgeSummary({
+        tokenSymbol: tokenInfo.symbol,
+        amount: args.amount,
+        sourceChainId,
+        destChainId: args.destChainId,
+        recipient: args.recipient,
+        txHash: response.txHash,
+      });
+
+      return (
+        `✅ SOURCE CHAIN TRANSACTION CONFIRMED!\n\n${summary}\n\n` +
+        `Source TX: ${response.txHash}\n` +
+        `Explorer: ${explorerUrl}\n\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `⏳ VIALABS VALIDATORS PROCESSING...\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+        `Time waited: ${timeString}\n` +
+        `The tokens should arrive soon on ${destConfig?.name || args.destChainId}.\n\n` +
+        `Destination Token: ${DESTINATION_TOKEN_ADDRESSES[args.destChainId] || tokenAddress}\n` +
+        `Recipient: ${recipient}`
+      );
     }
   } catch (error) {
+    console.log(`[ViaLabs] ❌ Error: ${error instanceof Error ? error.message : String(error)}`);
     return `Error executing ViaLabs bridge: ${error instanceof Error ? error.message : String(error)}`;
   }
 }

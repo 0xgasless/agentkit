@@ -8,10 +8,7 @@
 import { z } from "zod";
 import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
 import type { AgentkitAction } from "../../agentkit";
-import {
-  VIALABS_SUPPORTED_CHAINS,
-  isVialabsChainSupported,
-} from "./vialabsConstants";
+import { VIALABS_SUPPORTED_CHAINS, isVialabsChainSupported } from "./vialabsConstants";
 import { getSupportedChainsSummary } from "./vialabsHelpers";
 
 const VIALABS_INFO_PROMPT = `
@@ -34,6 +31,7 @@ export const ViaLabsInfoInput = z
     chainId: z
       .number()
       .optional()
+      .nullable()
       .describe("Optional chain ID to check if it's supported"),
   })
   .strip()

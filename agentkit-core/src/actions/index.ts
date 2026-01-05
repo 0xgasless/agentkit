@@ -20,6 +20,13 @@ import { DisperseAction } from "./disperseAction";
 import { GetEoaAddressAction } from "./getEoaAddressAction";
 import { GetEoaBalanceAction } from "./getEoaBalanceAction";
 import { ViaLabsBridgeAction, ViaLabsInfoAction } from "./ViaLabsAction";
+import {
+  DataHavenInfoAction,
+  DataHavenCreateBucketAction,
+  DataHavenUploadAction,
+  DataHavenDownloadAction,
+  DataHavenListBucketsAction,
+} from "./DataHavenAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -44,6 +51,12 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new DisperseAction(),
     new ViaLabsBridgeAction(),
     new ViaLabsInfoAction(),
+    // DataHaven Storage Actions
+    new DataHavenInfoAction(),
+    new DataHavenCreateBucketAction(),
+    new DataHavenUploadAction(),
+    new DataHavenDownloadAction(),
+    new DataHavenListBucketsAction(),
   ];
 }
 

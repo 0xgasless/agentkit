@@ -26,4 +26,3 @@ export {
   formatBridgeSummary,
   getSupportedChainsSummary,
 } from "./vialabsHelpers";
-
