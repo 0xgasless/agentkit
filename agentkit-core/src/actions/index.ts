@@ -20,13 +20,19 @@ import { DisperseAction } from "./disperseAction";
 import { GetEoaAddressAction } from "./getEoaAddressAction";
 import { GetEoaBalanceAction } from "./getEoaBalanceAction";
 import { ViaLabsBridgeAction, ViaLabsInfoAction } from "./ViaLabsAction";
-import {
-  DataHavenInfoAction,
-  DataHavenCreateBucketAction,
-  DataHavenUploadAction,
-  DataHavenDownloadAction,
-  DataHavenListBucketsAction,
-} from "./DataHavenAction";
+import { DeployCREWorkflowAction } from "./DeployCREWorkflowAction/deployCREWorkflowAction";
+import { ChainlinkDocsAction } from "./ChainlinkDocsAction/chainlinkDocsAction";
+import { DeployContractAction } from "./DeployContractAction/deployContractAction";
+import { CalculateTopicHashAction } from "./CalculateTopicHashAction/calculateTopicHashAction";
+import { RunTerminalCommandAction } from "./RunTerminalCommandAction/runTerminalCommandAction";
+// TODO: DataHaven temporarily disabled due to ESM compatibility issue with @storagehub/api-augment
+// import {
+//   DataHavenInfoAction,
+//   DataHavenCreateBucketAction,
+//   DataHavenUploadAction,
+//   DataHavenDownloadAction,
+//   DataHavenListBucketsAction,
+// } from "./DataHavenAction";
 
 export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
   return [
@@ -51,13 +57,19 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new DisperseAction(),
     new ViaLabsBridgeAction(),
     new ViaLabsInfoAction(),
-    // DataHaven Storage Actions
-    new DataHavenInfoAction(),
-    new DataHavenCreateBucketAction(),
-    new DataHavenUploadAction(),
-    new DataHavenDownloadAction(),
-    new DataHavenListBucketsAction(),
+    new DeployCREWorkflowAction(),
+    new ChainlinkDocsAction(),
+    new DeployContractAction(),
+    new CalculateTopicHashAction(),
+    new RunTerminalCommandAction(),
+    // TODO: DataHaven temporarily disabled due to ESM compatibility issue
+    // new DataHavenInfoAction(),
+    // new DataHavenCreateBucketAction(),
+    // new DataHavenUploadAction(),
+    // new DataHavenDownloadAction(),
+    // new DataHavenListBucketsAction(),
   ];
 }
 
 export const AGENTKIT_ACTIONS = getAllAgentkitActions();
+

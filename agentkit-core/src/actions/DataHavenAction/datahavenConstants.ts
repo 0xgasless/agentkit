@@ -8,10 +8,10 @@
 export const DATAHAVEN_TESTNET_CONFIG = {
   chainId: 55931,
   chainName: "DataHaven Testnet",
-  rpcUrl: "https://testnet-rpc.datahaven.xyz",
-  wssUrl: "wss://testnet-rpc.datahaven.xyz",
-  mspUrl: "https://testnet-msp.datahaven.xyz",
-  explorer: "https://testnet-explorer.datahaven.xyz",
+  rpcUrl: "https://services.datahaven-testnet.network/testnet",
+  wssUrl: "wss://services.datahaven-testnet.network/testnet",
+  mspUrl: "https://deo-dh-backend.testnet.datahaven-infra.network",
+  explorer: "https://explorer.datahaven-testnet.network",
   nativeCurrency: {
     name: "DH",
     symbol: "DH",

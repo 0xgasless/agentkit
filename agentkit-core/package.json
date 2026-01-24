@@ -32,8 +32,10 @@
   "dependencies": {
     "@0xgasless/smart-account": "latest",
     "@langchain/core": "^0.3.40",
+    "@polkadot/api": "^16.5.4",
     "@storagehub-sdk/core": "^0.4.0",
     "@storagehub-sdk/msp-client": "^0.4.0",
+    "@storagehub/api-augment": "^0.2.14",
     "axios": "^1.7.9",
     "merkletreejs": "^0.4.1",
     "sqlite3": "^5.1.7",

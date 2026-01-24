@@ -15,6 +15,7 @@ import {
   getMspInfo,
   authenticateWithMspSdk,
   deriveBucketId,
+  createBucketOnChain,
   type MspSession,
 } from "./datahavenHelpers";
 
@@ -138,29 +139,32 @@ export async function datahavenCreateBucket(
     const bucketId = deriveBucketId(clients.address, args.bucketName);
     console.log(`[DataHaven] ✅ Derived Bucket ID: ${bucketId}`);
 
-    // Step 6: Create bucket (simulated for now - actual implementation needs StorageHub SDK)
+    // Step 6: Create bucket on-chain
     logDataHavenStep(6, "CREATING BUCKET ON-CHAIN", {
       "Bucket Name": args.bucketName,
       "Is Private": args.isPrivate ? "Yes" : "No",
       "MSP ID": mspInfo.mspId,
     });
 
-    // Note: This is a placeholder for the actual StorageHub SDK call
-    // In production, this would use:
-    // const txHash = await storageHubClient.createBucket(mspId, bucketName, isPrivate, valuePropId);
+    const bucketCreationResult = await createBucketOnChain(
+      clients.walletClient,
+      clients.publicClient,
+      args.bucketName,
+      mspInfo.mspId,
+      args.isPrivate || false
+    );
 
-    console.log(`[DataHaven] ⚠️ NOTE: Full StorageHub SDK integration pending`);
-    console.log(`[DataHaven]   This action shows the flow but bucket creation`);
-    console.log(`[DataHaven]   requires @storagehub-sdk/core to be installed.`);
+    if (!bucketCreationResult) {
+       throw new Error("Failed to create bucket on-chain");
+    }
 
-    // For demo purposes, generate a mock tx hash
-    const mockTxHash = `0x${Date.now().toString(16)}${"0".repeat(48)}`;
+    const { txHash } = bucketCreationResult;
 
     const totalTime = Date.now() - startTime;
     const timeString = `${Math.floor(totalTime / 1000)}s`;
 
     console.log(`\n${"═".repeat(60)}`);
-    console.log(`   DATAHAVEN - BUCKET CREATED (SIMULATED)`);
+    console.log(`   DATAHAVEN - BUCKET CREATED (ON-CHAIN)`);
     console.log(`${"═".repeat(60)}\n`);
 
     // Build result
@@ -176,9 +180,8 @@ export async function datahavenCreateBucket(
     result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
     result += `TRANSACTION\n`;
     result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    result += `  • TX Hash: ${mockTxHash} (simulated)\n`;
+    result += `  • TX Hash: ${txHash}\n`;
     result += `  • Time: ${timeString}\n\n`;
-    result += `⚠️ NOTE: Full implementation requires @storagehub-sdk/core\n`;
     result += `   Run: npm install @storagehub-sdk/core @storagehub-sdk/msp-client\n`;
 
     return result;

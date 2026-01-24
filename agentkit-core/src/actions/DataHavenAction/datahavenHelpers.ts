@@ -8,6 +8,12 @@
 import { createWalletClient, createPublicClient, http, type WalletClient, type PublicClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { getDataHavenConfig, validateDataHavenConfig, DATAHAVEN_TESTNET_CONFIG } from "./datahavenConstants";
+import '@storagehub/api-augment';
+import { initWasm, StorageHubClient, SH_FILE_SYSTEM_PRECOMPILE_ADDRESS } from '@storagehub-sdk/core';
+import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { MspClient } from "@storagehub-sdk/msp-client"; // Already using type, now import class too if needed
+
 
 // Custom chain definition for DataHaven Testnet
 export const datahavenTestnet = {
@@ -432,3 +438,184 @@ export async function authenticateWithMsp(
   
   return verifyResponse.json();
 }
+
+/**
+ * Initialize StorageHub Client
+ */
+export async function initializeStorageHubClient(walletClient: WalletClient) {
+  const config = getDataHavenConfig();
+  
+  try {
+    // Initialize WASM - required for SDK
+    await initWasm();
+    
+    // Connect to Polkadot API (for queries)
+    const wsProvider = new WsProvider(DATAHAVEN_TESTNET_CONFIG.wssUrl);
+    const polkadotApi = await ApiPromise.create({ provider: wsProvider });
+    
+    // Create StorageHub Client (for transactions)
+    const storageHubClient = new StorageHubClient({
+      rpcUrl: DATAHAVEN_TESTNET_CONFIG.rpcUrl,
+      chain: datahavenTestnet,
+      walletClient,
+      filesystemContractAddress: SH_FILE_SYSTEM_PRECOMPILE_ADDRESS
+    });
+    
+    return { storageHubClient, polkadotApi };
+  } catch (error) {
+    logDataHaven(`⚠️ Could not initialize StorageHub Client: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
+/**
+ * Get Value Propositions from MSP
+ */
+export async function getValuePropositions(mspUrl: string): Promise<string | null> {
+  try {
+    const { MspClient } = await import("@storagehub-sdk/msp-client");
+    // Create temporary client just for info
+    const client = await MspClient.connect({ baseUrl: mspUrl }, getMspSession as any);
+    
+    const valueProps = await client.info.getValuePropositions();
+    
+    if (!Array.isArray(valueProps) || valueProps.length === 0) {
+      logDataHaven("⚠️ No value propositions available from MSP");
+      return null;
+    }
+    
+    // Return the first one for simplicity
+    return valueProps[0].id;
+  } catch (error) {
+    logDataHaven(`⚠️ Failed to get value props: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
+/**
+ * Create bucket on-chain using StorageHub SDK
+ */
+export async function createBucketOnChain(
+  walletClient: WalletClient,
+  publicClient: PublicClient,
+  bucketName: string,
+  mspId: string,
+  isPrivate: boolean = false
+): Promise<{ bucketId: string; txHash: string } | null> {
+  let polkadotApi: ApiPromise | null = null;
+  
+  try {
+    logDataHaven("Initializing creation...");
+    // REMOVED INITIALIZE STORAGEHUB CALL TO AVOID CONFLICTS
+    // const sdk = await initializeStorageHubClient(walletClient);
+    // if (!sdk) throw new Error("Failed to initialize StorageHub SDK");
+    // const { storageHubClient } = sdk;
+    // polkadotApi = sdk.polkadotApi;
+    
+    const address = walletClient.account?.address;
+    if (!address) throw new Error("No wallet address available");
+    
+    // Get MSP URL from config to fetch value props
+    const config = getDataHavenConfig();
+    const valuePropId = await getValuePropositions(config.mspUrl);
+    
+    if (!valuePropId) {
+      throw new Error("Could not get value proposition ID from MSP");
+    }
+    
+    logDataHaven(`Using Value Prop ID: ${valuePropId}`);
+    
+
+    
+    /* 
+    // SKIP EVM DERIVATION - Precompile missing on testnet
+    // 1. Derive bucket ID
+    const bucketId = await storageHubClient.deriveBucketId(address, bucketName);
+    logDataHaven(`Derived Bucket ID: ${bucketId}`);
+    
+    // 2. Check if bucket exists
+    // @ts-ignore - polkadotApi types might need augmentation
+    const bucketBefore = await polkadotApi.query.providers.buckets(bucketId);
+    // @ts-ignore
+    if (!bucketBefore.isEmpty) {
+      throw new Error(`Bucket already exists: ${bucketId}`);
+    }
+    */
+    
+    // 3. Create bucket
+    logDataHaven("Sending createBucket transaction via Substrate API...");
+    
+    // Initialize crypto for Keyring
+    await cryptoWaitReady();
+    
+    // Create signer from private key
+    const keyring = new Keyring({ type: 'ethereum' });
+    const signer = keyring.addFromUri(config.privateKey);
+    logDataHaven(`Signer address: ${signer.address}`);
+
+    // Initialize API directly here to ensure clean state
+    const wsProvider = new WsProvider(DATAHAVEN_TESTNET_CONFIG.wssUrl);
+    polkadotApi = await ApiPromise.create({ provider: wsProvider });
+    logDataHaven("✅ Connected to Polkadot API");
+    
+    // Ensure bucket name is hex encoded bytes
+    const nameHex = `0x${Buffer.from(bucketName).toString('hex')}`;
+    
+    // Await the transaction promise so finally block waits
+    const result = await new Promise<{ bucketId: string; txHash: string }>((resolve, reject) => {
+      // @ts-ignore
+      polkadotApi!.tx.fileSystem.createBucket(
+        mspId, 
+        nameHex, 
+        isPrivate, 
+        valuePropId
+      ).signAndSend(signer, ({ status, events, dispatchError }: any) => {
+        logDataHaven(`Tx Status: ${status.type}`);
+        
+        if (status.isInBlock || status.isFinalized) {
+          const hash = status.hash.toHex();
+          logDataHaven(`Transaction included in block: ${hash}`);
+          
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = polkadotApi!.registry.findMetaError(dispatchError.asModule);
+              const { docs, name, section } = decoded;
+              reject(new Error(`${section}.${name}: ${docs.join(' ')}`));
+            } else {
+              reject(new Error(dispatchError.toString()));
+            }
+          } else {
+             // Find BucketCreated event
+             let createdBucketId = "0x";
+             if (events) {
+               events.forEach(({ event: { data, method, section } }: any) => {
+                 console.log(`[DataHaven] Event: ${section}.${method}`);
+                 if ((section === 'providers' || section === 'fileSystem') && method === 'BucketCreated') {
+                   createdBucketId = data[1].toString();
+                   logDataHaven(`✅ Found Bucket ID from event: ${createdBucketId}`);
+                 }
+               });
+             }
+             resolve({ bucketId: createdBucketId, txHash: hash });
+          }
+        }
+      }).catch((err: any) => {
+        logDataHaven(`❌ signAndSend Error: ${err.message}`);
+        reject(err);
+      });
+    });
+
+    return result;
+
+  } catch (error) {
+    logDataHaven(`⚠️ On-chain bucket creation failed: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  } finally {
+    if (polkadotApi) {
+      logDataHaven("Disconnecting from Polkadot API...");
+      await polkadotApi.disconnect();
+    }
+  }
+}
+
+
