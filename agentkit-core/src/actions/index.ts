@@ -25,6 +25,8 @@ import { ChainlinkDocsAction } from "./ChainlinkDocsAction/chainlinkDocsAction";
 import { DeployContractAction } from "./DeployContractAction/deployContractAction";
 import { CalculateTopicHashAction } from "./CalculateTopicHashAction/calculateTopicHashAction";
 import { RunTerminalCommandAction } from "./RunTerminalCommandAction/runTerminalCommandAction";
+import { AuroraWhitelistAction } from "./aurora/auroraWhitelistAction";
+import { AuroraGasPolicyAction } from "./aurora/auroraGasPolicyAction";
 // TODO: DataHaven temporarily disabled due to ESM compatibility issue with @storagehub/api-augment
 // import {
 //   DataHavenInfoAction,
@@ -62,6 +64,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new DeployContractAction(),
     new CalculateTopicHashAction(),
     new RunTerminalCommandAction(),
+    new AuroraWhitelistAction(),
+    new AuroraGasPolicyAction(),
     // TODO: DataHaven temporarily disabled due to ESM compatibility issue
     // new DataHavenInfoAction(),
     // new DataHavenCreateBucketAction(),
