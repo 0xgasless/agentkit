@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account";
-import { encodeFunctionData, parseEther, parseUnits } from "viem";
+import { encodeFunctionData, isAddress, parseEther, parseUnits } from "viem";
 import { TokenABI } from "../constants";
 import { sendTransaction } from "../services";
 import { AgentkitAction } from "../agentkit";
@@ -60,13 +60,16 @@ function validateRecipients(recipients: Array<{ address: string; amount: string 
     const recipient = recipients[i];
 
     // Validate address format
-    if (!/^0x[a-fA-F0-9]{40}$/.test(recipient.address)) {
+    if (!isAddress(recipient.address)) {
       return `Invalid address format for recipient ${i + 1}: ${recipient.address}`;
     }
 
-    // Validate amount is positive number
-    const amount = parseFloat(recipient.amount);
-    if (isNaN(amount) || amount <= 0) {
+    try {
+      const parsedAmount = parseUnits(recipient.amount, 18);
+      if (parsedAmount <= 0n) {
+        return `Invalid amount for recipient ${i + 1}: ${recipient.amount}. Amount must be a positive number.`;
+      }
+    } catch {
       return `Invalid amount for recipient ${i + 1}: ${recipient.amount}. Amount must be a positive number.`;
     }
   }
@@ -144,10 +147,10 @@ export async function disperseTokens(
     const isEth = args.tokenAddress.toLowerCase() === "eth";
     const tokenType = isEth ? "ETH" : `tokens from contract ${args.tokenAddress}`;
 
-    // Calculate total amount for summary
-    const totalAmount = args.recipients.reduce((sum, recipient) => {
-      return sum + parseFloat(recipient.amount);
-    }, 0);
+    // Calculate total amount for summary without losing decimal precision
+    const totalAmount = args.recipients
+      .reduce((sum, recipient) => sum + parseUnits(recipient.amount, 18), 0n)
+      .toString();
 
     // Create transfer transactions
     const transactions = await createTransferTransactions(
