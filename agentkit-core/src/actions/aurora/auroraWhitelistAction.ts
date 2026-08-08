@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const AURORA_WHITELIST_PROMPT = `
 Manage access whitelists for an Aurora Virtual Chain.
@@ -22,7 +22,11 @@ export const AuroraWhitelistInput = z.object({
   chainId: z.number().describe("The Chain ID to manage."),
   address: z.string().describe("The address to manage."),
   allow: z.boolean().describe("True to add to whitelist, false to remove."),
-  type: z.enum(["transaction", "deployment"]).optional().default("transaction").describe("The type of whitelist to modify."),
+  type: z
+    .enum(["transaction", "deployment"])
+    .optional()
+    .default("transaction")
+    .describe("The type of whitelist to modify."),
 });
 
 export async function auroraWhitelistAction(
@@ -43,7 +47,7 @@ export async function auroraWhitelistAction(
     const response = await fetch(endpoint, {
       method: method,
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: body,

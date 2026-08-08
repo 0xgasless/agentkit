@@ -16,7 +16,7 @@ import {
   isHex,
 } from "viem";
 import { AgentkitAction } from "../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 // Common error handling function
 function formatError(toolName: string, error: unknown): string {

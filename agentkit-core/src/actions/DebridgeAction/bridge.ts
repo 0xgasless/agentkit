@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Transaction, ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { Transaction, ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../../agentkit";
 import {
   sendTransaction,

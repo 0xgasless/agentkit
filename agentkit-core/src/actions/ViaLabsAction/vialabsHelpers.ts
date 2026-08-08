@@ -4,7 +4,7 @@
  * Utility functions for ViaLabs cross-chain messaging operations
  */
 
-import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import {
   VIALABS_SUPPORTED_CHAINS,
   ViaLabsBridgeABI,

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const GET_PAIRS_BY_TOKEN_ADDRESSES_PROMPT = `
 Gets one or multiple pairs by token addresses from DexScreener API.

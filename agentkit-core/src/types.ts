@@ -1,4 +1,4 @@
-import { UserOpReceipt } from "@0xgasless/smart-account";
+import { UserOpReceipt } from "@0xgasless/smart-account-sdk";
 
 export type TransactionResponse = {
   success: boolean;

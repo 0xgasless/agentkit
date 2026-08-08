@@ -35,7 +35,6 @@ async function loadSqlite3IfNotLoaded(): Promise<void> {
       sqlite3Module = null;
     }
     if (SqliteDatabaseConstructor) {
-      console.log("SQLite3 module and Database constructor loaded successfully.");
     } else if (sqlite3Module) {
       console.warn("SQLite3 module loaded, but Database constructor could not be identified.");
     }

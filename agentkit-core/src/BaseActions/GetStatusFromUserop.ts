@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount, UserOpReceipt } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount, UserOpReceipt } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../agentkit"; // Adjust path if necessary
 
 // Constants for polling logic (can be adjusted)

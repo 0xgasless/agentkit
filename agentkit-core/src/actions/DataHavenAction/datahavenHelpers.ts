@@ -1,19 +1,32 @@
 /**
  * DataHaven Helpers
- * 
+ *
  * Utility functions for DataHaven decentralized storage operations.
  * Uses the official StorageHub SDK for MSP operations.
  */
 
-import { createWalletClient, createPublicClient, http, type WalletClient, type PublicClient } from "viem";
+import {
+  createWalletClient,
+  createPublicClient,
+  http,
+  type WalletClient,
+  type PublicClient,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { getDataHavenConfig, validateDataHavenConfig, DATAHAVEN_TESTNET_CONFIG } from "./datahavenConstants";
-import '@storagehub/api-augment';
-import { initWasm, StorageHubClient, SH_FILE_SYSTEM_PRECOMPILE_ADDRESS } from '@storagehub-sdk/core';
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
+import {
+  getDataHavenConfig,
+  validateDataHavenConfig,
+  DATAHAVEN_TESTNET_CONFIG,
+} from "./datahavenConstants";
+import "@storagehub/api-augment";
+import {
+  initWasm,
+  StorageHubClient,
+  SH_FILE_SYSTEM_PRECOMPILE_ADDRESS,
+} from "@storagehub-sdk/core";
+import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
+import { cryptoWaitReady } from "@polkadot/util-crypto";
 import { MspClient } from "@storagehub-sdk/msp-client"; // Already using type, now import class too if needed
-
 
 // Custom chain definition for DataHaven Testnet
 export const datahavenTestnet = {
@@ -85,7 +98,7 @@ export async function initializeDataHavenClients(): Promise<DataHavenClients> {
   }
 
   const config = getDataHavenConfig();
-  
+
   // Create account from private key
   const account = privateKeyToAccount(config.privateKey);
 
@@ -115,18 +128,20 @@ export async function initializeDataHavenClients(): Promise<DataHavenClients> {
  */
 export async function initializeMspClient() {
   const config = getDataHavenConfig();
-  
+
   try {
     const { MspClient } = await import("@storagehub-sdk/msp-client");
-    
+
     const client = await MspClient.connect(
       { baseUrl: config.mspUrl },
-      getMspSession as any // Cast for SDK compatibility
+      getMspSession as any, // Cast for SDK compatibility
     );
-    
+
     return client;
   } catch (error) {
-    logDataHaven(`⚠️ Could not initialize MSP Client: ${error instanceof Error ? error.message : String(error)}`);
+    logDataHaven(
+      `⚠️ Could not initialize MSP Client: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return null;
   }
 }
@@ -139,9 +154,9 @@ export async function authenticateWithMspSdk(
   walletClient: WalletClient,
 ): Promise<MspSession | null> {
   const config = getDataHavenConfig();
-  
+
   logDataHaven("Attempting SIWE authentication...");
-  
+
   // Use manual SIWE flow which we confirmed works
   return await authenticateWithMspManual(walletClient, config.mspUrl, config.chainId);
 }
@@ -160,10 +175,10 @@ export async function authenticateWithMspManual(
       throw new Error("No wallet account available");
     }
     const address = account.address;
-    
+
     const domain = new URL(mspUrl).host;
-    const uri = mspUrl.replace(/\/$/, ''); // Remove trailing slash
-    
+    const uri = mspUrl.replace(/\/$/, ""); // Remove trailing slash
+
     // Step 1: Get nonce from MSP
     logDataHaven("   Getting auth nonce from MSP...");
     const nonceResponse = await fetch(`${mspUrl}/auth/nonce`, {
@@ -176,32 +191,32 @@ export async function authenticateWithMspManual(
         uri,
       }),
     });
-    
+
     if (!nonceResponse.ok) {
       const errorText = await nonceResponse.text();
       throw new Error(`Nonce request failed: ${nonceResponse.status} - ${errorText}`);
     }
-    
+
     const nonceData = await nonceResponse.json();
     const siweMessage = nonceData.message;
     logDataHaven("   ✅ Got SIWE message from MSP");
-    
+
     // Step 2: Sign the message locally
     logDataHaven("   Signing SIWE message locally...");
-    
+
     // Get private key from env and sign locally
     const config = getDataHavenConfig();
     const signingAccount = privateKeyToAccount(config.privateKey);
     const signature = await signingAccount.signMessage({ message: siweMessage });
     logDataHaven("   ✅ Message signed");
-    
+
     // Step 3: Verify signature with MSP (with retry like SDK does)
     logDataHaven("   Verifying signature with MSP...");
-    
+
     const maxRetries = 10;
     const retryDelay = 100; // ms
     let lastError: Error | null = null;
-    
+
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const verifyResponse = await fetch(`${mspUrl}/auth/verify`, {
@@ -212,33 +227,32 @@ export async function authenticateWithMspManual(
             signature,
           }),
         });
-        
+
         if (verifyResponse.ok) {
           const verifyData = await verifyResponse.json();
           logDataHaven("   ✅ Signature verified!");
-          
+
           // Create session from response
           const session: MspSession = {
             token: verifyData.token || verifyData.access_token,
             user: { address: address },
           };
-          
+
           setMspSession(session);
           logDataHaven(`✅ Authenticated successfully!`);
           return session;
         }
-        
+
         const errorText = await verifyResponse.text();
         lastError = new Error(`Verify request failed: ${verifyResponse.status} - ${errorText}`);
-        
+
         // Only retry on specific errors
         if (verifyResponse.status !== 401 || !errorText.includes("nonce")) {
           throw lastError;
         }
-        
+
         // Wait before retry
         await sleep(retryDelay);
-        
       } catch (error) {
         if (error instanceof Error && !error.message.includes("nonce")) {
           throw error;
@@ -247,7 +261,7 @@ export async function authenticateWithMspManual(
         await sleep(retryDelay);
       }
     }
-    
+
     throw lastError || new Error("Verification failed after retries");
   } catch (error) {
     logDataHaven(`⚠️ Manual SIWE failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -258,8 +272,12 @@ export async function authenticateWithMspManual(
 /**
  * Log step with formatting for DataHaven operations
  */
-export function logDataHavenStep(step: number, message: string, data?: Record<string, string | number>) {
-  const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+export function logDataHavenStep(
+  step: number,
+  message: string,
+  data?: Record<string, string | number>,
+) {
+  const timestamp = new Date().toISOString().split("T")[1].split(".")[0];
   console.log(`\n[DataHaven] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   console.log(`[DataHaven] STEP ${step}: ${message}`);
   console.log(`[DataHaven] Time: ${timestamp}`);
@@ -293,7 +311,7 @@ export function formatFileSize(bytes: number): string {
  * Sleep utility for polling
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -305,7 +323,7 @@ export async function retryWithBackoff<T>(
   initialDelay: number = 1000,
 ): Promise<T> {
   let lastError: Error | undefined;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
@@ -316,7 +334,7 @@ export async function retryWithBackoff<T>(
       await sleep(delay);
     }
   }
-  
+
   throw lastError;
 }
 
@@ -333,8 +351,9 @@ export function createSiweMessage(params: {
   expirationTime?: string;
 }): string {
   const issuedAt = params.issuedAt || new Date().toISOString();
-  const expirationTime = params.expirationTime || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-  
+  const expirationTime =
+    params.expirationTime || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
   return `${params.domain} wants you to sign in with your Ethereum account:
 ${params.address}
 
@@ -356,10 +375,10 @@ export function deriveBucketId(address: string, bucketName: string): string {
   let hash = 0;
   for (let i = 0; i < combined.length; i++) {
     const char = combined.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
-  return `0x${Math.abs(hash).toString(16).padStart(64, '0')}`;
+  return `0x${Math.abs(hash).toString(16).padStart(64, "0")}`;
 }
 
 /**
@@ -431,11 +450,11 @@ export async function authenticateWithMsp(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, signature }),
   });
-  
+
   if (!verifyResponse.ok) {
     throw new Error(`Failed to verify auth: ${verifyResponse.statusText}`);
   }
-  
+
   return verifyResponse.json();
 }
 
@@ -444,26 +463,28 @@ export async function authenticateWithMsp(
  */
 export async function initializeStorageHubClient(walletClient: WalletClient) {
   const config = getDataHavenConfig();
-  
+
   try {
     // Initialize WASM - required for SDK
     await initWasm();
-    
+
     // Connect to Polkadot API (for queries)
     const wsProvider = new WsProvider(DATAHAVEN_TESTNET_CONFIG.wssUrl);
     const polkadotApi = await ApiPromise.create({ provider: wsProvider });
-    
+
     // Create StorageHub Client (for transactions)
     const storageHubClient = new StorageHubClient({
       rpcUrl: DATAHAVEN_TESTNET_CONFIG.rpcUrl,
       chain: datahavenTestnet,
       walletClient,
-      filesystemContractAddress: SH_FILE_SYSTEM_PRECOMPILE_ADDRESS
+      filesystemContractAddress: SH_FILE_SYSTEM_PRECOMPILE_ADDRESS,
     });
-    
+
     return { storageHubClient, polkadotApi };
   } catch (error) {
-    logDataHaven(`⚠️ Could not initialize StorageHub Client: ${error instanceof Error ? error.message : String(error)}`);
+    logDataHaven(
+      `⚠️ Could not initialize StorageHub Client: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return null;
   }
 }
@@ -476,18 +497,20 @@ export async function getValuePropositions(mspUrl: string): Promise<string | nul
     const { MspClient } = await import("@storagehub-sdk/msp-client");
     // Create temporary client just for info
     const client = await MspClient.connect({ baseUrl: mspUrl }, getMspSession as any);
-    
+
     const valueProps = await client.info.getValuePropositions();
-    
+
     if (!Array.isArray(valueProps) || valueProps.length === 0) {
       logDataHaven("⚠️ No value propositions available from MSP");
       return null;
     }
-    
+
     // Return the first one for simplicity
     return valueProps[0].id;
   } catch (error) {
-    logDataHaven(`⚠️ Failed to get value props: ${error instanceof Error ? error.message : String(error)}`);
+    logDataHaven(
+      `⚠️ Failed to get value props: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return null;
   }
 }
@@ -500,10 +523,10 @@ export async function createBucketOnChain(
   publicClient: PublicClient,
   bucketName: string,
   mspId: string,
-  isPrivate: boolean = false
+  isPrivate: boolean = false,
 ): Promise<{ bucketId: string; txHash: string } | null> {
   let polkadotApi: ApiPromise | null = null;
-  
+
   try {
     logDataHaven("Initializing creation...");
     // REMOVED INITIALIZE STORAGEHUB CALL TO AVOID CONFLICTS
@@ -511,22 +534,20 @@ export async function createBucketOnChain(
     // if (!sdk) throw new Error("Failed to initialize StorageHub SDK");
     // const { storageHubClient } = sdk;
     // polkadotApi = sdk.polkadotApi;
-    
+
     const address = walletClient.account?.address;
     if (!address) throw new Error("No wallet address available");
-    
+
     // Get MSP URL from config to fetch value props
     const config = getDataHavenConfig();
     const valuePropId = await getValuePropositions(config.mspUrl);
-    
+
     if (!valuePropId) {
       throw new Error("Could not get value proposition ID from MSP");
     }
-    
-    logDataHaven(`Using Value Prop ID: ${valuePropId}`);
-    
 
-    
+    logDataHaven(`Using Value Prop ID: ${valuePropId}`);
+
     /* 
     // SKIP EVM DERIVATION - Precompile missing on testnet
     // 1. Derive bucket ID
@@ -541,15 +562,15 @@ export async function createBucketOnChain(
       throw new Error(`Bucket already exists: ${bucketId}`);
     }
     */
-    
+
     // 3. Create bucket
     logDataHaven("Sending createBucket transaction via Substrate API...");
-    
+
     // Initialize crypto for Keyring
     await cryptoWaitReady();
-    
+
     // Create signer from private key
-    const keyring = new Keyring({ type: 'ethereum' });
+    const keyring = new Keyring({ type: "ethereum" });
     const signer = keyring.addFromUri(config.privateKey);
     logDataHaven(`Signer address: ${signer.address}`);
 
@@ -557,58 +578,60 @@ export async function createBucketOnChain(
     const wsProvider = new WsProvider(DATAHAVEN_TESTNET_CONFIG.wssUrl);
     polkadotApi = await ApiPromise.create({ provider: wsProvider });
     logDataHaven("✅ Connected to Polkadot API");
-    
+
     // Ensure bucket name is hex encoded bytes
-    const nameHex = `0x${Buffer.from(bucketName).toString('hex')}`;
-    
+    const nameHex = `0x${Buffer.from(bucketName).toString("hex")}`;
+
     // Await the transaction promise so finally block waits
     const result = await new Promise<{ bucketId: string; txHash: string }>((resolve, reject) => {
       // @ts-ignore
-      polkadotApi!.tx.fileSystem.createBucket(
-        mspId, 
-        nameHex, 
-        isPrivate, 
-        valuePropId
-      ).signAndSend(signer, ({ status, events, dispatchError }: any) => {
-        logDataHaven(`Tx Status: ${status.type}`);
-        
-        if (status.isInBlock || status.isFinalized) {
-          const hash = status.hash.toHex();
-          logDataHaven(`Transaction included in block: ${hash}`);
-          
-          if (dispatchError) {
-            if (dispatchError.isModule) {
-              const decoded = polkadotApi!.registry.findMetaError(dispatchError.asModule);
-              const { docs, name, section } = decoded;
-              reject(new Error(`${section}.${name}: ${docs.join(' ')}`));
+      polkadotApi!.tx.fileSystem
+        .createBucket(mspId, nameHex, isPrivate, valuePropId)
+        .signAndSend(signer, ({ status, events, dispatchError }: any) => {
+          logDataHaven(`Tx Status: ${status.type}`);
+
+          if (status.isInBlock || status.isFinalized) {
+            const hash = status.hash.toHex();
+            logDataHaven(`Transaction included in block: ${hash}`);
+
+            if (dispatchError) {
+              if (dispatchError.isModule) {
+                const decoded = polkadotApi!.registry.findMetaError(dispatchError.asModule);
+                const { docs, name, section } = decoded;
+                reject(new Error(`${section}.${name}: ${docs.join(" ")}`));
+              } else {
+                reject(new Error(dispatchError.toString()));
+              }
             } else {
-              reject(new Error(dispatchError.toString()));
+              // Find BucketCreated event
+              let createdBucketId = "0x";
+              if (events) {
+                events.forEach(({ event: { data, method, section } }: any) => {
+                  console.log(`[DataHaven] Event: ${section}.${method}`);
+                  if (
+                    (section === "providers" || section === "fileSystem") &&
+                    method === "BucketCreated"
+                  ) {
+                    createdBucketId = data[1].toString();
+                    logDataHaven(`✅ Found Bucket ID from event: ${createdBucketId}`);
+                  }
+                });
+              }
+              resolve({ bucketId: createdBucketId, txHash: hash });
             }
-          } else {
-             // Find BucketCreated event
-             let createdBucketId = "0x";
-             if (events) {
-               events.forEach(({ event: { data, method, section } }: any) => {
-                 console.log(`[DataHaven] Event: ${section}.${method}`);
-                 if ((section === 'providers' || section === 'fileSystem') && method === 'BucketCreated') {
-                   createdBucketId = data[1].toString();
-                   logDataHaven(`✅ Found Bucket ID from event: ${createdBucketId}`);
-                 }
-               });
-             }
-             resolve({ bucketId: createdBucketId, txHash: hash });
           }
-        }
-      }).catch((err: any) => {
-        logDataHaven(`❌ signAndSend Error: ${err.message}`);
-        reject(err);
-      });
+        })
+        .catch((err: any) => {
+          logDataHaven(`❌ signAndSend Error: ${err.message}`);
+          reject(err);
+        });
     });
 
     return result;
-
   } catch (error) {
-    logDataHaven(`⚠️ On-chain bucket creation failed: ${error instanceof Error ? error.message : String(error)}`);
+    logDataHaven(
+      `⚠️ On-chain bucket creation failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return null;
   } finally {
     if (polkadotApi) {
@@ -617,5 +640,3 @@ export async function createBucketOnChain(
     }
   }
 }
-
-

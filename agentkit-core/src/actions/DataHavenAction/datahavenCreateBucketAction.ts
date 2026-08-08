@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import type { AgentkitAction } from "../../agentkit";
 import { validateDataHavenConfig, getDataHavenConfig } from "./datahavenConstants";
 import {
@@ -151,11 +151,11 @@ export async function datahavenCreateBucket(
       clients.publicClient,
       args.bucketName,
       mspInfo.mspId,
-      args.isPrivate || false
+      args.isPrivate || false,
     );
 
     if (!bucketCreationResult) {
-       throw new Error("Failed to create bucket on-chain");
+      throw new Error("Failed to create bucket on-chain");
     }
 
     const { txHash } = bucketCreationResult;

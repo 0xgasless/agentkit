@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../../agentkit";
 import { keccak256, toBytes } from "viem";
 
@@ -13,7 +13,9 @@ Required parameters:
 
 export const CalculateTopicHashInput = z
   .object({
-    eventSignature: z.string().describe("The event signature to hash e.g. 'Transfer(address,address,uint256)'"),
+    eventSignature: z
+      .string()
+      .describe("The event signature to hash e.g. 'Transfer(address,address,uint256)'"),
   })
   .strip()
   .describe("Instructions for calculating topic hash");

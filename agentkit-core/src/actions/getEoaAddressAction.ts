@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { createEoaWallet } from "../services";
 
 export const GetEoaAddressInput = z.object({}).strip();

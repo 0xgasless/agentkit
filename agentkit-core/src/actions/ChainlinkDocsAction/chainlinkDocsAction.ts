@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../../agentkit";
 import { CRE_DOCS_SUMMARY } from "../../utils/chainlinkConstants";
 
@@ -28,7 +28,7 @@ async function getChainlinkDocs(
     if (args.query) {
       const query = args.query.toLowerCase();
       const lines = docs.split("\n");
-      const matchingLines = lines.filter((line) => line.toLowerCase().includes(query));
+      const matchingLines = lines.filter(line => line.toLowerCase().includes(query));
 
       if (matchingLines.length > 0) {
         return `Found ${matchingLines.length} matches for "${args.query}":\n\n${matchingLines.join("\n")}\n\n--- Full Summary ---\n${docs}`;
@@ -49,5 +49,5 @@ export class ChainlinkDocsAction implements AgentkitAction<typeof ChainlinkDocsI
   public argsSchema = ChainlinkDocsInput;
   public func = getChainlinkDocs;
   // This action doesn't strictly need a smart account, but following the pattern
-  public smartAccountRequired = false; 
+  public smartAccountRequired = false;
 }

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { createEoaWallet } from "../services";
 import { createPublicClient, http, formatEther } from "viem";
 import { TokenABI } from "../constants";

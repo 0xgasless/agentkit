@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../../agentkit";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -33,12 +33,12 @@ async function runTerminalCommand(
 ): Promise<string> {
   try {
     const cwd = args.cwd || path.resolve(__dirname, "../../../../../"); // Fallback to workspace root
-    
+
     console.log(`[RunTerminalCommand] Executing: '${args.command}' in ${cwd}`);
-    
+
     // Safety check: Filter out obviously dangerous commands if needed (e.g. rm -rf /)
     // But for a dev tool agent, we want maximum flexibility as requested ("everything dynamic")
-    
+
     const { stdout, stderr } = await execAsync(args.command, { cwd });
 
     return `
@@ -51,7 +51,6 @@ ${stdout}
 --- stderr ---
 ${stderr}
     `;
-
   } catch (error: any) {
     return `
 Error executing command:

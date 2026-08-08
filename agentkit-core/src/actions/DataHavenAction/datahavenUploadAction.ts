@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import type { AgentkitAction } from "../../agentkit";
 import { validateDataHavenConfig, getDataHavenConfig } from "./datahavenConstants";
 import {

@@ -1,11 +1,19 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../../agentkit";
 import * as fs from "fs";
 import * as path from "path";
 import { createPublicClient, http, createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { avalancheFuji, polygonAmoy, baseSepolia, sepolia, bscTestnet, arbitrumSepolia, optimismSepolia } from "viem/chains";
+import {
+  avalancheFuji,
+  polygonAmoy,
+  baseSepolia,
+  sepolia,
+  bscTestnet,
+  arbitrumSepolia,
+  optimismSepolia,
+} from "viem/chains";
 
 const DEPLOY_CONTRACT_PROMPT = `
 This tool deploys a compiled smart contract to the blockchain.
@@ -37,10 +45,10 @@ function findFile(startPath: string, filter: string): string | null {
     const filename = path.join(startPath, file);
     const stat = fs.lstatSync(filename);
     if (stat.isDirectory()) {
-        // Skip node_modules and hidden dirs to speed up
-        if (file === "node_modules" || file.startsWith(".")) continue;
-        const found = findFile(filename, filter);
-        if (found) return found;
+      // Skip node_modules and hidden dirs to speed up
+      if (file === "node_modules" || file.startsWith(".")) continue;
+      const found = findFile(filename, filter);
+      if (found) return found;
     } else if (filename.endsWith(filter)) {
       return filename;
     }
@@ -55,7 +63,7 @@ async function deployContract(
   try {
     const cwd = args.baseDir || path.resolve(__dirname, "../../../../../"); // Fallback to assumed workspace root
     const artifactName = `${args.contractName}.json`;
-    
+
     console.log(`[DeployContract] Searching for ${artifactName} in ${cwd}...`);
     const artifactPath = findFile(cwd, artifactName);
 
@@ -78,64 +86,64 @@ async function deployContract(
     // Deploy using Smart Account (if supported) or fallback to EOA via Viem
     // Since 0xGasless SmartAccount might not expose a direct "deploy" method easily compatible with arbitrary bytecode without UserOp encoding manually,
     // we will use the EOA (Private Key) from env if available for this "superuser" action.
-    // Ideally, we should use the Smart Account's deploy method if available. 
+    // Ideally, we should use the Smart Account's deploy method if available.
     // Checking wallet capabilities... the `wallet` object passed here is `ZeroXgaslessSmartAccount`.
-    
+
     // For now, to ensure reliability for this generic action, we'll try to use the underlying signer if possible,
     // or assume we are in the MCP environment with PRIVATE_KEY set.
-    
+
     // Check if we have a private key in process.env to use with Viem directly for deployment
     const privateKey = process.env.PRIVATE_KEY || process.env.CRE_ETH_PRIVATE_KEY;
-    
+
     if (!privateKey) {
-        return `Error: Deployment requires PRIVATE_KEY or CRE_ETH_PRIVATE_KEY to be set in environment.`;
+      return `Error: Deployment requires PRIVATE_KEY or CRE_ETH_PRIVATE_KEY to be set in environment.`;
     }
 
     const account = privateKeyToAccount(privateKey as `0x${string}`);
-    
+
     // Determine chain from environment or default (MCP sets CHAIN_ID)
     const chainId = Number(process.env.CHAIN_ID) || 43113; // Default to Fuji
     // Map common chain IDs to Viem chains
     const chains: Record<number, any> = {
-        43113: avalancheFuji,
-        80002: polygonAmoy,
-        84532: baseSepolia,
-        11155111: sepolia,
-        97: bscTestnet,
-        421614: arbitrumSepolia,
-        11155420: optimismSepolia
+      43113: avalancheFuji,
+      80002: polygonAmoy,
+      84532: baseSepolia,
+      11155111: sepolia,
+      97: bscTestnet,
+      421614: arbitrumSepolia,
+      11155420: optimismSepolia,
     };
-    
+
     const chain = chains[chainId] || avalancheFuji;
     const rpcUrl = process.env.RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc";
 
     const walletClient = createWalletClient({
-        account,
-        chain,
-        transport: http(rpcUrl)
+      account,
+      chain,
+      transport: http(rpcUrl),
     });
-    
+
     const publicClient = createPublicClient({
-        chain,
-        transport: http(rpcUrl)
+      chain,
+      transport: http(rpcUrl),
     });
 
     console.log(`[DeployContract] Deploying ${args.contractName} to chain ${chainId}...`);
-    
+
     const hash = await walletClient.deployContract({
-        abi,
-        bytecode,
-        args: args.constructorArgs || [],
-        chain,
+      abi,
+      bytecode,
+      args: args.constructorArgs || [],
+      chain,
     });
 
     console.log(`[DeployContract] Transaction sent: ${hash}`);
-    
+
     // Wait for receipt
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
     if (receipt.contractAddress) {
-        return `
+      return `
 Contract Deployed Successfully!
 Contract Name: ${args.contractName}
 Address: ${receipt.contractAddress}
@@ -143,9 +151,8 @@ Transaction Hash: ${hash}
 Block Number: ${receipt.blockNumber}
         `;
     } else {
-        return `Deployment Transaction Success, but no contract address returned. Hash: ${hash}`;
+      return `Deployment Transaction Success, but no contract address returned. Hash: ${hash}`;
     }
-
   } catch (error: any) {
     return `Error deploying contract: ${error.message}`;
   }

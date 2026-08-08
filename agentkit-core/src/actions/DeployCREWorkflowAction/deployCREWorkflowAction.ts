@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../../agentkit";
 import { CRE_SUPPORTED_NETWORKS } from "../../utils/chainlinkConstants";
 import * as path from "path";
@@ -28,9 +28,14 @@ The tool will:
 export const DeployCREWorkflowInput = z
   .object({
     workflowType: z.string().describe("The name of the workflow folder (e.g., 'splitter-release')"),
-    chain: z.string().describe("The target chain identifier (e.g., 'avalanche-fuji', 'polygon-amoy')"),
+    chain: z
+      .string()
+      .describe("The target chain identifier (e.g., 'avalanche-fuji', 'polygon-amoy')"),
     usePaymaster: z.boolean().default(false).describe("Whether to use Paymaster for gas fees"),
-    paymentWallet: z.string().optional().describe("Private key for EOA payment if not using Paymaster"),
+    paymentWallet: z
+      .string()
+      .optional()
+      .describe("Private key for EOA payment if not using Paymaster"),
   })
   .strip()
   .describe("Instructions for deploying a CRE workflow");
@@ -75,14 +80,14 @@ async function deployCREWorkflow(
     // We might need to update project.yaml or config.json dynamically based on the chain.
     // For this implementation, we will assume the user passes the correct env flag or config exists.
     // However, to be "fully dynamic", we should ideally generate a config file here.
-    
+
     // START: Dynamic Config generation (simplified)
     const configPath = path.join(workflowPath, "config.dynamic.json");
     const dynamicConfig = {
-        chainSelectorName: networkConfig.chainSelector,
-        // We would populate other fields here if we had the context (e.g. contract addresses for that chain)
-        // For now, we rely on existing configs or assume generic defaults.
-        // This part requires knwowledge of the specific workflow's config structure.
+      chainSelectorName: networkConfig.chainSelector,
+      // We would populate other fields here if we had the context (e.g. contract addresses for that chain)
+      // For now, we rely on existing configs or assume generic defaults.
+      // This part requires knwowledge of the specific workflow's config structure.
     };
     // await fs.promises.writeFile(configPath, JSON.stringify(dynamicConfig, null, 2));
     // END: Dynamic Config generation
@@ -92,19 +97,20 @@ async function deployCREWorkflow(
     // We need to pass the private key if provided in args
     const envVars = { ...process.env };
     if (args.paymentWallet) {
-        envVars.CRE_ETH_PRIVATE_KEY = args.paymentWallet;
+      envVars.CRE_ETH_PRIVATE_KEY = args.paymentWallet;
     }
 
-    const deployCommand = `cd ${workflowPath} && cre deploy --env ${networkConfig.isTestnet ? 'staging' : 'production'}`;
+    const deployCommand = `cd ${workflowPath} && cre deploy --env ${networkConfig.isTestnet ? "staging" : "production"}`;
 
     console.log(`[AgentKit] Executing: ${deployCommand}`);
-    
-    // Note: This command might hang if it asks for interactive input. 
+
+    // Note: This command might hang if it asks for interactive input.
     // ensuring we run in non-interactive mode or capture output.
     const { stdout, stderr } = await execAsync(deployCommand, { env: envVars });
 
-    if (stderr && !stdout) { // Some CLI tools write info to stderr but still succeed
-        console.warn(`[AgentKit] CLI Stderr: ${stderr}`);
+    if (stderr && !stdout) {
+      // Some CLI tools write info to stderr but still succeed
+      console.warn(`[AgentKit] CLI Stderr: ${stderr}`);
     }
 
     return `
@@ -115,7 +121,6 @@ Forwarder Address: ${networkConfig.forwarderAddress}
 Output:
 ${stdout}
     `;
-
   } catch (error: any) {
     return `Error deploying CRE workflow: ${error.message}`;
   }
@@ -126,5 +131,5 @@ export class DeployCREWorkflowAction implements AgentkitAction<typeof DeployCREW
   public description = DEPLOY_CRE_WORKFLOW_PROMPT;
   public argsSchema = DeployCREWorkflowInput;
   public func = deployCREWorkflow;
-  public smartAccountRequired = true; 
+  public smartAccountRequired = true;
 }

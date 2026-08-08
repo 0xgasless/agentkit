@@ -76,4 +76,3 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
 }
 
 export const AGENTKIT_ACTIONS = getAllAgentkitActions();
-

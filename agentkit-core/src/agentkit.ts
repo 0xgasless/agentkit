@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Account, createWalletClient, http } from "viem";
 import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
-import { ZeroXgaslessSmartAccount, createSmartAccountClient } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount, createSmartAccountClient } from "@0xgasless/smart-account-sdk";
 
 import { supportedChains } from "./constants";
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const AURORA_GAS_POLICY_PROMPT = `
 Manage Borealis Gas Station policies on Aurora.
@@ -20,7 +20,11 @@ REQUIREMENTS
 export const AuroraGasPolicyInput = z.object({
   policyId: z.string().describe("The ID of the Gas Policy to manage."),
   address: z.string().describe("The user address to manage."),
-  action: z.enum(["add", "remove"]).optional().default("add").describe("Whether to add or remove the user from the policy."),
+  action: z
+    .enum(["add", "remove"])
+    .optional()
+    .default("add")
+    .describe("Whether to add or remove the user from the policy."),
 });
 
 export async function auroraGasPolicyAction(
@@ -42,30 +46,30 @@ export async function auroraGasPolicyAction(
     const response = await fetch(endpoint, {
       method: method,
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: method === "POST" ? body : undefined, // DELETE might pass address in URL or body depending on API, using safer body approach for now or query param if needed. 
-      // Note: If DELETE requires address in path, it would be .../users/{address}. 
-      // Assuming standard REST collection manipulation where body defines the resource. 
+      body: method === "POST" ? body : undefined, // DELETE might pass address in URL or body depending on API, using safer body approach for now or query param if needed.
+      // Note: If DELETE requires address in path, it would be .../users/{address}.
+      // Assuming standard REST collection manipulation where body defines the resource.
       // If this fails, we can adjust to URL param.
     });
 
     if (!response.ok) {
       // Handle the case where DELETE needs address in URL
       if (method === "DELETE" && response.status === 404) {
-         // Retry with URL param style just in case
-         const retryEndpoint = `${endpoint}/${args.address}`;
-         const retryResponse = await fetch(retryEndpoint, {
-            method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-            }
-         });
-         if (retryResponse.ok) {
-             return `Successfully removed ${args.address} from gas policy ${args.policyId}.`;
-         }
+        // Retry with URL param style just in case
+        const retryEndpoint = `${endpoint}/${args.address}`;
+        const retryResponse = await fetch(retryEndpoint, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (retryResponse.ok) {
+          return `Successfully removed ${args.address} from gas policy ${args.policyId}.`;
+        }
       }
 
       const text = await response.text();

@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import type { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account";
+import type { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account-sdk";
 import { encodeFunctionData, parseUnits, createPublicClient, http } from "viem";
 import type { AgentkitAction } from "../../agentkit";
 import { sendTransaction } from "../../services";

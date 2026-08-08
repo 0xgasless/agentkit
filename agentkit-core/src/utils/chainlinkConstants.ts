@@ -16,12 +16,12 @@ export const CRE_SUPPORTED_NETWORKS: Record<string, NetworkConfig> = {
     forwarderAddress: "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
     isTestnet: false,
   },
-  "avalanche": {
+  avalanche: {
     chainSelector: "avalanche-mainnet",
     forwarderAddress: "0x76c9cf548b4179F8901cda1f8623568b58215E62",
     isTestnet: false,
   },
-  "base": {
+  base: {
     chainSelector: "ethereum-mainnet-base-1",
     forwarderAddress: "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
     isTestnet: false,
@@ -31,17 +31,17 @@ export const CRE_SUPPORTED_NETWORKS: Record<string, NetworkConfig> = {
     forwarderAddress: "0x76c9cf548b4179F8901cda1f8623568b58215E62",
     isTestnet: false,
   },
-  "ethereum": {
+  ethereum: {
     chainSelector: "ethereum-mainnet",
     forwarderAddress: "0x0b93082D9b3C7C97fAcd250082899BAcf3af3885",
     isTestnet: false,
   },
-  "optimism": {
+  optimism: {
     chainSelector: "ethereum-mainnet-optimism-1",
     forwarderAddress: "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
     isTestnet: false,
   },
-  "polygon": {
+  polygon: {
     chainSelector: "polygon-mainnet",
     forwarderAddress: "0x76c9cf548b4179F8901cda1f8623568b58215E62",
     isTestnet: false,

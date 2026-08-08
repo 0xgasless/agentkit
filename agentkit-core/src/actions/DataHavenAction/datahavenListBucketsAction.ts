@@ -1,16 +1,16 @@
 /**
  * DataHaven List Buckets Action
- * 
+ *
  * List all storage buckets for the authenticated user on DataHaven.
  * Uses StorageHub SDK for real bucket listing.
  */
 
 import { z } from "zod";
-import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import type { AgentkitAction } from "../../agentkit";
 import { validateDataHavenConfig, getDataHavenConfig, type BucketInfo } from "./datahavenConstants";
-import { 
-  initializeDataHavenClients, 
+import {
+  initializeDataHavenClients,
   initializeMspClient,
   authenticateWithMspSdk,
   logDataHavenStep,
@@ -60,25 +60,25 @@ export async function datahavenListBuckets(
 
     // Step 1: Validate configuration
     logDataHavenStep(1, "CHECKING CONFIGURATION");
-    
+
     const configError = validateDataHavenConfig();
     if (configError) {
       console.log(`[DataHaven] ❌ Configuration missing`);
       return configError;
     }
-    
+
     console.log(`[DataHaven] ✅ Configuration valid`);
     const config = getDataHavenConfig();
 
     // Step 2: Initialize clients
     logDataHavenStep(2, "INITIALIZING CLIENTS");
-    
+
     const clients = await initializeDataHavenClients();
     console.log(`[DataHaven] ✅ Wallet Address: ${clients.address}`);
 
     // Step 3: Initialize MSP Client
     logDataHavenStep(3, "CONNECTING TO MSP");
-    
+
     const mspClient = await initializeMspClient();
     if (!mspClient) {
       logDataHaven("⚠️ MSP Client not available - using mock data");
@@ -88,7 +88,7 @@ export async function datahavenListBuckets(
 
     // Step 4: Authenticate with SIWE
     logDataHavenStep(4, "AUTHENTICATING WITH MSP (SIWE)");
-    
+
     const session = await authenticateWithMspSdk(clients.walletClient);
     if (!session) {
       logDataHaven("⚠️ Authentication failed - using mock data");
@@ -98,13 +98,15 @@ export async function datahavenListBuckets(
 
     // Step 5: List buckets
     logDataHavenStep(5, "FETCHING BUCKETS");
-    
+
     let buckets: any[];
     try {
       buckets = await mspClient.buckets.listBuckets();
       console.log(`[DataHaven] ✅ Found ${buckets.length} buckets`);
     } catch (error) {
-      logDataHaven(`⚠️ Failed to list buckets: ${error instanceof Error ? error.message : String(error)}`);
+      logDataHaven(
+        `⚠️ Failed to list buckets: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return getMockBucketsResult();
     }
 
@@ -126,7 +128,7 @@ export async function datahavenListBuckets(
         const visibility = bucket.isPublic ? "🌍 Public" : "🔒 Private";
         const size = bucket.sizeBytes || bucket.size || 0;
         const fileCount = bucket.fileCount || 0;
-        
+
         result += `┌─────────────────────────────────────────────────\n`;
         result += `│ 📁 ${bucket.name || "Unnamed"}  ${visibility}\n`;
         result += `├─────────────────────────────────────────────────\n`;
@@ -204,7 +206,9 @@ function getMockBucketsResult(): string {
 /**
  * DataHaven List Buckets Action class
  */
-export class DataHavenListBucketsAction implements AgentkitAction<typeof DataHavenListBucketsInput> {
+export class DataHavenListBucketsAction
+  implements AgentkitAction<typeof DataHavenListBucketsInput>
+{
   public name = "datahaven_list_buckets";
   public description = LIST_BUCKETS_PROMPT;
   public argsSchema = DataHavenListBucketsInput;

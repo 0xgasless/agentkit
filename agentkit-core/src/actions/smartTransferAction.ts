@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account-sdk";
 import { encodeFunctionData, parseEther, parseUnits } from "viem";
 import { TokenABI } from "../constants";
 import { sendTransaction } from "../services";

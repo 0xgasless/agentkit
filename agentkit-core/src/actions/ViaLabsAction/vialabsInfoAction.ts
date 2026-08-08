@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import type { AgentkitAction } from "../../agentkit";
 import { VIALABS_SUPPORTED_CHAINS, isVialabsChainSupported } from "./vialabsConstants";
 import { getSupportedChainsSummary } from "./vialabsHelpers";
