@@ -128,6 +128,7 @@ ${stdout}
 
 export class DeployCREWorkflowAction implements AgentkitAction<typeof DeployCREWorkflowInput> {
   public name = "deploy_cre_workflow";
+  public walletOptional = true;
   public description = DEPLOY_CRE_WORKFLOW_PROMPT;
   public argsSchema = DeployCREWorkflowInput;
   public func = deployCREWorkflow;

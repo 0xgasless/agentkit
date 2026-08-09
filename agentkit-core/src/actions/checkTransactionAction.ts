@@ -89,6 +89,7 @@ Error: ${status.error}
  */
 export class CheckTransactionAction implements AgentkitAction<typeof CheckTransactionInput> {
   public name = "check_transaction_status";
+  public walletOptional = true;
   public description = CHECK_TRANSACTION_PROMPT;
   public argsSchema = CheckTransactionInput;
   public func = checkTransactionStatus;

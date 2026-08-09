@@ -45,6 +45,7 @@ async function getChainlinkDocs(
 
 export class ChainlinkDocsAction implements AgentkitAction<typeof ChainlinkDocsInput> {
   public name = "chainlink_cre_docs";
+  public walletOptional = true;
   public description = CHAINLINK_DOCS_PROMPT;
   public argsSchema = ChainlinkDocsInput;
   public func = getChainlinkDocs;

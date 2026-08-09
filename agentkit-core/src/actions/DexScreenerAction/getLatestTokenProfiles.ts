@@ -114,6 +114,7 @@ export class GetLatestTokenProfilesAction
   implements AgentkitAction<typeof GetLatestTokenProfilesInput>
 {
   public name = "get_latest_token_profiles";
+  public walletOptional = true;
   public description = GET_LATEST_TOKEN_PROFILES_PROMPT;
   public argsSchema = GetLatestTokenProfilesInput;
   public func = getLatestTokenProfiles;

@@ -129,6 +129,7 @@ function getBoostRankEmoji(index: number): string {
  */
 export class GetTopBoostedTokensAction implements AgentkitAction<typeof GetTopBoostedTokensInput> {
   public name = "get_top_boosted_tokens";
+  public walletOptional = true;
   public description = GET_TOP_BOOSTED_TOKENS_PROMPT;
   public argsSchema = GetTopBoostedTokensInput;
   public func = getTopBoostedTokens;

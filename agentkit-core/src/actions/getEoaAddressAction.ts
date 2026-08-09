@@ -27,6 +27,7 @@ export async function getEoaAddress(
 
 export class GetEoaAddressAction implements AgentkitAction<typeof GetEoaAddressInput> {
   public name = "get_eoa_address";
+  public walletOptional = true;
   public description = "Returns the EOA wallet address.";
   public argsSchema = GetEoaAddressInput;
   public func = getEoaAddress;

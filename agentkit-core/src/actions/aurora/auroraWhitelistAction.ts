@@ -66,6 +66,7 @@ export async function auroraWhitelistAction(
 
 export class AuroraWhitelistAction implements AgentkitAction<typeof AuroraWhitelistInput> {
   public name = "aurora_whitelist";
+  public walletOptional = true;
   public description = AURORA_WHITELIST_PROMPT;
   public argsSchema = AuroraWhitelistInput;
   public func = auroraWhitelistAction;

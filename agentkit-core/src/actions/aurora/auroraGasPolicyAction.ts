@@ -84,6 +84,7 @@ export async function auroraGasPolicyAction(
 
 export class AuroraGasPolicyAction implements AgentkitAction<typeof AuroraGasPolicyInput> {
   public name = "aurora_gas_policy";
+  public walletOptional = true;
   public description = AURORA_GAS_POLICY_PROMPT;
   public argsSchema = AuroraGasPolicyInput;
   public func = auroraGasPolicyAction;

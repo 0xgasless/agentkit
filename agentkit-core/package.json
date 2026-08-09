@@ -37,8 +37,6 @@
     "@storagehub-sdk/msp-client": "^0.4.0",
     "@storagehub/api-augment": "^0.2.14",
     "axios": "^1.7.9",
-    "merkletreejs": "^0.4.1",
-    "sqlite3": "^5.1.7",
     "viem": "2",
     "zod": "^3.23.8",
     "@0xgasless/smart-account-sdk": "^0.0.15",

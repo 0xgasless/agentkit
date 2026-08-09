@@ -120,6 +120,7 @@ export class GetLatestBoostedTokensAction
   implements AgentkitAction<typeof GetLatestBoostedTokensInput>
 {
   public name = "get_latest_boosted_tokens";
+  public walletOptional = true;
   public description = GET_LATEST_BOOSTED_TOKENS_PROMPT;
   public argsSchema = GetLatestBoostedTokensInput;
   public func = getLatestBoostedTokens;

@@ -270,6 +270,7 @@ export class GetPairsByChainAndAddressAction
   implements AgentkitAction<typeof GetPairsByChainAndAddressInput>
 {
   public name = "get_pairs_by_chain_and_address";
+  public walletOptional = true;
   public description = GET_PAIRS_BY_CHAIN_AND_ADDRESS_PROMPT;
   public argsSchema = GetPairsByChainAndAddressInput;
   public func = getPairsByChainAndAddress;

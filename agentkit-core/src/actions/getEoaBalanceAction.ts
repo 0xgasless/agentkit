@@ -78,6 +78,7 @@ export async function getEoaBalance(
 
 export class GetEoaBalanceAction implements AgentkitAction<typeof GetEoaBalanceInput> {
   public name = "get_eoa_balance";
+  public walletOptional = true;
   public description = "Returns the EOA native balance and optional ERC-20 balances.";
   public argsSchema = GetEoaBalanceInput;
   public func = getEoaBalance;

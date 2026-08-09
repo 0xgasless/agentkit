@@ -55,6 +55,7 @@ export async function getTokenDetails(
  */
 export class GetTokenDetailsAction implements AgentkitAction<typeof GetTokenDetailsInput> {
   public name = "get_token_details";
+  public walletOptional = true;
   public description = GET_TOKEN_DETAILS_PROMPT;
   public argsSchema = GetTokenDetailsInput;
   public func = getTokenDetails;

@@ -35,6 +35,13 @@ export interface AgentkitAction<TActionSchema extends ActionSchemaAny> {
   smartAccountRequired?: boolean;
 
   /**
+   * True for actions whose implementation never touches the wallet (pure HTTP /
+   * pure computation). These run in ANY mode — platform, self-custody, or even
+   * unconfigured — the wallet argument is simply not used.
+   */
+  walletOptional?: boolean;
+
+  /**
    * The function to execute for this action (self-custody / smart-account mode).
    */
   func: (wallet: ZeroXgaslessSmartAccount, args: z.infer<TActionSchema>) => Promise<string>;
@@ -224,15 +231,25 @@ export class Agentkit {
       );
     }
     if (this.platform) {
-      if (!action.platformFunc) {
-        return (
-          `Action ${action.name} is not available in platform mode yet. ` +
-          `It requires self-custody mode (Agentkit.configureWithWallet).`
-        );
+      if (action.platformFunc) {
+        return await action.platformFunc(this.platform.client, this.platform.agentId, args);
       }
-      return await action.platformFunc(this.platform.client, this.platform.agentId, args);
+      if (action.walletOptional) {
+        return await (
+          action.func as (account: ZeroXgaslessSmartAccount, args: TActionSchema) => Promise<string>
+        )(undefined as unknown as ZeroXgaslessSmartAccount, args);
+      }
+      return (
+        `Action ${action.name} is not available in platform mode yet. ` +
+        `It requires self-custody mode (Agentkit.configureWithWallet).`
+      );
     }
     if (!this.smartAccount) {
+      if (action.walletOptional) {
+        return await (
+          action.func as (account: ZeroXgaslessSmartAccount, args: TActionSchema) => Promise<string>
+        )(undefined as unknown as ZeroXgaslessSmartAccount, args);
+      }
       return `Unable to run Action: ${action.name}. A Smart Account is required. Please configure Agentkit with a Wallet to run this action.`;
     }
     return await (

@@ -37,6 +37,7 @@ Topic Hash: ${hash}
 
 export class CalculateTopicHashAction implements AgentkitAction<typeof CalculateTopicHashInput> {
   public name = "calculate_topic_hash";
+  public walletOptional = true;
   public description = CALCULATE_TOPIC_HASH_PROMPT;
   public argsSchema = CalculateTopicHashInput;
   public func = calculateTopicHash;

@@ -180,6 +180,7 @@ function formatTimestamp(timestamp: number): string {
  */
 export class GetTokenOrdersAction implements AgentkitAction<typeof GetTokenOrdersInput> {
   public name = "get_token_orders";
+  public walletOptional = true;
   public description = GET_TOKEN_ORDERS_PROMPT;
   public argsSchema = GetTokenOrdersInput;
   public func = getTokenOrders;

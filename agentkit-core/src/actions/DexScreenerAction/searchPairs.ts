@@ -256,6 +256,7 @@ function formatPercentage(num: number): string {
  */
 export class SearchPairsAction implements AgentkitAction<typeof SearchPairsInput> {
   public name = "search_pairs";
+  public walletOptional = true;
   public description = SEARCH_PAIRS_PROMPT;
   public argsSchema = SearchPairsInput;
   public func = searchPairs;

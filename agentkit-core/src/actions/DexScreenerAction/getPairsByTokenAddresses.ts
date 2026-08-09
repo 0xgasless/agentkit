@@ -303,6 +303,7 @@ export class GetPairsByTokenAddressesAction
   implements AgentkitAction<typeof GetPairsByTokenAddressesInput>
 {
   public name = "get_pairs_by_token_addresses";
+  public walletOptional = true;
   public description = GET_PAIRS_BY_TOKEN_ADDRESSES_PROMPT;
   public argsSchema = GetPairsByTokenAddressesInput;
   public func = getPairsByTokenAddresses;

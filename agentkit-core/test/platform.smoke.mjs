@@ -72,4 +72,36 @@ assert.match(await kit.run(term, { command: "echo hi" }), /disabled/);
 const legacy = byName("get_balance");
 assert.match(await kit.run(legacy, {}), /not available in platform mode/);
 
+// ── Phase 1: wallet-optional + transfer delegation + pruning ──
+
+// wallet-optional pure action runs in platform mode without a smart account
+const topic = byName("calculate_topic_hash");
+assert.ok(topic.walletOptional, "calculate_topic_hash should be walletOptional");
+const topicOut = await kit.run(topic, { eventSignature: "Transfer(address,address,uint256)" });
+assert.match(topicOut, /0xddf252ad/i); // canonical Transfer topic0
+
+// ...and even with NO wallet configured at all
+const bare = new (Object.getPrototypeOf(kit).constructor)();
+const bareOut = await bare.run(topic, { eventSignature: "Transfer(address,address,uint256)" });
+assert.match(bareOut, /0xddf252ad/i);
+
+// DexScreener suite is wallet-optional now
+assert.ok(byName("search_pairs").walletOptional, "dexscreener should be walletOptional");
+
+// smart_transfer delegates USDC to x402.pay in platform mode (1.5 → 1500000 atomic)
+const xferOut = await kit.run(byName("smart_transfer"), {
+  amount: "1.5", tokenAddress: "USDC", destination: "0xM",
+});
+assert.match(xferOut, /Successfully transferred 1.5 USDC/);
+assert.match(xferOut, /0xsettled/);
+
+// unknown token in platform mode explains itself
+const badXfer = await kit.run(byName("smart_transfer"), {
+  amount: "1", tokenAddress: "0xdeadbeef", destination: "0xM",
+});
+assert.match(badXfer, /support USDC and XSGD/);
+
+// create_and_store_key is gone from the registry
+assert.equal(byName("create_and_store_key"), undefined, "key-storage action should be removed");
+
 console.log("PLATFORM SMOKE: all assertions passed");

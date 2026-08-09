@@ -64,6 +64,7 @@ Stdout: ${error.stdout}
 
 export class RunTerminalCommandAction implements AgentkitAction<typeof RunTerminalCommandInput> {
   public name = "run_terminal_command";
+  public walletOptional = true;
   public description = RUN_TERMINAL_COMMAND_PROMPT;
   public argsSchema = RunTerminalCommandInput;
   public func = runTerminalCommand;
