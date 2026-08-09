@@ -2,7 +2,7 @@
   "name": "@0xgasless/agentkit",
   "description": "0xGasless Agentkit - Gasless transactions and account abstraction toolkit",
   "repository": "https://github.com/0xgasless/agentkit",
-  "version": "0.0.17",
+  "version": "0.1.0",
   "author": {
     "name": "Permissionless Puter",
     "email": "puter@prmsnls.xyz",
@@ -27,7 +27,8 @@
     "docs:serve": "bunx serve ./docs",
     "dev": "bun link && concurrently \"tsc --watch\" \"tsc-alias -w\"",
     "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
-    "prepare": "bun run format && bun run clean && bun run build"
+    "prepare": "bun run format && bun run clean && bun run build",
+    "test:smoke": "node test/platform.smoke.mjs"
   },
   "dependencies": {
     "@langchain/core": "^0.3.40",
@@ -40,7 +41,8 @@
     "sqlite3": "^5.1.7",
     "viem": "2",
     "zod": "^3.23.8",
-    "@0xgasless/smart-account-sdk": "^0.0.15"
+    "@0xgasless/smart-account-sdk": "^0.0.15",
+    "@0xgasless/agent": "^2.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

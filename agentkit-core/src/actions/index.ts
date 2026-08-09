@@ -27,6 +27,8 @@ import { CalculateTopicHashAction } from "./CalculateTopicHashAction/calculateTo
 import { RunTerminalCommandAction } from "./RunTerminalCommandAction/runTerminalCommandAction";
 import { AuroraWhitelistAction } from "./aurora/auroraWhitelistAction";
 import { AuroraGasPolicyAction } from "./aurora/auroraGasPolicyAction";
+import { PLATFORM_ACTIONS } from "./platform";
+export * from "./platform";
 // TODO: DataHaven temporarily disabled due to ESM compatibility issue with @storagehub/api-augment
 // import {
 //   DataHavenInfoAction,
@@ -66,6 +68,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new RunTerminalCommandAction(),
     new AuroraWhitelistAction(),
     new AuroraGasPolicyAction(),
+    // Platform-mode money layer (KMS custody + x402 + spend policy)
+    ...PLATFORM_ACTIONS,
     // TODO: DataHaven temporarily disabled due to ESM compatibility issue
     // new DataHavenInfoAction(),
     // new DataHavenCreateBucketAction(),
