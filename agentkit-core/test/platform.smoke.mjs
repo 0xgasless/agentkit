@@ -141,4 +141,31 @@ assert.match(cappedOut, /exceeds maxValue|Tool run failed/);
 const browseOut = await kit.run(byName("browse_web"), { query: "https://x.com" });
 assert.match(browseOut, /hello world/);
 
+// ── Phase 3: trust actions + guarded http_request ──
+
+for (const n of ["register_identity", "check_agent_reputation", "give_agent_feedback", "http_request"])
+  assert.ok(byName(n), `missing ${n}`);
+
+routes.push(["/v1/agent/identity/link", () => json(200, { agentId: "bot-1", address: "0xAgentAddr", chain: "avalanche-fuji", agentTokenId: "7", txHash: "0xidtx", alreadyRegistered: false })]);
+routes.push(["/v1/agent/reputation/feedback", () => json(200, { ok: true })]);
+routes.push(["/v1/agent/reputation", () => json(200, { agentId: "other", chain: "avalanche-fuji", score: 82, confidence: 0.6, basis: "mixed", bondedCount: 3, feedbackCount: 9, breakdown: {} })]);
+
+// register identity
+assert.match(await kit.run(byName("register_identity"), {}), /token 7/);
+// check reputation of another agent
+const rep = await kit.run(byName("check_agent_reputation"), { targetAgentId: "other" });
+assert.match(rep, /score 82\/100/);
+assert.match(rep, /basis 'mixed'/);
+// give feedback
+assert.match(await kit.run(byName("give_agent_feedback"), { targetAgentId: "other", value: 100 }), /Feedback recorded/);
+
+// http_request: SSRF guard blocks cloud metadata + private hosts (no network needed)
+const httpAct = byName("http_request");
+assert.ok(httpAct.walletOptional, "http_request should be walletOptional");
+assert.match(await kit.run(httpAct, { url: "http://169.254.169.254/latest/meta-data/" }), /blocked|Refused/);
+assert.match(await kit.run(httpAct, { url: "http://192.168.1.1/admin" }), /Refused/);
+assert.match(await kit.run(httpAct, { url: "https://10.0.0.5/" }), /Refused/);
+// non-https public host refused (http)
+assert.match(await kit.run(httpAct, { url: "http://example.com/" }), /only https/);
+
 console.log("PLATFORM SMOKE: all assertions passed");

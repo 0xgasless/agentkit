@@ -30,6 +30,10 @@ import { PLATFORM_ACTIONS } from "./platform";
 export * from "./platform";
 import { TOOL_GATEWAY_ACTIONS } from "./tools";
 export * from "./tools";
+import { TRUST_ACTIONS } from "./trust";
+export * from "./trust";
+import { HttpRequestAction } from "./httpRequest";
+export * from "./httpRequest";
 // TODO: DataHaven temporarily disabled due to ESM compatibility issue with @storagehub/api-augment
 // import {
 //   DataHavenInfoAction,
@@ -72,6 +76,10 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     ...PLATFORM_ACTIONS,
     // Tool Gateway — the agent's internet hands (Apify actors, paid via x402)
     ...TOOL_GATEWAY_ACTIONS,
+    // Trust layer — ERC-8004 identity, reputation, feedback
+    ...TRUST_ACTIONS,
+    // Guarded generic HTTP (safe replacement for curl-via-terminal)
+    new HttpRequestAction(),
     // TODO: DataHaven temporarily disabled due to ESM compatibility issue
     // new DataHavenInfoAction(),
     // new DataHavenCreateBucketAction(),
