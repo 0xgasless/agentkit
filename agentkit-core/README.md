@@ -5,6 +5,12 @@
   as tools your LLM can call.</p>
 </div>
 
+<div align="center">
+  <img src="https://img.shields.io/npm/v/@0xgasless/agentkit" alt="npm version">
+  <img src="https://img.shields.io/npm/dm/@0xgasless/agentkit" alt="npm downloads">
+  <img src="https://img.shields.io/npm/l/@0xgasless/agentkit" alt="license">
+</div>
+
 ## What it is
 
 AgentKit turns the [0xGasless platform](https://dashboard.0xgasless.com) into a
