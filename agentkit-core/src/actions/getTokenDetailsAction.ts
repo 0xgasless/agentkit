@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { fetchTokenDetails } from "../services";
 import { AgentkitAction } from "../agentkit";
 
@@ -55,6 +55,7 @@ export async function getTokenDetails(
  */
 export class GetTokenDetailsAction implements AgentkitAction<typeof GetTokenDetailsInput> {
   public name = "get_token_details";
+  public walletOptional = true;
   public description = GET_TOKEN_DETAILS_PROMPT;
   public argsSchema = GetTokenDetailsInput;
   public func = getTokenDetails;

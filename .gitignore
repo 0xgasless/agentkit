@@ -131,4 +131,13 @@ api.json
 
 # JSDoc
 docs/
-plugin-*/
+plugin-*/vialabs-testnet/artifacts/
+vialabs-testnet/cache/
+vialabs-testnet/typechain-types/
+vialabs-testnet/node_modules/
+vialabs-testnet/quickstart-token-ref/
+vialabs-testnet/artifacts/
+vialabs-testnet/cache/
+vialabs-testnet/typechain-types/
+vialabs-testnet/node_modules/
+vialabs-testnet/quickstart-token-ref/

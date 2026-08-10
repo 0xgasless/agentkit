@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { encodeFunctionData, Abi, AbiFunctionNotFoundError } from "viem";
 import { AgentkitAction } from "../agentkit"; // Adjust path if necessary
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 // Helper to validate JSON strings
 const jsonString = z.string().refine(

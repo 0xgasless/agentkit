@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const GET_PAIRS_BY_CHAIN_AND_ADDRESS_PROMPT = `
 Gets one or multiple pairs by chain and pair address from DexScreener API.
@@ -270,6 +270,7 @@ export class GetPairsByChainAndAddressAction
   implements AgentkitAction<typeof GetPairsByChainAndAddressInput>
 {
   public name = "get_pairs_by_chain_and_address";
+  public walletOptional = true;
   public description = GET_PAIRS_BY_CHAIN_AND_ADDRESS_PROMPT;
   public argsSchema = GetPairsByChainAndAddressInput;
   public func = getPairsByChainAndAddress;

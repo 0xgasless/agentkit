@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { getWalletBalance, isEoaMode, getActiveAddress } from "../services";
 import { AgentkitAction } from "../agentkit";
 import { tokenMappings, commonTokens } from "../constants";

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const GET_LATEST_BOOSTED_TOKENS_PROMPT = `
 Fetches the latest boosted tokens from DexScreener API.
@@ -120,6 +120,7 @@ export class GetLatestBoostedTokensAction
   implements AgentkitAction<typeof GetLatestBoostedTokensInput>
 {
   public name = "get_latest_boosted_tokens";
+  public walletOptional = true;
   public description = GET_LATEST_BOOSTED_TOKENS_PROMPT;
   public argsSchema = GetLatestBoostedTokensInput;
   public func = getLatestBoostedTokens;

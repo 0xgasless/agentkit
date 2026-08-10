@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const GET_TOP_BOOSTED_TOKENS_PROMPT = `
 Fetches the tokens with most active boosts from DexScreener API.
@@ -129,6 +129,7 @@ function getBoostRankEmoji(index: number): string {
  */
 export class GetTopBoostedTokensAction implements AgentkitAction<typeof GetTopBoostedTokensInput> {
   public name = "get_top_boosted_tokens";
+  public walletOptional = true;
   public description = GET_TOP_BOOSTED_TOKENS_PROMPT;
   public argsSchema = GetTopBoostedTokensInput;
   public func = getTopBoostedTokens;

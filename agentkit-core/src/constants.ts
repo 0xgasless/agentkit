@@ -1,12 +1,14 @@
-import { avalanche, moonbeam, sonic, base, bsc, Chain, avalancheFuji } from "viem/chains";
+import { avalanche, sonic, base, bsc, Chain, avalancheFuji } from "viem/chains";
 
+// Avalanche (mainnet + Fuji) is the primary launch surface; Base is wired next.
+// Fantom and Moonbeam were dropped; Sonic's key previously said 156 but the
+// actual Sonic mainnet chain ID is 146 (viem sonic.id).
 export const supportedChains: Record<number, Chain> = {
-  8453: base,
-  156: sonic,
-  1284: moonbeam,
   43114: avalanche,
-  56: bsc,
   43113: avalancheFuji,
+  8453: base,
+  146: sonic,
+  56: bsc,
 };
 
 // Token mappings by chain ID and ticker symbol
@@ -22,6 +24,12 @@ export const tokenMappings: Record<number, Record<string, `0x${string}`>> = {
     "USDC.E": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
     WBTC: "0x50b7545627a5162f82a992c33b87adc75187b218",
     DAI: "0xd586e7f844cea2f87f50152665bcbc2c279d8d70",
+    XSGD: "0xb2f85b7ab3c2b6f62df06de6ae7d09c010a5096e",
+  },
+  // Avalanche Fuji (43113) — mirrors the facilitator's supported tokens
+  43113: {
+    USDC: "0x5425890298aed601595a70ab815c96711a31bc65",
+    XSGD: "0xd769410dc8772695a7f55a304d2125320a65c2a5",
   },
   // BNB Chain (56)
   56: {
@@ -37,10 +45,10 @@ export const tokenMappings: Record<number, Record<string, `0x${string}`>> = {
     PEPE: "0x25d887ce7a35172c62febfd67a1856f20faebb00",
   },
   // Add other chains as needed
-  8453: {}, // Base
-  156: {}, // Sonic
-  1284: {}, // Moonbeam
-  43113: {}, // Avalanche Fuji
+  8453: {
+    USDC: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  },
+  146: {}, // Sonic
 };
 
 // Common tokens that exist on most chains (for easier reference)
@@ -57,7 +65,7 @@ Capabilities:
 
 Important Information:
 - The wallet is already configured with the SDK. DO NOT generate or mention private keys when using any tools.
-- You can only operate on supported networks: Avalanche (43114), Avalanche Fuji (43113), Base (8453), Sonic (156), Moonbeam (1284), and BSC (56)
+- You can only operate on supported networks: Avalanche (43114), Avalanche Fuji (43113), Base (8453), Sonic (146), and BSC (56). Avalanche (mainnet and Fuji testnet) is the primary, fully supported network.
 - All transactions are gasless - users don't need native tokens to perform actions
 - Default RPC uses Ankr's free tier which has rate limitations
 

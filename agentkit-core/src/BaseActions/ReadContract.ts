@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Abi, Address, isAddress } from "viem";
 import { AgentkitAction } from "../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 // Helper to validate JSON strings (reuse if defined globally, or define here)
 const jsonString = z.string().refine(

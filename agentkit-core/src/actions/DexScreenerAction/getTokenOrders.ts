@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const GET_TOKEN_ORDERS_PROMPT = `
 Checks orders paid for a specific token from DexScreener API.
@@ -180,6 +180,7 @@ function formatTimestamp(timestamp: number): string {
  */
 export class GetTokenOrdersAction implements AgentkitAction<typeof GetTokenOrdersInput> {
   public name = "get_token_orders";
+  public walletOptional = true;
   public description = GET_TOKEN_ORDERS_PROMPT;
   public argsSchema = GetTokenOrdersInput;
   public func = getTokenOrders;

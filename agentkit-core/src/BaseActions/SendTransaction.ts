@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount, Transaction, PaymasterMode } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount, Transaction, PaymasterMode } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../agentkit";
 
 export const SendTransactionSchema = z.object({

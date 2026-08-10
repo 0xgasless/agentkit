@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { AgentkitAction } from "../agentkit";
 
 const GET_ADDRESS_PROMPT = `

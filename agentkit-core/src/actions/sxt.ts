@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const SXT_SQL_PROMPT = `
 Executes a **read-only ANSI-SQL query** against the Space and Time Managed DB via the public proxy endpoint.
@@ -93,6 +93,7 @@ export async function executeSxtSql(
 
 export class SxtAction implements AgentkitAction<typeof SxtSqlInput> {
   public name = "execute_sxt_sql";
+  public walletOptional = true;
   public description = SXT_SQL_PROMPT;
   public argsSchema = SxtSqlInput;
   public func = executeSxtSql;

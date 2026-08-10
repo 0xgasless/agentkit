@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount, Transaction } from "@0xgasless/smart-account-sdk";
 import { encodeFunctionData, parseEther, parseUnits } from "viem";
 import { TokenABI } from "../constants";
 import { sendTransaction } from "../services";
@@ -14,8 +14,9 @@ It takes the following inputs:
 - destination: Where to send the funds (must be a valid onchain address)
 
 Important notes:
-- Gasless transfers are only available on supported networks: Avalanche C-Chain, Sonic chain, BASE, BNB chain, Moonbeam, Avalanche Fuji.
+- Gasless transfers are only available on supported networks: Avalanche C-Chain, Avalanche Fuji, BASE, Sonic chain, BNB chain.
 - The transaction will be submitted and the tool will wait for confirmation by default.
+- In platform mode (KMS-custodied wallet), transfers support the stablecoins USDC and XSGD — pass the symbol or token address; amount is in human units (e.g. "1.5" = 1.5 USDC). Settled gaslessly by the 0xGasless facilitator under the agent's spending policy.
 `;
 
 /**
@@ -91,6 +92,51 @@ export async function smartTransfer(
   }
 }
 
+/** Known platform-payable tokens: symbol or address (any chain) → symbol. */
+const PLATFORM_TOKENS: Record<string, "USDC" | "XSGD"> = {
+  usdc: "USDC",
+  xsgd: "XSGD",
+  // USDC contracts (avalanche / fuji / base)
+  "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e": "USDC",
+  "0x5425890298aed601595a70ab815c96711a31bc65": "USDC",
+  "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": "USDC",
+  // XSGD contracts (avalanche / fuji)
+  "0xb2f85b7ab3c2b6f62df06de6ae7d09c010a5096e": "XSGD",
+  "0xd769410dc8772695a7f55a304d2125320a65c2a5": "XSGD",
+};
+
+/**
+ * Platform-mode transfer: stablecoin transfers become x402 payments signed by
+ * the agent's KMS wallet and settled gaslessly by the 0xGasless facilitator,
+ * with server-side spending policy enforced.
+ */
+export async function smartTransferPlatform(
+  // biome-ignore lint/suspicious/noExplicitAny: OxGasAgent type comes from @0xgasless/agent
+  client: any,
+  agentId: string,
+  args: z.infer<typeof SmartTransferInput>,
+): Promise<string> {
+  const tokenSymbol = PLATFORM_TOKENS[args.tokenAddress.toLowerCase()];
+  if (!tokenSymbol) {
+    return (
+      `Platform-mode transfers support USDC and XSGD (pass the symbol or a known ` +
+      `token address). '${args.tokenAddress}' is not supported — for other tokens ` +
+      `use self-custody mode.`
+    );
+  }
+  try {
+    const value = parseUnits(args.amount, 6).toString(); // USDC/XSGD are 6-decimals
+    const result = await client.x402.pay({ agentId, to: args.destination, value, tokenSymbol });
+    const tx = result.settle?.transaction;
+    return (
+      `Successfully transferred ${args.amount} ${tokenSymbol} to ${args.destination}. ` +
+      `Settled gaslessly by the 0xGasless facilitator. Transaction Hash: ${tx ?? "(pending)"}`
+    );
+  } catch (error) {
+    return `Error transferring the asset: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
 /**
  * Smart transfer action.
  */
@@ -99,5 +145,6 @@ export class SmartTransferAction implements AgentkitAction<typeof SmartTransferI
   public description = SMART_TRANSFER_PROMPT;
   public argsSchema = SmartTransferInput;
   public func = smartTransfer;
+  public platformFunc = smartTransferPlatform;
   public smartAccountRequired = true;
 }

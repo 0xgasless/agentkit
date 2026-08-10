@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AgentkitAction } from "../../agentkit";
-import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account";
+import { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 
 const GET_LATEST_TOKEN_PROFILES_PROMPT = `
 Fetches the latest token profiles from DexScreener API.
@@ -114,6 +114,7 @@ export class GetLatestTokenProfilesAction
   implements AgentkitAction<typeof GetLatestTokenProfilesInput>
 {
   public name = "get_latest_token_profiles";
+  public walletOptional = true;
   public description = GET_LATEST_TOKEN_PROFILES_PROMPT;
   public argsSchema = GetLatestTokenProfilesInput;
   public func = getLatestTokenProfiles;

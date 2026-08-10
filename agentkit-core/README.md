@@ -1,285 +1,124 @@
 <div align="center">
-  <p>
-    <a href="https://docs.0xgasless.com/docs">
-      <img src="https://fwcsgvyqmolgmbupulmv.supabase.co/storage/v1/object/public/common/repo-banner.png" alt="0xGasless AgentKit" />
-    </a>
-  </p>
   <h1>0xGasless AgentKit</h1>
-  <p>A powerful toolkit for gasless transactions and account abstraction on EVM chains.</p>
+  <p><b>Give your AI agent a wallet and hands.</b> Custodied funds, gasless
+  stablecoin payments, and the ability to pay for real work on the internet —
+  as tools your LLM can call.</p>
 </div>
 
-## Features
+## What it is
 
-- 🌟 **Gasless Transactions**: Execute transactions without holding native tokens
-- 🔐 **Account Abstraction**: Built on ERC-4337 standard
-- 💱 **Token Operations**: Transfers, swaps, and deployments without gas fees
-- 🔄 **Multi-Chain Support**: Works across major EVM chains
-- 🤖 **AI Integration**: Built-in LangChain compatibility
+AgentKit turns the [0xGasless platform](https://dashboard.0xgasless.com) into a
+set of agent tools. An agent gets a **KMS-custodied wallet** (no private key in
+your process), a **server-enforced spending policy**, and actions to:
 
-## Supported Networks
+- **Pay** — send stablecoins (USDC/XSGD) and pay any [x402](https://docs.0xgasless.com/x402)
+  API on the internet, gaslessly, under spend caps.
+- **Do** — search and run tools from the 0xGasless Tool Gateway (backed by
+  Apify's actor marketplace): browse the web, scrape pages, run search — paid
+  per call from the agent's wallet.
+- **Be trusted** — mint an ERC-8004 on-chain identity, check another agent's
+  reputation before paying it, and leave feedback.
 
-- Base (8453)
-- Fantom (250)
-- Moonbeam (1284)
-- Avalanche (43114)
-- BSC (56)
-- 
+The agent needs **zero native gas token** — the 0xGasless facilitator pays the
+gas. It only spends the stablecoin.
 
-## Installation
+## Two modes
 
-Using bun:
+| Mode | Wallet | Use when |
+|---|---|---|
+| **Platform** (recommended) | KMS-custodied by 0xGasless; policy-enforced; no key in your code | You want payments, tools, identity, spend limits, audit |
+| **Self-custody** | A local private key / mnemonic via an ERC-4337 smart account | You hold the key and want classic gasless DeFi actions |
+
+## Install
 
 ```bash
-bun add @0xgasless/agentkit
+npm install @0xgasless/agentkit
 ```
 
-```typescript
-import { Agentkit, LangchainAgentkitToolkit } from "@0xgasless/agentkit";
-import { HumanMessage } from "@langchain/core/messages";
-import { MemorySaver } from "@langchain/langgraph";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
+## Quick start (platform mode)
+
+```ts
+import { Agentkit, AgentkitToolkit } from "@0xgasless/agentkit";
 import { ChatOpenAI } from "@langchain/openai";
-import * as dotenv from "dotenv";
-import * as readline from "readline";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-dotenv.config();
+// 1. Configure — the API key (from your dashboard project) authenticates every
+//    action; the wallet lives in 0xGasless KMS.
+const agentkit = await Agentkit.configureWithPlatform({
+  apiKey: process.env.OXGAS_API_KEY!,   // Dashboard → Project → Auth → API Key
+  agentId: "my-first-agent",            // create with client.agents.create first
+  chain: "avalanche-fuji",              // Avalanche is the primary network
+});
 
-function validateEnvironment(): void {
-  const missingVars: string[] = [];
+// 2. Turn it into LangChain tools and hand them to your agent.
+const tools = new AgentkitToolkit(agentkit).getTools();
+const app = createReactAgent({ llm: new ChatOpenAI({ model: "gpt-4o" }), tools });
 
-  const requiredVars = ["OPENROUTER_API_KEY", "PRIVATE_KEY", "RPC_URL", "API_KEY", "CHAIN_ID"];
-
-  requiredVars.forEach(varName => {
-    if (!process.env[varName]) {
-      missingVars.push(varName);
-    }
-  });
-
-  if (missingVars.length > 0) {
-    console.error("Error: Required environment variables are not set");
-    missingVars.forEach(varName => {
-      console.error(`${varName}=your_${varName.toLowerCase()}_here`);
-    });
-    process.exit(1);
-  }
-
-  if (!process.env.CHAIN_ID) {
-    console.warn("Warning: CHAIN_ID not set, defaulting to base-sepolia");
-  }
-}
-
-validateEnvironment();
-
-async function initializeAgent() {
-  try {
-    const llm = new ChatOpenAI({
-      model: "gpt-4o",
-      openAIApiKey: process.env.OPENROUTER_API_KEY,
-      configuration: {
-        baseURL: "https://openrouter.ai/api/v1",
-      },
-    });
-
-    // Initialize 0xGasless AgentKit
-    const agentkit = await Agentkit.configureWithWallet({
-      privateKey: process.env.PRIVATE_KEY as `0x${string}`,
-      rpcUrl: process.env.RPC_URL,
-      apiKey: process.env.API_KEY as string,
-      chainID: Number(process.env.CHAIN_ID) || 8453, // Base Sepolia
-    });
-
-    // Initialize AgentKit Toolkit and get tools
-    const agentkitToolkit = new LangchainAgentkitToolkit(agentkit);
-    const tools = agentkitToolkit.getTools();
-
-    const memory = new MemorySaver();
-    const agentConfig = { configurable: { thread_id: "0xGasless AgentKit Chatbot Example!" } };
-
-    const agent = createReactAgent({
-      llm,
-      tools,
-      checkpointSaver: memory,
-      messageModifier: `
-        You are a helpful agent that can interact with EVM chains using 0xGasless smart accounts. You can perform 
-        gasless transactions using the account abstraction wallet. You can check balances of ETH and any ERC20 token 
-        by providing their contract address. If someone asks you to do something you can't do with your currently 
-        available tools, you must say so. Be concise and helpful with your responses.
-      `,
-    });
-
-    return { agent, config: agentConfig };
-  } catch (error) {
-    console.error("Failed to initialize agent:", error);
-    throw error;
-  }
-}
-
-// For runAutonomousMode, runChatMode, chooseMode and main functions, reference:
-
-/**
- * Run the agent autonomously with specified intervals
- *
- * @param agent - The agent executor
- * @param config - Agent configuration
- * @param interval - Time interval between actions in seconds
- */
-
-//biome-ignore lint/suspicious/noExplicitAny: <explanation>
-async function runAutonomousMode(agent: any, config: any, interval = 10) {
-  console.log("Starting autonomous mode...");
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    try {
-      const thought =
-        "Be creative and do something interesting on the blockchain. " +
-        "Choose an action or set of actions and execute it that highlights your abilities.";
-
-      const stream = await agent.stream({ messages: [new HumanMessage(thought)] }, config);
-
-      for await (const chunk of stream) {
-        if ("agent" in chunk) {
-          console.log(chunk.agent.messages[0].content);
-        } else if ("tools" in chunk) {
-          console.log(chunk.tools.messages[0].content);
-        }
-        console.log("-------------------");
-      }
-
-      await new Promise(resolve => setTimeout(resolve, interval * 1000));
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error:", error.message);
-      }
-      process.exit(1);
-    }
-  }
-}
-
-/**
- * Run the agent interactively based on user input
- *
- * @param agent - The agent executor
- * @param config - Agent configuration
- */
-//biome-ignore lint/suspicious/noExplicitAny: <explanation>
-async function runChatMode(agent: any, config: any) {
-  console.log("Starting chat mode... Type 'exit' to end.");
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const question = (prompt: string): Promise<string> =>
-    new Promise(resolve => rl.question(prompt, resolve));
-
-  try {
-    while (true) {
-      const userInput = await question("\nPrompt: ");
-
-      if (userInput.toLowerCase() === "exit") {
-        break;
-      }
-
-      const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
-
-      for await (const chunk of stream) {
-        if ("agent" in chunk) {
-          console.log(chunk.agent.messages[0].content);
-        } else if ("tools" in chunk) {
-          console.log(chunk.tools.messages[0].content);
-        }
-        console.log("-------------------");
-      }
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error:", error.message);
-    }
-    process.exit(1);
-  } finally {
-    rl.close();
-  }
-}
-
-/**
- * Choose whether to run in autonomous or chat mode based on user input
- *
- * @returns Selected mode
- */
-async function chooseMode(): Promise<"chat" | "auto"> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const question = (prompt: string): Promise<string> =>
-    new Promise(resolve => rl.question(prompt, resolve));
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    console.log("\nAvailable modes:");
-    console.log("1. chat    - Interactive chat mode");
-    console.log("2. auto    - Autonomous action mode");
-
-    const choice = (await question("\nChoose a mode (enter number or name): "))
-      .toLowerCase()
-      .trim();
-
-    if (choice === "1" || choice === "chat") {
-      rl.close();
-      return "chat";
-    } else if (choice === "2" || choice === "auto") {
-      rl.close();
-      return "auto";
-    }
-    console.log("Invalid choice. Please try again.");
-  }
-}
-
-/**
- * Start the chatbot agent
- */
-async function main() {
-  try {
-    const { agent, config } = await initializeAgent();
-    const mode = await chooseMode();
-
-    if (mode === "chat") {
-    await runChatMode(agent, config);
-    } else {
-      await runAutonomousMode(agent, config);
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error:", error.message);
-    }
-    process.exit(1);
-  }
-}
-
-if (require.main === module) {
-  console.log("Starting Agent...");
-  main().catch(error => {
-    console.error("Fatal error:", error);
-    process.exit(1);
-  });
-}
-
-
+// 3. Let it work — it can now pay for what it needs.
+await app.invoke({
+  messages: [{ role: "user", content:
+    "Find a tool that can read a web page, then read https://example.com and summarize it." }],
+});
 ```
 
-## Available Actions
+Behind that one prompt: the agent calls `search_tools` (free), picks the web
+reader, calls `browse_web` → which pays ~$0.05 in USDC from its custodied wallet
+via x402, settled on Avalanche by the 0xGasless facilitator → and gets the page
+back. All under the spending policy you set in the dashboard.
 
-- `GetBalanceAction`: Check ETH and token balances
-- `SmartTransferAction`: Transfer tokens gaslessly
-- `SwapAction`: Perform token swaps without gas
-- `DeploySmartTokenAction`: Deploy new ERC20 tokens
+## The actions
+
+**Money (platform mode)**
+- `x402_pay` — pay a recipient in USDC/XSGD, gasless, settled by the facilitator
+- `pay_api` — fetch any URL and auto-pay if it responds `402` (with a mandatory `maxValue` cap)
+- `smart_transfer` — transfer USDC/XSGD to an address
+- `get_spend_status` — read the agent's caps + remaining daily budget
+- `get_agent_wallet` — address, chain, balances
+
+**Internet hands (Tool Gateway)**
+- `search_tools` — discover a tool for a task (free)
+- `call_tool` — run any gateway tool, paying per call under a cap
+- `browse_web` — read/search the web (via the gateway's browser tool)
+- `http_request` — a guarded plain HTTP call (https-only, SSRF-protected) for free/public APIs
+
+**Trust (ERC-8004)**
+- `register_identity` — mint the agent's on-chain identity (gas sponsored)
+- `check_agent_reputation` — score + confidence + basis, before you pay another agent
+- `give_agent_feedback` — record +/- feedback after an interaction
+
+**DeFi (both modes)** — balances, token details, swaps & bridges (deBridge),
+disperse, market data (DexScreener), and more. Call `getAllAgentkitActions()`
+to enumerate the full set at runtime.
+
+## Self-custody mode
+
+```ts
+const agentkit = await Agentkit.configureWithWallet({
+  apiKey: process.env.API_KEY!,
+  privateKey: process.env.PRIVATE_KEY as `0x${string}`,  // you hold this key
+  chainID: 43113,
+});
+```
+
+Same toolkit; actions that require the platform (payments, tools, identity)
+will say so. `run_terminal_command` is **disabled** unless you explicitly pass
+`unsafeTerminalAccess: true` (only in a sandbox you control).
+
+## Supported networks
+
+Avalanche C-Chain (43114) and Avalanche Fuji (43113) are the primary, fully
+supported networks. Base (8453), Sonic (146), and BSC (56) are available for
+self-custody DeFi actions.
+
+## Migrating from 0.0.x
+
+Platform mode and the money/tool/trust actions are new in 1.0. Your existing
+`configureWithWallet` code keeps working. See [MIGRATION.md](./MIGRATION.md).
 
 ## Documentation
 
-- [AgentKit Documentation](https://docs.0xgasless.com/docs)
+- Platform & x402: https://docs.0xgasless.com
+- Dashboard (get an API key): https://dashboard.0xgasless.com
 
 ## License
 

@@ -1,0 +1,23 @@
+{
+  "name": "vialabs-testnet",
+  "version": "1.0.0",
+  "description": "ViaLabs HelloERC20 testnet deployment",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:fuji": "hardhat run scripts/deploy.ts --network fuji",
+    "deploy:baseSepolia": "hardhat run scripts/deploy.ts --network baseSepolia",
+    "configure:fuji": "hardhat run scripts/configure.ts --network fuji",
+    "configure:baseSepolia": "hardhat run scripts/configure.ts --network baseSepolia",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
+    "@vialabs-io/contracts": "github:VIALabs-io/npm-contracts",
+    "@vialabs-io/npm-registry": "github:VIALabs-io/npm-registry"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  }
+}

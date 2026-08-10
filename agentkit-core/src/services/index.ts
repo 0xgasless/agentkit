@@ -1,4 +1,3 @@
-export * from "./keyManagementService";
 import {
   ZeroXgaslessSmartAccount,
   Transaction,
@@ -7,7 +6,7 @@ import {
   UserOpResponse,
   UserOpReceipt,
   createSmartAccountClient,
-} from "@0xgasless/smart-account";
+} from "@0xgasless/smart-account-sdk";
 import { TokenABI, tokenMappings } from "../constants";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { encodeFunctionData, getContract, parseUnits, createPublicClient, http } from "viem";
