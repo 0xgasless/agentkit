@@ -104,4 +104,41 @@ assert.match(badXfer, /support USDC and XSGD/);
 // create_and_store_key is gone from the registry
 assert.equal(byName("create_and_store_key"), undefined, "key-storage action should be removed");
 
+// ── Phase 2: Tool Gateway actions ──
+
+for (const n of ["search_tools", "call_tool", "browse_web"]) assert.ok(byName(n), `missing ${n}`);
+
+// point the gateway at our mock and add its routes
+process.env.OXGAS_TOOL_GATEWAY_URL = "https://gw.example";
+routes.push(["gw.example/tools/search", () =>
+  json(200, { tools: [{ id: "apify~website-content-crawler", title: "Website Content Crawler", description: "Crawl and extract page text" }] })]);
+routes.push(["gw.example/tools/", (url, init) => {
+  const h = new Headers(init?.headers);
+  if (!h.get("X-PAYMENT")) return json(402, { accepts: [{ scheme: "exact", network: "avalanche-fuji", maxAmountRequired: "50000", payTo: "0xGW", asset: "0x5425890298aed601595a70AB815c96711a31Bc65" }] });
+  return json(200, { actor: "apify~website-content-crawler", transaction: "0xtoolrun", items: [{ url: "https://x.com", text: "hello world" }] });
+}]);
+
+// search_tools is free (no payment) and lists results
+const searchOut = await kit.run(byName("search_tools"), { query: "crawl a website" });
+assert.match(searchOut, /website-content-crawler/);
+
+// call_tool pays via the 402 loop and returns items
+const callOut = await kit.run(byName("call_tool"), {
+  toolId: "apify~website-content-crawler",
+  input: { startUrls: [{ url: "https://x.com" }] },
+  maxValue: "100000",
+});
+assert.match(callOut, /0xtoolrun/);
+assert.match(callOut, /hello world/);
+
+// call_tool respects the spend cap
+const cappedOut = await kit.run(byName("call_tool"), {
+  toolId: "apify~website-content-crawler", maxValue: "1",
+});
+assert.match(cappedOut, /exceeds maxValue|Tool run failed/);
+
+// browse_web delegates to the rag-web-browser actor
+const browseOut = await kit.run(byName("browse_web"), { query: "https://x.com" });
+assert.match(browseOut, /hello world/);
+
 console.log("PLATFORM SMOKE: all assertions passed");

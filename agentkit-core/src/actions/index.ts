@@ -28,6 +28,8 @@ import { AuroraWhitelistAction } from "./aurora/auroraWhitelistAction";
 import { AuroraGasPolicyAction } from "./aurora/auroraGasPolicyAction";
 import { PLATFORM_ACTIONS } from "./platform";
 export * from "./platform";
+import { TOOL_GATEWAY_ACTIONS } from "./tools";
+export * from "./tools";
 // TODO: DataHaven temporarily disabled due to ESM compatibility issue with @storagehub/api-augment
 // import {
 //   DataHavenInfoAction,
@@ -68,6 +70,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     new AuroraGasPolicyAction(),
     // Platform-mode money layer (KMS custody + x402 + spend policy)
     ...PLATFORM_ACTIONS,
+    // Tool Gateway — the agent's internet hands (Apify actors, paid via x402)
+    ...TOOL_GATEWAY_ACTIONS,
     // TODO: DataHaven temporarily disabled due to ESM compatibility issue
     // new DataHavenInfoAction(),
     // new DataHavenCreateBucketAction(),
