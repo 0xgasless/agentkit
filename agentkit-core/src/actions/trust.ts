@@ -23,7 +23,9 @@ reputation and be trusted by others.
 `;
 
 export const RegisterIdentityInput = z
-  .object({ chain: z.enum(CHAINS).optional().describe("Chain to register on (default: agent's chain)") })
+  .object({
+    chain: z.enum(CHAINS).optional().describe("Chain to register on (default: agent's chain)"),
+  })
   .strip()
   .describe("Register the agent's ERC-8004 identity");
 
@@ -78,7 +80,10 @@ export async function checkReputation(
   args: z.infer<typeof CheckReputationInput>,
 ): Promise<string> {
   try {
-    const s = await client.reputation.getScore(args.targetAgentId, { tag: args.tag, chain: args.chain });
+    const s = await client.reputation.getScore(args.targetAgentId, {
+      tag: args.tag,
+      chain: args.chain,
+    });
     const caution =
       s.basis === "opinion-only"
         ? " ⚠️ opinion-only (no staked validations backing this) — treat with caution."

@@ -48,7 +48,10 @@ optional body string.
 export const HttpRequestInput = z
   .object({
     url: z.string().url().describe("The public URL to request (https)"),
-    method: z.enum(["GET", "POST", "PUT", "DELETE"]).optional().describe("HTTP method (default GET)"),
+    method: z
+      .enum(["GET", "POST", "PUT", "DELETE"])
+      .optional()
+      .describe("HTTP method (default GET)"),
     headers: z.record(z.string()).optional().describe("Request headers"),
     body: z.string().optional().describe("Request body (string; JSON should be pre-stringified)"),
   })
@@ -58,14 +61,15 @@ export const HttpRequestInput = z
 function hostAllowed(hostname: string): { ok: boolean; reason?: string } {
   const host = hostname.toLowerCase();
   for (const pat of BLOCKED_HOST_PATTERNS) {
-    if (pat.test(host)) return { ok: false, reason: `host '${host}' is blocked (private/internal/metadata)` };
+    if (pat.test(host))
+      return { ok: false, reason: `host '${host}' is blocked (private/internal/metadata)` };
   }
   const env = (typeof process !== "undefined" && process.env) || {};
   const allowlist = String(env.OXGAS_HTTP_ALLOWLIST || "")
     .split(",")
-    .map((h) => h.trim().toLowerCase())
+    .map(h => h.trim().toLowerCase())
     .filter(Boolean);
-  if (allowlist.length && !allowlist.some((a) => host === a || host.endsWith(`.${a}`))) {
+  if (allowlist.length && !allowlist.some(a => host === a || host.endsWith(`.${a}`))) {
     return { ok: false, reason: `host '${host}' is not in the configured allowlist` };
   }
   return { ok: true };
@@ -128,7 +132,9 @@ export async function httpRequest(
     return `HTTP ${res.status} ${res.statusText}\n${text}${truncated}`;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    return msg.includes("aborted") ? `Request timed out after ${DEFAULT_TIMEOUT_MS}ms.` : `Request failed: ${msg}`;
+    return msg.includes("aborted")
+      ? `Request timed out after ${DEFAULT_TIMEOUT_MS}ms.`
+      : `Request failed: ${msg}`;
   } finally {
     clearTimeout(timer);
   }

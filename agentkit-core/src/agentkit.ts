@@ -274,7 +274,9 @@ export class Agentkit {
       if (chain === "avalanche") return 43114;
       if (chain === "avalanche-fuji" || chain === "fuji") return 43113;
       if (chain === "base") return 8453;
-      throw new Error(`Platform chain ${chain ?? "(agent default)"} has no numeric EVM chain ID here`);
+      throw new Error(
+        `Platform chain ${chain ?? "(agent default)"} has no numeric EVM chain ID here`,
+      );
     }
     if (!this.smartAccount) {
       throw new Error("Smart account not configured");

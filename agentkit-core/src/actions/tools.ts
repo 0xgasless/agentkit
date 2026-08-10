@@ -33,7 +33,9 @@ call_tool to actually run one (which costs a small x402 payment).
 
 export const SearchToolsInput = z
   .object({
-    query: z.string().describe("What you need done, e.g. 'scrape google maps' or 'crawl a website'"),
+    query: z
+      .string()
+      .describe("What you need done, e.g. 'scrape google maps' or 'crawl a website'"),
     limit: z.number().int().min(1).max(50).optional().describe("Max results (default 10)"),
   })
   .strip()
@@ -49,7 +51,10 @@ export async function searchTools(
     url.searchParams.set("q", args.query);
     if (args.limit) url.searchParams.set("limit", String(args.limit));
     // Discovery is free — a plain fetch, but reuse the client's fetch/config.
-    const { response } = await client.x402.payFetch(url.toString(), { agentId: _agentId, maxValue: "0" });
+    const { response } = await client.x402.payFetch(url.toString(), {
+      agentId: _agentId,
+      maxValue: "0",
+    });
     const data = await response.json();
     if (!response.ok) return `Tool search failed: ${JSON.stringify(data)}`;
     const tools = (data.tools || []).map(
@@ -87,7 +92,9 @@ website crawler wants { startUrls: [{ url }] }). Returns the tool's dataset.
 
 export const CallToolInput = z
   .object({
-    toolId: z.string().describe("Tool/actor id from search_tools, e.g. 'apify~website-content-crawler'"),
+    toolId: z
+      .string()
+      .describe("Tool/actor id from search_tools, e.g. 'apify~website-content-crawler'"),
     input: z.record(z.any()).optional().describe("The tool's input object (tool-specific)"),
     maxValue: z
       .string()
@@ -147,8 +154,17 @@ internet — give it a URL or a search query.
 export const BrowseWebInput = z
   .object({
     query: z.string().describe("A URL to read, or a search query to browse the web for"),
-    maxResults: z.number().int().min(1).max(10).optional().describe("Max pages/results (default 3)"),
-    maxValue: z.string().optional().describe("Spend cap, atomic units (default '500000' = 0.50 USDC)"),
+    maxResults: z
+      .number()
+      .int()
+      .min(1)
+      .max(10)
+      .optional()
+      .describe("Max pages/results (default 3)"),
+    maxValue: z
+      .string()
+      .optional()
+      .describe("Spend cap, atomic units (default '500000' = 0.50 USDC)"),
   })
   .strip()
   .describe("Read the web via the gateway's browser tool");

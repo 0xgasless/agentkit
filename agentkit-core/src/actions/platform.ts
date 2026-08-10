@@ -10,7 +10,14 @@ import { z } from "zod";
 import type { OxGasAgent, Chain } from "@0xgasless/agent";
 import type { AgentkitAction } from "../agentkit";
 
-const CHAIN_VALUES = ["avalanche", "avalanche-fuji", "fuji", "base", "solana", "solana-devnet"] as const;
+const CHAIN_VALUES = [
+  "avalanche",
+  "avalanche-fuji",
+  "fuji",
+  "base",
+  "solana",
+  "solana-devnet",
+] as const;
 
 // ─── x402_pay ────────────────────────────────────────────────────────────────
 
