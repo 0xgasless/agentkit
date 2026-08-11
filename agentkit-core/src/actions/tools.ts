@@ -13,7 +13,7 @@ import { z } from "zod";
 import type { OxGasAgent } from "@0xgasless/agent";
 import type { AgentkitAction } from "../agentkit";
 
-const DEFAULT_GATEWAY_URL = "https://tools.0xgasless.com";
+const DEFAULT_GATEWAY_URL = "https://dashboard.0xgasless.com";
 
 function gatewayUrl(): string {
   // Node + browser safe env read.
