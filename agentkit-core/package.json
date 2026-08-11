@@ -2,7 +2,7 @@
   "name": "@0xgasless/agentkit",
   "description": "Give your AI agent a wallet and hands: custodied funds, gasless x402 payments, and paid tools (web/scrape/search) as LLM actions.",
   "repository": "https://github.com/0xgasless/agentkit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Permissionless Puter",
     "email": "puter@prmsnls.xyz",
