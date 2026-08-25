@@ -28,7 +28,7 @@
     "dev": "bun link && concurrently \"tsc --watch\" \"tsc-alias -w\"",
     "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
     "prepare": "bun run format && bun run clean && bun run build",
-    "test:smoke": "node test/platform.smoke.mjs"
+    "test:smoke": "node test/platform.smoke.mjs && node test/peer-cash.smoke.mjs"
   },
   "dependencies": {
     "@langchain/core": "^0.3.40",
@@ -40,7 +40,8 @@
     "viem": "2",
     "zod": "^3.23.8",
     "@0xgasless/smart-account-sdk": "^0.0.15",
-    "@0xgasless/agent": "^2.2.1"
+    "@0xgasless/agent": "^2.2.1",
+    "@zkp2p/cash": "0.4.9"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

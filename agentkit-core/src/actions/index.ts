@@ -26,6 +26,8 @@ import { CalculateTopicHashAction } from "./CalculateTopicHashAction/calculateTo
 import { RunTerminalCommandAction } from "./RunTerminalCommandAction/runTerminalCommandAction";
 import { AuroraWhitelistAction } from "./aurora/auroraWhitelistAction";
 import { AuroraGasPolicyAction } from "./aurora/auroraGasPolicyAction";
+import { PEER_CASH_ACTIONS } from "./PeerCashAction";
+export * from "./PeerCashAction";
 import { PLATFORM_ACTIONS } from "./platform";
 export * from "./platform";
 import { TOOL_GATEWAY_ACTIONS } from "./tools";
@@ -78,6 +80,8 @@ export function getAllAgentkitActions(): AgentkitAction<ActionSchemaAny>[] {
     ...TOOL_GATEWAY_ACTIONS,
     // Trust layer — ERC-8004 identity, reputation, feedback
     ...TRUST_ACTIONS,
+    // Peer Cash — Base USDC to fiat, unsigned plans signed by send_transaction
+    ...PEER_CASH_ACTIONS,
     // Guarded generic HTTP (safe replacement for curl-via-terminal)
     new HttpRequestAction(),
     // TODO: DataHaven temporarily disabled due to ESM compatibility issue
