@@ -41,7 +41,7 @@
     "zod": "^3.23.8",
     "@0xgasless/smart-account-sdk": "^0.0.15",
     "@0xgasless/agent": "^2.2.1",
-    "@zkp2p/cash": "^0.4.9"
+    "@zkp2p/cash": "0.4.9"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

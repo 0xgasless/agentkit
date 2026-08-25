@@ -2,7 +2,13 @@ import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { type CurrencyType, prepareResultToJson } from "@zkp2p/cash";
 import { z } from "zod";
 import type { AgentkitAction } from "../../agentkit";
-import { formatError, formatResult, getPeerCashClient, toUsdcBaseUnits } from "./client";
+import {
+  assertPeerTargets,
+  formatError,
+  formatResult,
+  getPeerCashClient,
+  toUsdcBaseUnits,
+} from "./client";
 
 const PEER_CASH_PREPARE_CASHOUT_PROMPT = `
 Builds the transactions that open a Peer Cash order, turning Base USDC into fiat
@@ -65,6 +71,7 @@ export async function peerCashPrepareCashout(
         payee: args.payee.trim(),
       },
     });
+    assertPeerTargets(plan.txs);
     return formatResult(prepareResultToJson(plan));
   } catch (error) {
     return formatError("prepare cashout", error);

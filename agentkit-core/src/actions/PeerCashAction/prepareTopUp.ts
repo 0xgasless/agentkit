@@ -2,7 +2,13 @@ import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { preparedStepToJson, preparedTxToJson } from "@zkp2p/cash";
 import { z } from "zod";
 import type { AgentkitAction } from "../../agentkit";
-import { formatError, formatResult, getPeerCashClient, toUsdcBaseUnits } from "./client";
+import {
+  assertPeerTargets,
+  formatError,
+  formatResult,
+  getPeerCashClient,
+  toUsdcBaseUnits,
+} from "./client";
 
 const PEER_CASH_PREPARE_TOP_UP_PROMPT = `
 Builds the transactions that add more Base USDC to a live Peer Cash order,
@@ -48,6 +54,7 @@ export async function peerCashPrepareTopUp(
       args.depositId.trim(),
       toUsdcBaseUnits(args.amount),
     );
+    assertPeerTargets(txs);
     return formatResult({
       txs: txs.map(preparedTxToJson),
       steps: steps.map(preparedStepToJson),

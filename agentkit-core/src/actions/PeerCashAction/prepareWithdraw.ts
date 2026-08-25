@@ -2,7 +2,13 @@ import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { preparedStepToJson, preparedTxToJson } from "@zkp2p/cash";
 import { z } from "zod";
 import type { AgentkitAction } from "../../agentkit";
-import { formatError, formatResult, getPeerCashClient, toUsdcBaseUnits } from "./client";
+import {
+  assertPeerTargets,
+  formatError,
+  formatResult,
+  getPeerCashClient,
+  toUsdcBaseUnits,
+} from "./client";
 
 const PEER_CASH_PREPARE_WITHDRAW_PROMPT = `
 Builds the transactions that pull USDC back out of a Peer Cash order.
@@ -59,6 +65,7 @@ export async function peerCashPrepareWithdraw(
       args.depositId.trim(),
       args.amount ? { amount: toUsdcBaseUnits(args.amount) } : undefined,
     );
+    assertPeerTargets(txs);
     return formatResult({
       txs: txs.map(preparedTxToJson),
       steps: steps.map(preparedStepToJson),

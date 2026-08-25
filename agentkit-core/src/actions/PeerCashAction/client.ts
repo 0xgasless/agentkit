@@ -7,6 +7,63 @@ import { type CashClient, createCashClient, usdc } from "@zkp2p/cash";
  */
 const AGENTKIT_REFERRER = "0xgasless-agentkit";
 
+const BASE_CHAIN_ID = 8453;
+const BASE_USDC_ADDRESS = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
+const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
+
+/**
+ * Peer production contracts used by the four custody-separated prepare paths.
+ * These addresses come from the canonical Base deployment artifacts in
+ * zkp2p/zkp2p-contracts.
+ */
+const PEER_CASH_BASE_TARGETS = new Set([
+  "0x777777779d229cdf3110e9de47943791c26300ef", // EscrowV2
+  "0x888888359e981b5225ca48fbcdceff702fc3b888", // OrchestratorV2
+  "0xbc53641b4b2504f0061d6a9426c61b8ebe9b4ff0", // WhitelistPolicy
+]);
+
+type PeerPreparedTransaction = {
+  chainId: number;
+  to: string;
+  data: string;
+};
+
+/**
+ * Fail closed if the SDK prepares a transaction outside Peer Cash on Base.
+ * USDC is accepted only for an `approve(address,uint256)` whose spender is an
+ * allowlisted Peer Cash contract.
+ *
+ * @param txs - Transactions returned by a Peer Cash prepare method.
+ * @throws If a chain, target, selector, or approve spender is unexpected.
+ */
+export function assertPeerTargets(txs: readonly PeerPreparedTransaction[]): void {
+  for (const tx of txs) {
+    if (tx.chainId !== BASE_CHAIN_ID) {
+      throw new Error(`Peer Cash prepared unexpected chain ${tx.chainId}`);
+    }
+
+    const target = tx.to.toLowerCase();
+    if (PEER_CASH_BASE_TARGETS.has(target)) continue;
+
+    if (target === BASE_USDC_ADDRESS) {
+      const data = tx.data.toLowerCase();
+      if (
+        !/^0x[0-9a-f]+$/.test(data) ||
+        !data.startsWith(ERC20_APPROVE_SELECTOR) ||
+        data.length < 138 ||
+        data.slice(10, 34) !== "0".repeat(24)
+      ) {
+        throw new Error("Peer Cash prepared unexpected Base USDC call");
+      }
+      const spender = `0x${data.slice(34, 74)}`;
+      if (PEER_CASH_BASE_TARGETS.has(spender)) continue;
+      throw new Error(`Peer Cash prepared USDC approval for unexpected spender ${spender}`);
+    }
+
+    throw new Error(`Peer Cash prepared unexpected target ${tx.to}`);
+  }
+}
+
 let client: CashClient | undefined;
 
 /**

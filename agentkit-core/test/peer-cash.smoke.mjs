@@ -11,6 +11,14 @@
 import assert from "node:assert/strict";
 
 const { Agentkit, getAllAgentkitActions } = await import("../dist/index.js");
+const { assertPeerTargets } = await import("../dist/actions/PeerCashAction/client.js");
+
+const BASE_USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
+const PEER_ESCROW = "0x777777779d229cdF3110e9de47943791c26300Ef";
+const PEER_POLICY = "0xBC53641b4B2504f0061D6a9426C61B8eBE9B4Ff0";
+const APPROVE_SELECTOR = "095ea7b3";
+const approve = spender =>
+  `0x${APPROVE_SELECTOR}${spender.slice(2).toLowerCase().padStart(64, "0")}${"1".padStart(64, "0")}`;
 
 const ACTIONS = [
   "peer_cash_capabilities",
@@ -40,22 +48,73 @@ for (const name of ACTIONS) {
 // Every prepare verb must tell the agent it returns unsigned transactions.
 for (const name of ACTIONS.filter(n => n.includes("prepare"))) {
   assert.match(byName(name).description, /UNSIGNED/, `${name} must state that it does not sign`);
-  assert.match(byName(name).description, /send_transaction/, `${name} must name the signing action`);
+  assert.match(
+    byName(name).description,
+    /send_transaction/,
+    `${name} must name the signing action`,
+  );
 }
 
 // ── argument schemas ──
 
-assert.deepEqual(byName("peer_cash_estimate").argsSchema.parse({ amount: "250", currency: "EUR" }), {
-  amount: "250",
-  currency: "EUR",
-});
-assert.throws(() => byName("peer_cash_estimate").argsSchema.parse({ amount: 250, currency: "EUR" }));
+assert.deepEqual(
+  byName("peer_cash_estimate").argsSchema.parse({ amount: "250", currency: "EUR" }),
+  {
+    amount: "250",
+    currency: "EUR",
+  },
+);
+assert.throws(() =>
+  byName("peer_cash_estimate").argsSchema.parse({ amount: 250, currency: "EUR" }),
+);
 assert.throws(() => byName("peer_cash_order").argsSchema.parse({}));
 assert.deepEqual(byName("peer_cash_orders").argsSchema.parse({}), {});
 
 // ── typed errors, without a wallet and without the network ──
 
 const bare = new Agentkit();
+
+// ── prepared transaction target allowlist ──
+
+assert.doesNotThrow(() =>
+  assertPeerTargets([
+    { chainId: 8453, to: BASE_USDC, data: approve(PEER_ESCROW) },
+    { chainId: 8453, to: PEER_ESCROW, data: "0x12345678" },
+    { chainId: 8453, to: PEER_POLICY, data: "0x12345678" },
+  ]),
+);
+assert.throws(
+  () => assertPeerTargets([{ chainId: 1, to: PEER_ESCROW, data: "0x12345678" }]),
+  /unexpected chain/,
+);
+assert.throws(
+  () =>
+    assertPeerTargets([
+      { chainId: 8453, to: "0x1111111111111111111111111111111111111111", data: "0x12345678" },
+    ]),
+  /unexpected target/,
+);
+assert.throws(
+  () =>
+    assertPeerTargets([
+      {
+        chainId: 8453,
+        to: BASE_USDC,
+        data: approve("0x1111111111111111111111111111111111111111"),
+      },
+    ]),
+  /unexpected spender/,
+);
+for (const data of [
+  "0xdeadbeef",
+  approve(PEER_ESCROW).replace(APPROVE_SELECTOR, "deadbeef"),
+  approve(PEER_ESCROW).replace(`${APPROVE_SELECTOR}000000`, `${APPROVE_SELECTOR}100000`),
+]) {
+  assert.throws(
+    () => assertPeerTargets([{ chainId: 8453, to: BASE_USDC, data }]),
+    /unexpected Base USDC call/,
+  );
+}
 
 const badAmount = await bare.run(byName("peer_cash_estimate"), {
   amount: "12.3456789",

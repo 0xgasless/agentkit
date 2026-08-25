@@ -26,7 +26,7 @@
         "@storagehub-sdk/core": "^0.4.0",
         "@storagehub-sdk/msp-client": "^0.4.0",
         "@storagehub/api-augment": "^0.2.14",
-        "@zkp2p/cash": "^0.4.9",
+        "@zkp2p/cash": "0.4.9",
         "axios": "^1.7.9",
         "viem": "2",
         "zod": "^3.23.8",

@@ -2,7 +2,7 @@ import type { ZeroXgaslessSmartAccount } from "@0xgasless/smart-account-sdk";
 import { preparedTxToJson } from "@zkp2p/cash";
 import { z } from "zod";
 import type { AgentkitAction } from "../../agentkit";
-import { formatError, formatResult, getPeerCashClient } from "./client";
+import { assertPeerTargets, formatError, formatResult, getPeerCashClient } from "./client";
 
 const PEER_CASH_PREPARE_ACCESS_POLICY_PROMPT = `
 Builds the verified-buyer access-policy transaction a Venmo, Cash App, or PayPal
@@ -44,6 +44,7 @@ export async function peerCashPrepareAccessPolicy(
 ): Promise<string> {
   try {
     const tx = getPeerCashClient().prepareAccessPolicy(args.depositId.trim());
+    assertPeerTargets([tx]);
     return formatResult(preparedTxToJson(tx));
   } catch (error) {
     return formatError("prepare access policy", error);
