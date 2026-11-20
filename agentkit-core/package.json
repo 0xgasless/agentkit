@@ -31,13 +31,13 @@
     "test:smoke": "node test/platform.smoke.mjs && node test/peer-cash.smoke.mjs"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.40",
+    "@langchain/core": "^0.3.80",
     "@polkadot/api": "^16.5.4",
     "@storagehub-sdk/core": "^0.4.0",
     "@storagehub-sdk/msp-client": "^0.4.0",
     "@storagehub/api-augment": "^0.2.14",
-    "axios": "^1.7.9",
-    "viem": "2",
+    "axios": "^1.20.0",
+    "viem": "^2.54.2",
     "zod": "^3.23.8",
     "@0xgasless/smart-account-sdk": "^0.0.15",
     "@0xgasless/agent": "^2.2.1",
